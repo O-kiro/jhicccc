@@ -1,26 +1,194 @@
 @import "tailwindcss";
 
+/* Dark mode driven by a `.dark` class on <html> (toggled + no-flash script). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ------------------------------------------------------------------ */
+/*  MetaMask-inspired design system × MAN Kota Batu palette            */
+/*  Roles follow metamask.io-DESIGN.md; colors stay ours:             */
+/*  Teal #0F6E56 (primary/brand) · Blue #185FA5 · Gold #BA7517        */
+/*  + soft pastel tints used as MetaMask-style accent panels.         */
+/* ------------------------------------------------------------------ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --canvas: #f3f1e9;       /* warm page background (our krem)        */
+  --surface: #ffffff;      /* cards / containers                     */
+  --surface-2: #fbfaf4;    /* subtle alternate surface               */
+  --ink: #201f1d;          /* primary text + dark structural element */
+  --muted: #6c6a61;        /* secondary / de-emphasized text         */
+  --line: #e6e1d4;         /* hairline borders                       */
+
+  --teal: #0f6e56;         /* primary interactive + brand            */
+  --teal-strong: #0a5240;
+  --teal-soft: #bfe6d4;    /* pastel accent panel (stronger read)    */
+  --blue: #1f5faf;         /* school brand blue (primary action)     */
+  --blue-strong: #184c8a;
+  --blue-soft: #c9def4;
+  --gold: #ba7517;         /* energy / highlight accent              */
+  --gold-strong: #98600f;
+  --gold-soft: #efd6a8;
+
+  --dark: #0f1512;         /* dark canvas (MetaMask #0A0A0A role)    */
+  --on-dark: #f3f1e9;
+
+  --card-shadow: 0 0 0 1px rgb(32 31 29 / 0.05), 0 10px 30px -14px rgb(32 31 29 / 0.18);
+  --hover-shadow: 0 0 0 1px rgb(32 31 29 / 0.06), 0 18px 40px -16px rgb(32 31 29 / 0.26);
+  --overlay-shadow: 0 24px 60px -20px rgb(0 0 0 / 0.4);
+}
+
+.dark {
+  --canvas: #0b110e;
+  --surface: #121b16;
+  --surface-2: #0f1813;
+  --ink: #ecebe2;
+  --muted: #9aa89e;
+  --line: #24332b;
+
+  --teal: #34a98a;
+  --teal-strong: #279072;
+  --teal-soft: #183d30;
+  --blue: #5a98da;
+  --blue-strong: #4e8ccd;
+  --blue-soft: #18324b;
+  --gold: #d8983c;
+  --gold-strong: #e6a84a;
+  --gold-soft: #382912;
+
+  --dark: #070b09;
+  --on-dark: #ecebe2;
+
+  --card-shadow: 0 0 0 1px rgb(255 255 255 / 0.06), 0 14px 34px -16px rgb(0 0 0 / 0.6);
+  --hover-shadow: 0 0 0 1px rgb(255 255 255 / 0.1), 0 22px 46px -18px rgb(0 0 0 / 0.7);
+  --overlay-shadow: 0 24px 60px -20px rgb(0 0 0 / 0.7);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+
+  --color-teal: var(--teal);
+  --color-teal-strong: var(--teal-strong);
+  --color-teal-soft: var(--teal-soft);
+  --color-blue: var(--blue);
+  --color-blue-strong: var(--blue-strong);
+  --color-blue-soft: var(--blue-soft);
+  --color-gold: var(--gold);
+  --color-gold-strong: var(--gold-strong);
+  --color-gold-soft: var(--gold-soft);
+
+  --color-dark: var(--dark);
+  --color-on-dark: var(--on-dark);
+
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-lora), ui-serif, Georgia, serif;
+
+  --shadow-card: var(--card-shadow);
+  --shadow-hover: var(--hover-shadow);
+  --shadow-overlay: var(--overlay-shadow);
+
+  --radius-card: 1.5rem;   /* 24px feature cards   */
+  --radius-panel: 2.5rem;  /* 40px pastel panels   */
+
+  --animate-float: float 8s ease-in-out infinite;
+  --animate-marquee: marquee 34s linear infinite;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-18px) rotate(4deg); }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@layer base {
+  :root { color-scheme: light; }
+  .dark { color-scheme: dark; }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+
+  body {
+    background-color: var(--canvas);
+    color: var(--ink);
+    font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--teal) 26%, transparent);
+    color: var(--ink);
+  }
+
+  /* MetaMask-style bold display headings */
+  h1, h2, h3 {
+    font-family: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: -0.03em;
+    line-height: 1.02;
+  }
+  h4, h5 {
+    font-family: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: -0.01em;
+  }
+
+  /* Keyboard focus (accessibility) */
+  :focus-visible {
+    outline: 3px solid color-mix(in oklab, var(--blue) 60%, transparent);
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+
+  ::-webkit-scrollbar { width: 11px; height: 11px; }
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--teal) 40%, var(--canvas));
+    border-radius: 99px;
+    border: 3px solid var(--canvas);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* Oversized hero display type (MetaMask 80→160px responsive scale) */
+  .display {
+    font-family: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.045em;
+    line-height: 0.86;
+  }
+
+  /* Eyebrow label above section headings */
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--teal);
+  }
+
+  /* School blue gradient (135deg, #3a8dde -> #1f5faf) */
+  .bg-blue-gradient {
+    background-image: linear-gradient(135deg, #3a8dde 0%, #1f5faf 100%);
+  }
+  .text-blue-gradient {
+    background-image: linear-gradient(135deg, #3a8dde 0%, #1f5faf 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .dark .text-blue-gradient {
+    background-image: linear-gradient(135deg, #6ab0f2 0%, #3a8dde 100%);
+  }
 }
