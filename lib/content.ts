@@ -350,10 +350,10 @@ export const agenda: {
 ];
 
 export const socials: { name: string; href: string; icon: IconName }[] = [
-  { name: "Instagram", href: "https://www.instagram.com/mankotabatu", icon: "instagram" },
-  { name: "YouTube", href: "https://www.youtube.com/@mankotabatu", icon: "youtube" },
-  { name: "Facebook", href: "https://www.facebook.com/mankotabatu", icon: "facebook" },
-  { name: "TikTok", href: "https://www.tiktok.com/@mankotabatu", icon: "tiktok" },
+  { name: "Instagram", href: "https://www.instagram.com/mankotabatuofficial/", icon: "instagram" },
+  { name: "YouTube", href: "https://www.youtube.com/@mankotabatuofficial3160", icon: "youtube" },
+  { name: "Facebook", href: "https://www.facebook.com/mankotabatuofficial?rdid=14F5S8fbcuWTPb2W&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2FNUhA5wfroPR5aW51%2F#", icon: "facebook" },
+  { name: "TikTok", href: "https://www.tiktok.com/@mankotabatuofficial?_t=8qcHwAexXH8&_r=1", icon: "tiktok" },
 ];
 
 export const navItems: { label: string; href: string; children?: { label: string; href: string }[] }[] = [
