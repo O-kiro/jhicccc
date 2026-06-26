@@ -17,6 +17,7 @@ export function Programs() {
     <section id="program" className="scroll-mt-24 bg-surface-2 py-24 sm:py-32">
       <Container>
         <SectionHeading
+          gradient
           eyebrow="Tiga Pilar Keunggulan"
           title="Program Unggulan"
           desc="Setiap siswa dibimbing tumbuh sesuai minat dan bakatnya melalui tiga program unggulan MAKOBA."
@@ -29,7 +30,7 @@ export function Programs() {
               <StaggerItem key={p.name} className="h-full">
                 <Link
                   href={`/program/${p.slug}`}
-                  className={`group flex h-full flex-col rounded-card ${c.panel} p-8 transition-all duration-200 hover:-translate-y-1.5`}
+                  className={`card-glow group flex h-full flex-col rounded-card ${c.panel} p-8 transition-all duration-200 hover:-translate-y-1.5`}
                 >
                   <div className="flex items-center justify-between">
                     <span className={`grid h-16 w-16 place-items-center rounded-2xl bg-surface ${c.icon} shadow-card`}>

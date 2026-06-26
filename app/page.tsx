@@ -1,4 +1,5 @@
 import { Hero } from "./components/hero";
+import { Marquee } from "./components/marquee";
 import { DigitalServices } from "./components/digital-services";
 import { AboutStats } from "./components/about-stats";
 import { Programs } from "./components/programs";
@@ -17,6 +18,7 @@ export default function Home() {
   return (
     <main>
       <Hero />
+      <Marquee />
       <DigitalServices />
       <AboutStats />
       <Programs />

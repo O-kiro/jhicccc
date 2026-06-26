@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Icon } from "./icons";
 import { Container, SectionHeading } from "./ui";
+import { Aurora } from "./aurora";
 import { testimonials } from "@/lib/content";
 
 const variants = {
@@ -30,7 +31,8 @@ export function Testimonials() {
   const t = testimonials[index];
 
   return (
-    <section id="testimoni" className="scroll-mt-24 py-24 sm:py-32">
+    <section id="testimoni" className="relative isolate scroll-mt-24 overflow-hidden py-24 sm:py-32">
+      <Aurora className="-z-10 opacity-70" />
       <Container>
         <SectionHeading
           eyebrow="Suara Mereka"

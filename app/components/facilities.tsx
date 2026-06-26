@@ -17,6 +17,7 @@ export function Facilities() {
     <section id="fasilitas" className="scroll-mt-24 bg-surface-2 py-24 sm:py-32">
       <Container>
         <SectionHeading
+          gradient
           eyebrow="Sarana & Prasarana"
           title="Fasilitas Madrasah"
           desc="Sarana dan prasarana yang mendukung kenyamanan belajar siswa MAKOBA."
@@ -27,7 +28,7 @@ export function Facilities() {
             const c = panel[tones[i % 3]];
             return (
               <StaggerItem key={f.name} className="h-full">
-                <article className={`group flex h-full flex-col rounded-card ${c.bg} p-7 transition-all duration-200 hover:-translate-y-1.5`}>
+                <article className={`card-glow group flex h-full flex-col rounded-card ${c.bg} p-7 transition-all duration-200 hover:-translate-y-1.5`}>
                   <span className={`grid h-14 w-14 place-items-center rounded-2xl bg-surface ${c.icon} shadow-card`}>
                     <Icon name={f.icon} className="h-7 w-7" />
                   </span>

@@ -5,6 +5,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { Icon } from "./icons";
 import { Badge, Container, SectionHeading } from "./ui";
 import { Reveal } from "./reveal";
+import { Aurora } from "./aurora";
 import { Counter } from "./counter";
 import { achievements } from "@/lib/content";
 
@@ -68,10 +69,12 @@ export function Achievements() {
   };
 
   return (
-    <section id="prestasi" className="scroll-mt-24 py-24 sm:py-32">
+    <section id="prestasi" className="relative isolate scroll-mt-24 overflow-hidden py-24 sm:py-32">
+      <Aurora className="-z-10 opacity-70" />
       <Container>
         <div className="flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-end">
           <SectionHeading
+            gradient
             align="left"
             eyebrow="Papan Prestasi"
             title="Prestasi Membanggakan"

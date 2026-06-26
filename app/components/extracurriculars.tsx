@@ -25,7 +25,7 @@ export function Extracurriculars() {
         <StaggerGroup className="mt-16 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {extracurriculars.map((e, i) => (
             <StaggerItem key={e.name} className="h-full">
-              <article className="group flex h-full items-start gap-4 rounded-card bg-surface p-6 shadow-card transition-all duration-200 hover:-translate-y-1.5 hover:shadow-hover">
+              <article className="card-glow group flex h-full items-start gap-4 rounded-card bg-surface p-6 shadow-card transition-all duration-200 hover:-translate-y-1.5 hover:shadow-hover">
                 <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${iconTone[tones[i % 3]]}`}>
                   <Icon name={e.icon} className="h-6 w-6" />
                 </span>

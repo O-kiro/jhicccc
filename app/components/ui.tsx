@@ -103,12 +103,14 @@ export function SectionHeading({
   desc,
   align = "center",
   tone = "default",
+  gradient = false,
 }: {
   eyebrow: string;
   title: ReactNode;
   desc?: ReactNode;
   align?: "center" | "left";
   tone?: "default" | "onDark";
+  gradient?: boolean;
 }) {
   const centered = align === "center";
   return (
@@ -123,7 +125,7 @@ export function SectionHeading({
         <h2
           className={cn(
             "display mt-4 text-balance text-[clamp(2.25rem,5.4vw,4.25rem)]",
-            tone === "onDark" ? "text-on-dark" : "text-ink",
+            tone === "onDark" ? "text-on-dark" : gradient ? "text-gradient-warm" : "text-ink",
           )}
         >
           {title}

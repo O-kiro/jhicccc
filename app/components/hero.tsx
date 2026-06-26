@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 import { Icon } from "./icons";
 import { Button, Container } from "./ui";
 import { GeoTexture } from "./ornaments";
+import { Aurora } from "./aurora";
 import { Counter } from "./counter";
 import { school, stats } from "@/lib/content";
 
@@ -28,7 +29,16 @@ const shapes = [
 export function Hero() {
   return (
     <section id="beranda" className="relative isolate overflow-hidden">
-      <GeoTexture className="pointer-events-none absolute inset-0 -z-10 text-ink opacity-[0.04]" />
+      <Aurora className="-z-10" />
+      <GeoTexture className="pointer-events-none absolute inset-0 -z-10 text-ink opacity-[0.05]" />
+
+      {/* Big slow-rotating eight-point star — Islamic geometry signature */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -z-10 right-[6%] top-[15%] hidden text-teal/15 lg:block"
+      >
+        <Icon name="star8" className="animate-spin-slow h-80 w-80" strokeWidth={0.6} />
+      </div>
 
       {/* Floating pastel shapes (MetaMask layered-accent motif) */}
       {shapes.map((s, i) => (

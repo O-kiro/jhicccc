@@ -17,6 +17,7 @@ export function DigitalServices() {
     <section id="layanan" className="scroll-mt-24 bg-surface-2 py-24 sm:py-32">
       <Container>
         <SectionHeading
+          gradient
           eyebrow="Satu Pintu Layanan"
           title="Layanan Digital MAKOBA"
           desc="Akses cepat ke seluruh layanan akademik dan administrasi madrasah dalam satu tempat."
@@ -27,7 +28,7 @@ export function DigitalServices() {
             <StaggerItem key={s.name}>
               <a
                 href={s.href}
-                className="group flex h-full flex-col rounded-card bg-surface p-6 shadow-card transition-all duration-200 hover:-translate-y-1.5 hover:shadow-hover"
+                className="card-glow group flex h-full flex-col rounded-card bg-surface p-6 shadow-card transition-all duration-200 hover:-translate-y-1.5 hover:shadow-hover"
               >
                 <span className={`grid h-14 w-14 place-items-center rounded-2xl ${iconTone[tones[i % 3]]}`}>
                   <Icon name={s.icon} className="h-7 w-7" />
