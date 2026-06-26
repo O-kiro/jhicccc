@@ -32,7 +32,7 @@ export function News() {
           {/* Featured */}
           <Reveal>
             <Link href={`/berita/${featured.slug}`} className="group flex h-full flex-col overflow-hidden rounded-card bg-surface shadow-card transition-all duration-200 hover:-translate-y-1.5 hover:shadow-hover">
-              <PhotoTile tone={featured.tone} icon="trophy" className="aspect-[16/9]" glyphClassName="h-16 w-16">
+              <PhotoTile tone={featured.tone} icon="trophy" className="aspect-[16/9]" glyphClassName="h-16 w-16" src={featured.image} alt={featured.title}>
                 <span className="absolute left-4 top-4">
                   <Badge tone={featured.tone}>{featured.category}</Badge>
                 </span>
@@ -59,6 +59,9 @@ export function News() {
                     icon="sparkle"
                     className="h-24 w-28 shrink-0 rounded-2xl"
                     glyphClassName="h-8 w-8"
+                    src={n.image}
+                    alt={n.title}
+                    sizes="112px"
                   />
                   <div className="flex min-w-0 flex-col justify-center py-1">
                     <span className="inline-flex items-center gap-2 text-xs text-muted">

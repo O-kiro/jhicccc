@@ -13,7 +13,7 @@ export function Principal() {
           {/* Portrait */}
           <Reveal>
             <div className="relative mx-auto max-w-sm">
-              <PhotoTile tone="teal" icon="users" className="aspect-[4/5] rounded-panel" glyphClassName="h-24 w-24" />
+              <PhotoTile tone="teal" icon="users" className="aspect-[4/5] rounded-panel" glyphClassName="h-24 w-24" src={principal.photo} alt={principal.name} sizes="(max-width: 1024px) 100vw, 40vw" />
               <div className="absolute inset-x-5 -bottom-5 rounded-2xl bg-surface p-4 text-center shadow-overlay">
                 <p className="font-display text-sm font-bold text-ink">{principal.name}</p>
                 <p className="text-xs text-teal">{principal.role}</p>

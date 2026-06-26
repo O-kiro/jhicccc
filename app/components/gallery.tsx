@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { AnimatePresence, motion } from "motion/react";
 import { Icon } from "./icons";
 import { Badge, Container, SectionHeading } from "./ui";
@@ -14,12 +15,33 @@ const tone: Record<string, string> = {
   gold: "bg-gold-soft text-gold-strong",
 };
 
-function Media({ t, layoutId }: { t: string; layoutId: string }) {
+function Media({
+  t,
+  layoutId,
+  src,
+  alt,
+  sizes,
+}: {
+  t: string;
+  layoutId: string;
+  src?: string;
+  alt?: string;
+  sizes?: string;
+}) {
   return (
     <motion.div layoutId={layoutId} className={`relative h-full w-full ${tone[t]}`}>
       <div className="absolute inset-0 grid place-items-center opacity-60">
         <Icon name="camera" className="h-12 w-12" strokeWidth={1} />
       </div>
+      {src && (
+        <Image
+          src={src}
+          alt={alt ?? ""}
+          fill
+          sizes={sizes ?? "(max-width: 768px) 50vw, 33vw"}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      )}
     </motion.div>
   );
 }
@@ -64,7 +86,7 @@ export function Gallery() {
             >
               <div className="relative aspect-[4/3] overflow-hidden">
                 <div className="h-full w-full transition-transform duration-500 group-hover:scale-105">
-                  <Media t={g.tone} layoutId={`gallery-${i}`} />
+                  <Media t={g.tone} layoutId={`gallery-${i}`} src={g.image} alt={g.title} />
                 </div>
                 <span className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full bg-surface/90 text-teal opacity-0 shadow-card backdrop-blur transition-opacity group-hover:opacity-100">
                   <Icon name="search" className="h-4 w-4" />
@@ -94,7 +116,7 @@ export function Gallery() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="relative aspect-[16/10]">
-                <Media t={item.tone} layoutId={`gallery-${selected}`} />
+                <Media t={item.tone} layoutId={`gallery-${selected}`} src={item.image} alt={item.title} sizes="(max-width: 768px) 100vw, 768px" />
                 <button
                   type="button"
                   onClick={() => setSelected(null)}

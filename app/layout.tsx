@@ -2,8 +2,10 @@ import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Inter, Lora } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./components/providers";
+import { ScrollProgress } from "./components/scroll-progress";
 import { SiteHeader } from "./components/site-header";
 import { SiteFooter } from "./components/site-footer";
+import { school, socials } from "@/lib/content";
 
 const display = Bricolage_Grotesque({
   variable: "--font-bricolage",
@@ -45,11 +47,42 @@ export const metadata: Metadata = {
     title: "MAN Kota Batu — Berilmu. Berakhlak. Berprestasi.",
     description:
       "Madrasah Aliyah Negeri Kota Batu — memadukan identitas Islami yang elegan dengan pendidikan modern bermutu.",
+    url: "/",
     locale: "id_ID",
     type: "website",
     siteName: "MAN Kota Batu",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "MAN Kota Batu — Berilmu. Berakhlak. Berprestasi.",
+    description:
+      "Madrasah penyelenggara riset dengan Kelas Riset, Olimpiade, dan Tahfidz. Maju, bermutu, dan mendunia.",
+  },
+  alternates: { canonical: "/" },
   robots: { index: true, follow: true },
+};
+
+// Structured data so search engines understand the organization (PRD NFR-10).
+const orgSchema = {
+  "@context": "https://schema.org",
+  "@type": "EducationalOrganization",
+  name: school.longName,
+  alternateName: [school.name, school.nick],
+  url: "https://mankotabatu.sch.id",
+  logo: "https://mankotabatu.sch.id/logo.png",
+  description:
+    "Madrasah Aliyah Negeri Kota Batu — madrasah penyelenggara riset dengan Kelas Riset, Olimpiade, dan Tahfidz.",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Jl. Patimura No. 25, Temas",
+    addressLocality: "Kota Batu",
+    addressRegion: "Jawa Timur",
+    postalCode: "65315",
+    addressCountry: "ID",
+  },
+  telephone: "+62-341-591600",
+  email: school.email,
+  sameAs: socials.map((s) => s.href),
 };
 
 export const viewport: Viewport = {
@@ -73,9 +106,14 @@ export default function RootLayout({
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
+        />
       </head>
       <body className="min-h-screen antialiased">
         <Providers>
+          <ScrollProgress />
           <SiteHeader />
           {children}
           <SiteFooter />

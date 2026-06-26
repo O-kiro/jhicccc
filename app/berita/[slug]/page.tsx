@@ -58,6 +58,10 @@ export default async function ArticlePage({ params }: Params) {
           icon="sparkle"
           className="mt-8 aspect-[16/9] rounded-card"
           glyphClassName="h-16 w-16"
+          src={article.image}
+          alt={article.title}
+          priority
+          sizes="(max-width: 768px) 100vw, 768px"
         />
 
         <div className="mt-8 space-y-5">

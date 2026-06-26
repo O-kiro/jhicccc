@@ -1,6 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useState } from "react";
+import Image from "next/image";
 import { Icon } from "./icons";
 import { GeoTexture } from "./ornaments";
 import { Reveal } from "./reveal";
@@ -153,12 +155,45 @@ const toneMap: Record<"teal" | "blue" | "gold", string> = {
   gold: "bg-gold-soft text-gold-strong",
 };
 
+/** Real photo layered over the tile; fades in on load so the pastel panel is the placeholder. */
+function TilePhoto({
+  src,
+  alt,
+  priority,
+  sizes,
+}: {
+  src: string;
+  alt: string;
+  priority?: boolean;
+  sizes?: string;
+}) {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      sizes={sizes ?? "(max-width: 768px) 100vw, 50vw"}
+      priority={priority}
+      onLoad={() => setLoaded(true)}
+      className={cn(
+        "absolute inset-0 h-full w-full object-cover transition-opacity duration-700",
+        loaded ? "opacity-100" : "opacity-0",
+      )}
+    />
+  );
+}
+
 export function PhotoTile({
   tone = "teal",
   icon = "camera",
   className,
   glyphClassName = "h-14 w-14",
   texture = true,
+  src,
+  alt = "",
+  priority,
+  sizes,
   children,
 }: {
   tone?: "teal" | "blue" | "gold";
@@ -166,6 +201,11 @@ export function PhotoTile({
   className?: string;
   glyphClassName?: string;
   texture?: boolean;
+  /** When set, a real photo renders over the tile (which becomes the placeholder). */
+  src?: string;
+  alt?: string;
+  priority?: boolean;
+  sizes?: string;
   children?: ReactNode;
 }) {
   return (
@@ -174,6 +214,7 @@ export function PhotoTile({
       <div className="pointer-events-none absolute inset-0 grid place-items-center opacity-70">
         <Icon name={icon} className={glyphClassName} strokeWidth={1.1} />
       </div>
+      {src && <TilePhoto src={src} alt={alt} priority={priority} sizes={sizes} />}
       {children}
     </div>
   );

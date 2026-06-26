@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 import { Icon } from "./icons";
 import { Button, Container } from "./ui";
 import { GeoTexture } from "./ornaments";
+import { Counter } from "./counter";
 import { school, stats } from "@/lib/content";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -82,9 +83,10 @@ export function Hero() {
           >
             {stats.map((s) => (
               <div key={s.label} className="text-center">
-                <div className="font-display text-3xl font-extrabold text-ink sm:text-4xl">
-                  {s.value.toLocaleString("id-ID")}
-                </div>
+                <Counter
+                  to={s.value}
+                  className="block font-display text-3xl font-extrabold text-ink sm:text-4xl"
+                />
                 <div className="mt-1 text-sm text-muted">{s.label}</div>
               </div>
             ))}

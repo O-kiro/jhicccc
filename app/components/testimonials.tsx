@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Icon } from "./icons";
 import { Container, SectionHeading } from "./ui";
 import { testimonials } from "@/lib/content";
@@ -15,15 +15,17 @@ const variants = {
 export function Testimonials() {
   const [[index, dir], setState] = useState<[number, number]>([0, 0]);
   const n = testimonials.length;
+  const reduce = useReducedMotion();
 
   const paginate = useCallback((d: number) => {
     setState(([i]) => [(i + d + n) % n, d]);
   }, [n]);
 
   useEffect(() => {
+    if (reduce) return; // don't auto-advance when the user prefers reduced motion
     const id = setInterval(() => paginate(1), 7000);
     return () => clearInterval(id);
-  }, [paginate]);
+  }, [paginate, reduce]);
 
   const t = testimonials[index];
 

@@ -10,7 +10,7 @@ export function NewsCard({ item }: { item: NewsItem }) {
       href={`/berita/${item.slug}`}
       className="group flex h-full flex-col overflow-hidden rounded-card bg-surface shadow-card transition-all duration-200 hover:-translate-y-1.5 hover:shadow-hover"
     >
-      <PhotoTile tone={item.tone} icon="sparkle" className="aspect-[16/10]" glyphClassName="h-14 w-14">
+      <PhotoTile tone={item.tone} icon="sparkle" className="aspect-[16/10]" glyphClassName="h-14 w-14" src={item.image} alt={item.title} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw">
         <span className="absolute left-4 top-4">
           <Badge tone={item.tone}>{item.category}</Badge>
         </span>

@@ -93,17 +93,6 @@
   --radius-card: 1.5rem;   /* 24px feature cards   */
   --radius-panel: 2.5rem;  /* 40px pastel panels   */
 
-  --animate-float: float 8s ease-in-out infinite;
-  --animate-marquee: marquee 34s linear infinite;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-18px) rotate(4deg); }
-}
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
 }
 
 @layer base {

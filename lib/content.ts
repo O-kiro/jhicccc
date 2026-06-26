@@ -35,27 +35,6 @@ export const stats: { value: number; suffix?: string; label: string; icon: IconN
   { value: 32, label: "Mata Pelajaran", icon: "sparkle" },
 ];
 
-export const heroSlides = [
-  {
-    eyebrow: "Madrasah Penyelenggara Riset",
-    title: "Madrasah yang Maju,\nBermutu, dan Mendunia",
-    body: "Memadukan nilai-nilai Islami yang luhur dengan pendidikan modern berbasis riset di jantung Kota Batu.",
-    accent: "teal" as const,
-  },
-  {
-    eyebrow: "Kelas Riset · Olimpiade · Tahfidz",
-    title: "Tempat Tumbuhnya\nGenerasi Qurani & Ilmiah",
-    body: "Tiga program unggulan yang membentuk siswa berprestasi di bidang akademik, sains, dan hafalan Al-Qur'an.",
-    accent: "blue" as const,
-  },
-  {
-    eyebrow: "Zona Integritas · WBK / WBBM",
-    title: "Pelayanan Bersih,\nProfesional, Terpercaya",
-    body: "Berkomitmen pada Wilayah Bebas Korupsi dan Birokrasi Bersih Melayani untuk seluruh warga madrasah.",
-    accent: "gold" as const,
-  },
-];
-
 export const digitalServices: { name: string; desc: string; href: string; icon: IconName }[] = [
   { name: "PPDB Online", desc: "Pendaftaran peserta didik baru secara daring.", href: "#ppdb", icon: "ppdb" },
   { name: "RDM", desc: "Rapor Digital Madrasah untuk wali murid.", href: "#layanan", icon: "rdm" },
@@ -166,6 +145,8 @@ export type NewsItem = {
   excerpt: string;
   tone: "teal" | "blue" | "gold";
   content: string[];
+  /** Optional real photo (e.g. "/photos/berita-1.jpg" in /public); falls back to the pastel tile. */
+  image?: string;
 };
 
 export const news: NewsItem[] = [
@@ -231,7 +212,7 @@ export function getNewsBySlug(slug: string): NewsItem | undefined {
   return news.find((n) => n.slug === slug);
 }
 
-export const principal = {
+export const principal: { name: string; role: string; message: string; photo?: string } = {
   name: "Drs. H. Farhadi, M.Si",
   role: "Kepala MAN Kota Batu",
   message:
@@ -258,7 +239,7 @@ export const facilities: { name: string; desc: string; icon: IconName }[] = [
   { name: "Aula Serbaguna", desc: "Ruang acara berkapasitas besar.", icon: "users" },
 ];
 
-export const galleryItems: { title: string; date: string; category: string; tone: "teal" | "blue" | "gold" }[] = [
+export const galleryItems: { title: string; date: string; category: string; tone: "teal" | "blue" | "gold"; image?: string }[] = [
   { title: "Upacara Hari Santri Nasional", date: "2025-10-22", category: "Keagamaan", tone: "teal" },
   { title: "Pekan Riset & Pameran Karya", date: "2026-03-15", category: "Akademik", tone: "blue" },
   { title: "Wisuda Tahfidz Angkatan VII", date: "2026-06-02", category: "Keagamaan", tone: "gold" },
