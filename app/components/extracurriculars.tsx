@@ -17,6 +17,7 @@ export function Extracurriculars() {
     <section id="ekskul" className="scroll-mt-24 py-24 sm:py-32">
       <Container>
         <SectionHeading
+          index="05"
           eyebrow="Pengembangan Bakat"
           title="Ekstrakurikuler"
           desc="Ragam kegiatan untuk mengasah minat, bakat, dan karakter siswa di luar kelas."
@@ -26,7 +27,9 @@ export function Extracurriculars() {
           {extracurriculars.map((e, i) => (
             <StaggerItem key={e.name} className="h-full">
               <article className="card-glow group flex h-full items-start gap-4 rounded-card bg-surface p-6 shadow-card transition-all duration-200 hover:-translate-y-1.5 hover:shadow-hover">
-                <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${iconTone[tones[i % 3]]}`}>
+                <span
+                  className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl transition-transform duration-300 group-hover:-rotate-3 group-hover:scale-110 ${iconTone[tones[i % 3]]}`}
+                >
                   <Icon name={e.icon} className="h-6 w-6" />
                 </span>
                 <div className="min-w-0">

@@ -38,9 +38,15 @@ export default function PpdbPage() {
                 Segera daftar sebelum pendaftaran ditutup
               </h2>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <Button href="#daftar" variant="light">Daftar Sekarang</Button>
+                <Button href="https://ppdb.mankotabatu.sch.id/" external variant="light">
+                  Daftar Sekarang
+                </Button>
                 <Button href="/kontak" variant="outlineDark" icon={false}>Tanya Panitia</Button>
               </div>
+              <p className="mt-4 flex items-center gap-2 text-sm text-on-dark/70">
+                <Icon name="shield" className="h-4 w-4 shrink-0 text-gold" />
+                Pendaftaran dilakukan melalui portal PPDB resmi madrasah.
+              </p>
             </div>
             <Countdown deadlineISO={ppdbInfo.deadlineISO} />
           </div>
@@ -112,8 +118,8 @@ export default function PpdbPage() {
                       </li>
                     ))}
                   </ul>
-                  <Button href="/kontak" className="mt-8 w-full">
-                    Daftar / Hubungi Panitia
+                  <Button href="https://ppdb.mankotabatu.sch.id/" external className="mt-8 w-full">
+                    Daftar via PPDB Online
                   </Button>
                 </div>
               </Reveal>

@@ -5,6 +5,8 @@ import { Icon } from "./icons";
 import { Button, Container } from "./ui";
 import { GeoTexture } from "./ornaments";
 import { Reveal } from "./reveal";
+import { Countdown } from "./countdown";
+import { ppdbInfo } from "@/lib/content";
 
 const jalur = [
   { icon: "trophy", label: "Jalur Prestasi" },
@@ -51,6 +53,15 @@ export function CtaPpdb() {
               Bergabunglah dengan keluarga besar MAKOBA — madrasah riset yang membentuk generasi
               berilmu, berakhlak, dan berprestasi.
             </p>
+          </Reveal>
+
+          <Reveal delay={0.12}>
+            <div className="mx-auto mt-10 max-w-md">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.08em] text-on-dark/60">
+                Gelombang 1 ditutup dalam
+              </p>
+              <Countdown deadlineISO={ppdbInfo.deadlineISO} />
+            </div>
           </Reveal>
 
           <Reveal delay={0.15}>

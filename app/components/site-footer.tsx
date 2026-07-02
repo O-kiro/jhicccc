@@ -13,12 +13,13 @@ const quickLinks = [
   { label: "Berita", href: "/berita" },
 ];
 
+// Tautan sistem menuju halaman LOGIN masing-masing (bukan isi sistem).
 const serviceLinks = [
-  { label: "PPDB Online", href: "/#ppdb" },
-  { label: "Rapor Digital (RDM)", href: "/#layanan" },
-  { label: "E-Learning", href: "/#layanan" },
-  { label: "Perpustakaan Digital", href: "/#layanan" },
-  { label: "PPID & Pengaduan", href: "/#kontak" },
+  { label: "PPDB Online", href: "https://ppdb.mankotabatu.sch.id/", external: true },
+  { label: "Rapor Digital (RDM)", href: "https://rdm.mankotabatu.sch.id/", external: true },
+  { label: "E-Learning", href: "https://elearning.mankotabatu.sch.id/", external: true },
+  { label: "CBT (UAM)", href: "https://uam.mankotabatu.sch.id/", external: true },
+  { label: "PPID & Pengaduan", href: "/layanan/ppid", external: false },
 ];
 
 export function SiteFooter() {
@@ -83,9 +84,21 @@ export function SiteFooter() {
             <ul className="mt-5 space-y-3">
               {serviceLinks.map((l) => (
                 <li key={l.label}>
-                  <Link href={l.href} className="text-sm text-muted transition-colors hover:text-blue">
-                    {l.label}
-                  </Link>
+                  {l.external ? (
+                    <a
+                      href={l.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-blue"
+                    >
+                      {l.label}
+                      <Icon name="external" className="h-3.5 w-3.5 opacity-60" />
+                    </a>
+                  ) : (
+                    <Link href={l.href} className="text-sm text-muted transition-colors hover:text-blue">
+                      {l.label}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

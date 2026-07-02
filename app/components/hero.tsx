@@ -1,10 +1,9 @@
 "use client";
 
-import { motion } from "motion/react";
+import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { Icon } from "./icons";
 import { Button, Container } from "./ui";
 import { GeoTexture } from "./ornaments";
-import { Aurora } from "./aurora";
 import { Counter } from "./counter";
 import { school, stats } from "@/lib/content";
 
@@ -18,37 +17,66 @@ const item = {
   hidden: { opacity: 0, y: 24 },
   show: { opacity: 1, y: 0, transition: { duration: 0.65, ease: EASE } },
 };
+// Headline lines rise out of an overflow mask, one after another.
+const line = {
+  hidden: { y: "115%" },
+  show: { y: "0%", transition: { duration: 0.8, ease: EASE } },
+};
 
-const shapes = [
-  { pos: "left-[3%] top-[24%]", size: "h-24 w-24", color: "bg-teal-soft", radius: "rounded-[2rem]", delay: 0 },
-  { pos: "right-[5%] top-[18%]", size: "h-36 w-36", color: "bg-blue-soft", radius: "rounded-full", delay: 0.7 },
-  { pos: "right-[12%] bottom-[16%]", size: "h-20 w-20", color: "bg-gold-soft", radius: "rounded-[1.5rem]", delay: 1.2 },
-  { pos: "left-[9%] bottom-[20%]", size: "h-16 w-16", color: "bg-blue-soft", radius: "rounded-full", delay: 1.7 },
+const HEADLINE = [
+  { text: "Berilmu.", className: "text-blue-gradient" },
+  { text: "Berakhlak.", className: "text-teal" },
+  { text: "Berprestasi.", className: "text-gold" },
 ];
 
+const shapes = [
+  { pos: "left-[3%] top-[24%]", size: "h-24 w-24", color: "bg-teal-soft", radius: "rounded-[2rem]", delay: 0, depth: -70 },
+  { pos: "right-[5%] top-[18%]", size: "h-36 w-36", color: "bg-blue-soft", radius: "rounded-full", delay: 0.7, depth: 50 },
+  { pos: "right-[12%] bottom-[16%]", size: "h-20 w-20", color: "bg-gold-soft", radius: "rounded-[1.5rem]", delay: 1.2, depth: -40 },
+  { pos: "left-[9%] bottom-[20%]", size: "h-16 w-16", color: "bg-blue-soft", radius: "rounded-full", delay: 1.7, depth: 90 },
+];
+
+/** Outer layer drifts with scroll (parallax depth), inner layer keeps floating. */
+function FloatingShape({ shape }: { shape: (typeof shapes)[number] }) {
+  const reduce = useReducedMotion();
+  const { scrollY } = useScroll();
+  const y = useTransform(scrollY, [0, 900], [0, shape.depth]);
+  return (
+    <motion.div
+      aria-hidden
+      style={reduce ? undefined : { y }}
+      className={`pointer-events-none absolute -z-10 hidden sm:block ${shape.pos}`}
+    >
+      <motion.div
+        className={`${shape.size} ${shape.color} ${shape.radius}`}
+        animate={{ y: [0, -22, 0], rotate: [0, 6, 0] }}
+        transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: shape.delay }}
+      />
+    </motion.div>
+  );
+}
+
 export function Hero() {
+  const reduce = useReducedMotion();
+  const { scrollY } = useScroll();
+  const starY = useTransform(scrollY, [0, 900], [0, 120]);
+
   return (
     <section id="beranda" className="relative isolate overflow-hidden">
-      <Aurora className="-z-10" />
       <GeoTexture className="pointer-events-none absolute inset-0 -z-10 text-ink opacity-[0.05]" />
 
       {/* Big slow-rotating eight-point star — Islamic geometry signature */}
-      <div
+      <motion.div
         aria-hidden
+        style={reduce ? undefined : { y: starY }}
         className="pointer-events-none absolute -z-10 right-[6%] top-[15%] hidden text-teal/15 lg:block"
       >
         <Icon name="star8" className="animate-spin-slow h-80 w-80" strokeWidth={0.6} />
-      </div>
+      </motion.div>
 
       {/* Floating pastel shapes (MetaMask layered-accent motif) */}
-      {shapes.map((s, i) => (
-        <motion.div
-          key={i}
-          aria-hidden
-          className={`pointer-events-none absolute -z-10 hidden sm:block ${s.pos} ${s.size} ${s.color} ${s.radius}`}
-          animate={{ y: [0, -22, 0], rotate: [0, 6, 0] }}
-          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: s.delay }}
-        />
+      {shapes.map((s) => (
+        <FloatingShape key={s.pos} shape={s} />
       ))}
 
       <Container className="flex min-h-[92vh] flex-col items-center justify-center py-32 text-center">
@@ -61,20 +89,22 @@ export function Hero() {
             Madrasah Maju Bermutu dan Mendunia
           </motion.span>
 
-          <motion.h1
-            variants={item}
-            className="display mt-8 text-[clamp(3.25rem,12vw,10rem)] leading-[0.85]"
-          >
-            <span className="block text-blue-gradient">Berilmu.</span>
-            <span className="block text-teal">Berakhlak.</span>
-            <span className="block text-gold">Berprestasi.</span>
-          </motion.h1>
+          <h1 className="display mt-8 text-[clamp(3.25rem,12vw,10rem)] leading-[0.85]">
+            {HEADLINE.map((l) => (
+              // Mask per line; tiny padding keeps descenders out of the clip.
+              <span key={l.text} className="-mb-[0.12em] block overflow-hidden pb-[0.12em]">
+                <motion.span variants={line} className={`block ${l.className}`}>
+                  {l.text}
+                </motion.span>
+              </span>
+            ))}
+          </h1>
 
           <motion.p
             variants={item}
             className="mt-8 max-w-2xl text-pretty text-lg leading-relaxed text-muted sm:text-xl"
           >
-            {school.longName}  memadukan identitas Islami yang elegan dengan pendidikan
+            {school.longName} memadukan identitas Islami yang elegan dengan pendidikan
             modern berbasis riset di jantung Kota Batu.
           </motion.p>
 

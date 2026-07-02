@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Icon } from "./icons";
 import { Container, SectionHeading } from "./ui";
-import { Aurora } from "./aurora";
 import { testimonials } from "@/lib/content";
 
 const variants = {
@@ -15,6 +14,7 @@ const variants = {
 
 export function Testimonials() {
   const [[index, dir], setState] = useState<[number, number]>([0, 0]);
+  const [engaged, setEngaged] = useState(false); // hovering or focused inside
   const n = testimonials.length;
   const reduce = useReducedMotion();
 
@@ -23,25 +23,32 @@ export function Testimonials() {
   }, [n]);
 
   useEffect(() => {
-    if (reduce) return; // don't auto-advance when the user prefers reduced motion
+    // Don't auto-advance when the user prefers reduced motion or is reading/interacting.
+    if (reduce || engaged) return;
     const id = setInterval(() => paginate(1), 7000);
     return () => clearInterval(id);
-  }, [paginate, reduce]);
+  }, [paginate, reduce, engaged]);
 
   const t = testimonials[index];
 
   return (
-    <section id="testimoni" className="relative isolate scroll-mt-24 overflow-hidden py-24 sm:py-32">
-      <Aurora className="-z-10 opacity-70" />
+    <section id="testimoni" className="scroll-mt-24 py-24 sm:py-32">
       <Container>
         <SectionHeading
+          index="09"
           eyebrow="Suara Mereka"
           title="Apa Kata Mereka"
           desc="Cerita dari alumni, wali murid, dan siswa tentang pengalaman bersama MAKOBA."
         />
 
         <div className="relative mx-auto mt-16 max-w-3xl">
-          <div className="relative overflow-hidden rounded-panel bg-surface p-8 shadow-card sm:p-12">
+          <div
+            className="relative overflow-hidden rounded-panel bg-surface p-8 shadow-card sm:p-12"
+            onMouseEnter={() => setEngaged(true)}
+            onMouseLeave={() => setEngaged(false)}
+            onFocusCapture={() => setEngaged(true)}
+            onBlurCapture={() => setEngaged(false)}
+          >
             <Icon name="quote" className="h-12 w-12 text-gold/40" />
             <div className="relative min-h-[12rem]">
               <AnimatePresence mode="wait" custom={dir}>
@@ -53,6 +60,14 @@ export function Testimonials() {
                   animate="center"
                   exit="exit"
                   transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.18}
+                  onDragEnd={(_, info) => {
+                    if (info.offset.x < -70) paginate(1);
+                    else if (info.offset.x > 70) paginate(-1);
+                  }}
+                  className="cursor-grab touch-pan-y active:cursor-grabbing"
                 >
                   <blockquote className="font-serif text-xl italic leading-relaxed text-ink sm:text-2xl">
                     {t.quote}

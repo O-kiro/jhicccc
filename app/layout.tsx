@@ -3,6 +3,8 @@ import { Bricolage_Grotesque, Inter, Lora } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./components/providers";
 import { ScrollProgress } from "./components/scroll-progress";
+import { StickyCta } from "./components/sticky-cta";
+import { BackToTop } from "./components/back-to-top";
 import { SiteHeader } from "./components/site-header";
 import { SiteFooter } from "./components/site-footer";
 import { school, socials } from "@/lib/content";
@@ -13,7 +15,7 @@ const display = Bricolage_Grotesque({
   display: "swap",
 });
 
-const sans = Inter({
+const sans  = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
@@ -113,10 +115,19 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen antialiased">
         <Providers>
+          {/* Keyboard users can jump past the fixed header straight to content. */}
+          <a
+            href="#konten"
+            className="bg-blue-gradient fixed left-4 top-4 z-[60] -translate-y-24 rounded-full px-5 py-2.5 text-sm font-semibold text-white shadow-overlay transition-transform focus:translate-y-0"
+          >
+            Lewati ke konten
+          </a>
           <ScrollProgress />
           <SiteHeader />
-          {children}
+          <div id="konten">{children}</div>
           <SiteFooter />
+          <StickyCta />
+          <BackToTop />
         </Providers>
       </body>
     </html>

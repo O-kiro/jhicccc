@@ -94,8 +94,6 @@
   --radius-panel: 2.5rem;  /* 40px pastel panels   */
 
   --animate-marquee: marquee 40s linear infinite;
-  --animate-drift: drift 24s ease-in-out infinite;
-  --animate-drift-slow: drift 34s ease-in-out infinite;
   --animate-spin-slow: spin 40s linear infinite;
 }
 
@@ -109,7 +107,6 @@
   }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    .aurora-blob,
     .marquee-track,
     .animate-spin-slow { animation: none !important; }
   }
@@ -192,24 +189,18 @@
   .bg-warm-gradient {
     background-image: linear-gradient(120deg, var(--teal) 0%, var(--blue) 52%, var(--gold) 100%);
   }
+  /* Deep teal band for color-blocked sections */
+  .bg-teal-gradient {
+    background-image: linear-gradient(150deg, var(--teal) 0%, var(--teal-strong) 78%, #073d2f 100%);
+  }
+  .dark .bg-teal-gradient {
+    background-image: linear-gradient(150deg, #0c3528 0%, #0a2c22 100%);
+  }
   .text-gradient-warm {
     background-image: linear-gradient(115deg, var(--teal) 0%, var(--blue) 48%, var(--gold) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-  }
-
-  /* Ambient aurora — soft drifting brand light behind sections */
-  .aurora-blob {
-    position: absolute;
-    border-radius: 9999px;
-    filter: blur(76px);
-    opacity: 0.3;
-    will-change: transform;
-  }
-  .dark .aurora-blob {
-    opacity: 0.28;
-    filter: blur(90px);
   }
 
   /* Feature card: gradient ring fades in on hover (pairs with existing lift) */
@@ -251,14 +242,41 @@
     -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
     mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
   }
+  /* Let readers catch a pillar mid-scroll */
+  .marquee-mask:hover .marquee-track {
+    animation-play-state: paused;
+  }
+
+  /* Light sweep across filled buttons on hover */
+  .btn-sheen {
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-sheen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 35%,
+      rgb(255 255 255 / 0.35) 50%,
+      transparent 65%
+    );
+    transform: translateX(-130%);
+    transition: transform 0.65s ease;
+    pointer-events: none;
+  }
+  .btn-sheen:hover::after {
+    transform: translateX(130%);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .btn-sheen::after {
+      display: none;
+    }
+  }
 }
 
 @keyframes marquee {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
-}
-@keyframes drift {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(7%, -5%) scale(1.08); }
-  66% { transform: translate(-5%, 6%) scale(0.95); }
 }

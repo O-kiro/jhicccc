@@ -22,9 +22,13 @@ export function Countdown({ deadlineISO }: { deadlineISO: string }) {
   const [t, setT] = useState<TimeLeft | null>(null);
 
   useEffect(() => {
-    setT(timeLeft(target));
+    // First paint happens next frame (not synchronously) to keep hydration clean.
+    const raf = requestAnimationFrame(() => setT(timeLeft(target)));
     const id = setInterval(() => setT(timeLeft(target)), 1000);
-    return () => clearInterval(id);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearInterval(id);
+    };
   }, [target]);
 
   const units: { label: string; value?: number }[] = [

@@ -13,6 +13,7 @@ import { Gallery } from "./components/gallery";
 import { Testimonials } from "./components/testimonials";
 import { Faq } from "./components/faq";
 import { CtaPpdb } from "./components/cta-ppdb";
+import { StarDivider } from "./components/dividers";
 
 export default function Home() {
   return (
@@ -21,10 +22,12 @@ export default function Home() {
       <Marquee />
       <DigitalServices />
       <AboutStats />
+      <StarDivider />
       <Programs />
       <Achievements />
       <News />
       <Principal />
+      <StarDivider />
       <Extracurriculars />
       <Facilities />
       <Agenda />

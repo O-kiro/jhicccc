@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "motion/react";
 import { Icon } from "./icons";
@@ -48,6 +48,17 @@ function Media({
 
 export function Gallery() {
   const [selected, setSelected] = useState<number | null>(null);
+  const triggerRef = useRef<HTMLElement | null>(null); // tile that opened the lightbox
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  // Move focus into the dialog on open; hand it back to the tile on close.
+  useEffect(() => {
+    if (selected !== null) {
+      const id = requestAnimationFrame(() => closeRef.current?.focus());
+      return () => cancelAnimationFrame(id);
+    }
+    triggerRef.current?.focus();
+  }, [selected]);
 
   useEffect(() => {
     if (selected === null) return;
@@ -70,6 +81,7 @@ export function Gallery() {
     <section id="galeri" className="scroll-mt-24 bg-surface-2 py-24 sm:py-32">
       <Container>
         <SectionHeading
+          index="08"
           eyebrow="Dokumentasi Kegiatan"
           title="Galeri MAKOBA"
           desc="Momen kebersamaan dan kegiatan madrasah yang terdokumentasi sepanjang tahun."
@@ -81,7 +93,10 @@ export function Gallery() {
               key={g.title}
               type="button"
               variants={staggerItem}
-              onClick={() => setSelected(i)}
+              onClick={(e) => {
+                triggerRef.current = e.currentTarget;
+                setSelected(i);
+              }}
               className="group flex flex-col overflow-hidden rounded-card bg-surface text-left shadow-card transition-all duration-200 hover:-translate-y-1.5 hover:shadow-hover"
             >
               <div className="relative aspect-[4/3] overflow-hidden">
@@ -112,12 +127,16 @@ export function Gallery() {
             onClick={() => setSelected(null)}
           >
             <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-label={item.title}
               className="w-full max-w-3xl overflow-hidden rounded-panel bg-surface shadow-overlay"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="relative aspect-[16/10]">
                 <Media t={item.tone} layoutId={`gallery-${selected}`} src={item.image} alt={item.title} sizes="(max-width: 768px) 100vw, 768px" />
                 <button
+                  ref={closeRef}
                   type="button"
                   onClick={() => setSelected(null)}
                   aria-label="Tutup"

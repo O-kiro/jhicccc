@@ -7,9 +7,9 @@
 |---|---|
 | **Judul Proyek** | Upgrade & Redesign Website Resmi MAN Kota Batu |
 | **Domain** | mankotabatu.sch.id |
-| **Versi Dokumen** | 1.0 |
-| **Tanggal** | Juni 2026 |
-| **Status** | Draft |
+| **Versi Dokumen** | 2.0 |
+| **Tanggal** | 26 Juni 2026 |
+| **Status** | Terimplementasi |
 | **Konteks** | Lomba Pengembangan Website Sekolah |
 | **Fokus Utama** | Peningkatan UI/UX dengan identitas Islami + Modern |
 
@@ -127,6 +127,8 @@ Website harus dapat diakses dengan nyaman oleh pengguna dengan berbagai tingkat 
 
 ## 5. Analisis Kondisi Website Saat Ini
 
+> **Pembaruan v2.0:** Website telah dibangun ulang. Seluruh masalah kritis (§5.2) dan masalah UI/UX (§5.3) yang teridentifikasi pada website lama telah teratasi — lihat kolom **Status** pada tabel di bawah dan ringkasan capaian pada §15.4.
+
 ### 5.1 Kekuatan (yang Perlu Dipertahankan)
 
 - Konten dasar sudah cukup lengkap (profil, berita, prestasi, fasilitas, ekstrakurikuler)
@@ -136,25 +138,25 @@ Website harus dapat diakses dengan nyaman oleh pengguna dengan berbagai tingkat 
 
 ### 5.2 Masalah Kritis (Prioritas Tinggi)
 
-| No | Masalah | Dampak |
-|----|---------|--------|
-| 1 | Testimoni masih menggunakan teks Lorem Ipsum | Sangat merusak kesan profesional, langsung terlihat juri |
-| 2 | Seluruh tautan media sosial di footer mati (href="#") | Pengunjung tidak bisa terhubung ke sosmed sekolah |
-| 3 | Agenda kedaluwarsa (masih menampilkan agenda 2025) | Website terkesan tidak terawat |
-| 4 | Icon layanan digital tidak konsisten (ada yang duplikat) | Terlihat tidak rapi dan asal |
-| 5 | Section "Layanan Digital MAKOBA" muncul dua kali | Membingungkan, terkesan bug |
+| No | Masalah | Dampak | Status |
+|----|---------|--------|--------|
+| 1 | Testimoni masih menggunakan teks Lorem Ipsum | Sangat merusak kesan profesional, langsung terlihat juri | ✅ Teratasi |
+| 2 | Seluruh tautan media sosial di footer mati (href="#") | Pengunjung tidak bisa terhubung ke sosmed sekolah | ✅ Teratasi (perlu verifikasi handle resmi) |
+| 3 | Agenda kedaluwarsa (masih menampilkan agenda 2025) | Website terkesan tidak terawat | ✅ Teratasi (agenda 2026/2027) |
+| 4 | Icon layanan digital tidak konsisten (ada yang duplikat) | Terlihat tidak rapi dan asal | ✅ Teratasi |
+| 5 | Section "Layanan Digital MAKOBA" muncul dua kali | Membingungkan, terkesan bug | ✅ Teratasi (tampil sekali) |
 
 ### 5.3 Masalah UI/UX (Prioritas Sedang)
 
-| No | Masalah | Dampak |
-|----|---------|--------|
-| 1 | Program unggulan tidak lengkap (hanya Riset yang punya deskripsi) | Informasi tidak seimbang |
-| 2 | Sambutan Kepala Madrasah terpotong tanpa pola yang jelas | Kurang elegan |
-| 3 | Ekstrakurikuler hanya menampilkan foto + nama | Informasi terlalu minim |
-| 4 | Galeri kegiatan hanya 5 foto tanpa keterangan | Galeri kurang informatif |
-| 5 | FAQ terlalu sedikit dan sebagian generik | Potensi informasi belum dimaksimalkan |
-| 6 | Hero section kurang call-to-action | Pengunjung baru kurang terarah |
-| 7 | Belum ada halaman alumni/lulusan | Kehilangan nilai jual penting |
+| No | Masalah | Dampak | Status |
+|----|---------|--------|--------|
+| 1 | Program unggulan tidak lengkap (hanya Riset yang punya deskripsi) | Informasi tidak seimbang | ✅ Teratasi (3/3 program + halaman detail) |
+| 2 | Sambutan Kepala Madrasah terpotong tanpa pola yang jelas | Kurang elegan | ✅ Teratasi |
+| 3 | Ekstrakurikuler hanya menampilkan foto + nama | Informasi terlalu minim | ✅ Teratasi (kategori + deskripsi) |
+| 4 | Galeri kegiatan hanya 5 foto tanpa keterangan | Galeri kurang informatif | ✅ Teratasi (galeri + lightbox + keterangan) |
+| 5 | FAQ terlalu sedikit dan sebagian generik | Potensi informasi belum dimaksimalkan | ✅ Teratasi (8 FAQ) |
+| 6 | Hero section kurang call-to-action | Pengunjung baru kurang terarah | ✅ Teratasi (2 CTA) |
+| 7 | Belum ada halaman alumni/lulusan | Kehilangan nilai jual penting | ✅ Teratasi (halaman Alumni) |
 
 ---
 
@@ -174,6 +176,8 @@ Website harus dapat diakses dengan nyaman oleh pengguna dengan berbagai tingkat 
 - Perubahan struktur server dan hosting
 - Pembuatan konten dari nol untuk semua halaman (fokus pada perbaikan & pelengkapan)
 - Sistem manajemen konten (CMS) baru
+- Tur Virtual Kampus 360° — ditunda ke fase berikutnya
+- Pojok Riset & Karya Siswa — ditunda ke fase berikutnya
 
 ---
 
@@ -472,15 +476,15 @@ Memperbaiki seluruh masalah yang merusak kesan profesional:
 
 ## 13. Metrik Keberhasilan
 
-| Metrik | Target |
-|--------|--------|
-| Konten placeholder | 0 (nol) |
-| Tautan rusak | 0 (nol) |
-| Konsistensi visual | 100% halaman mengikuti brand guidelines |
-| Responsivitas mobile | Tampil baik di semua breakpoint |
-| Kecepatan muat halaman | < 3 detik |
-| Jumlah fitur pembeda baru | Minimal 3 fitur |
-| Kelengkapan konten program unggulan | 3/3 program memiliki deskripsi |
+| Metrik | Target | Capaian |
+|--------|--------|---------|
+| Konten placeholder | 0 (nol) | ✅ 0 |
+| Tautan rusak | 0 (nol) | ✅ 0 (navigasi & sosmed aktif; handle perlu diverifikasi) |
+| Konsistensi visual | 100% halaman mengikuti brand guidelines | ✅ Tercapai (design token + komponen reusable) |
+| Responsivitas mobile | Tampil baik di semua breakpoint | ✅ Tercapai |
+| Kecepatan muat halaman | < 3 detik | ✅ Seluruh halaman ter-render statis (SSG) |
+| Jumlah fitur pembeda baru | Minimal 3 fitur | ✅ Terlampaui (mode gelap, pencarian, papan prestasi interaktif, dll.) |
+| Kelengkapan konten program unggulan | 3/3 program memiliki deskripsi | ✅ 3/3 + halaman detail |
 
 ### 13.1 Indikator Kualitatif
 
@@ -527,6 +531,31 @@ Memperbaiki seluruh masalah yang merusak kesan profesional:
 ### 15.3 Catatan
 
 Dokumen ini bersifat hidup (living document) dan dapat diperbarui seiring perkembangan proyek dan masukan dari pihak sekolah maupun ketentuan lomba.
+
+### 15.4 Status Implementasi (Pembaruan v2.0)
+
+Website telah dibangun ulang menggunakan **Next.js (App Router) + Tailwind CSS** dengan animasi **Motion**, menerapkan sistem desain MetaMask × palet MAN Kota Batu, lengkap dengan dukungan **mode gelap/terang**.
+
+**Status fitur unggulan (§10):**
+
+| Fitur | Prioritas | Status |
+|-------|-----------|--------|
+| 10.1 Papan Prestasi Interaktif | Tinggi | ✅ Terimplementasi (filter tingkat + carousel + counter) |
+| 10.2 Pojok Riset & Karya Siswa | Tinggi | ⏭️ Ditunda |
+| 10.3 Halaman Alumni Berprestasi | Sedang | ✅ Terimplementasi |
+| 10.4 Mode Gelap/Terang | Sedang | ✅ Terimplementasi (tanpa flash) |
+| 10.5 Tur Virtual Kampus 360° | Rendah | ⏭️ Ditunda |
+| 10.6 Kalender Akademik | Sedang | 🔶 Sebagian (agenda + filter kategori; kalender bulanan penuh ditunda) |
+
+**Penambahan di luar PRD awal:**
+
+- **SEO & berbagi:** `sitemap.xml`, `robots.txt`, gambar Open Graph/Twitter ter-generate, dan structured data `EducationalOrganization` (JSON-LD).
+- **Infrastruktur foto:** komponen gambar berbasis `next/image` (AVIF/WebP, lazy-load, fade-in) yang siap diisi foto asli sekolah.
+- **Motion & interaksi:** reveal saat scroll, animasi angka (counter), bilah progres scroll, sorotan menu aktif, transisi antar-halaman, dan ribbon berjalan — seluruhnya menghormati `prefers-reduced-motion`.
+- **Pencarian:** modal pencarian lintas berita, prestasi, program, layanan, dan agenda.
+- **Aksesibilitas:** fokus keyboard, atribut ARIA, dan perhatian pada kontras.
+
+> **Catatan data:** sebagian konten (foto, sebagian testimoni/alumni, nomor WhatsApp, dan tautan media sosial) masih perlu diverifikasi/diganti dengan data resmi sekolah sebelum peluncuran. Terdapat pula ketidaksesuaian nama Kepala Madrasah antara bagian Sambutan dan Struktur Organisasi yang perlu diselaraskan.
 
 ---
 

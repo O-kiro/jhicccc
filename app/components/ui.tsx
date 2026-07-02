@@ -34,9 +34,9 @@ const buttonBase =
   "group inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:pointer-events-none disabled:opacity-50";
 
 const buttonVariants = {
-  solid: "bg-blue-gradient text-white shadow-card hover:shadow-hover hover:brightness-105",
-  light: "bg-surface text-blue shadow-card hover:shadow-hover",
-  gold: "bg-gold text-white hover:bg-gold-strong hover:shadow-hover",
+  solid: "btn-sheen bg-blue-gradient text-white shadow-card hover:shadow-hover hover:brightness-105",
+  light: "btn-sheen bg-surface text-blue shadow-card hover:shadow-hover",
+  gold: "btn-sheen bg-gold text-white hover:bg-gold-strong hover:shadow-hover",
   outline: "border border-ink/15 text-ink hover:border-ink/30 hover:bg-ink/[0.03]",
   outlineDark: "border border-white/30 text-white hover:bg-white/10",
 } as const;
@@ -104,6 +104,7 @@ export function SectionHeading({
   align = "center",
   tone = "default",
   gradient = false,
+  index,
 }: {
   eyebrow: string;
   title: ReactNode;
@@ -111,12 +112,19 @@ export function SectionHeading({
   align?: "center" | "left";
   tone?: "default" | "onDark";
   gradient?: boolean;
+  index?: string;
 }) {
   const centered = align === "center";
   return (
     <div className={cn(centered ? "mx-auto max-w-3xl text-center" : "max-w-3xl")}>
       <Reveal>
         <span className={cn("eyebrow", tone === "onDark" && "text-gold")}>
+          {index && (
+            <>
+              <span className="font-display text-[0.95em] font-extrabold tabular-nums">{index}</span>
+              <span aria-hidden className="opacity-40">/</span>
+            </>
+          )}
           <Icon name="star8" className="h-3.5 w-3.5 text-gold" strokeWidth={1.4} />
           {eyebrow}
         </span>

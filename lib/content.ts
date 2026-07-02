@@ -35,16 +35,256 @@ export const stats: { value: number; suffix?: string; label: string; icon: IconN
   { value: 32, label: "Mata Pelajaran", icon: "sparkle" },
 ];
 
-export const digitalServices: { name: string; desc: string; href: string; icon: IconName }[] = [
-  { name: "PPDB Online", desc: "Pendaftaran peserta didik baru secara daring.", href: "#ppdb", icon: "ppdb" },
-  { name: "RDM", desc: "Rapor Digital Madrasah untuk wali murid.", href: "#layanan", icon: "rdm" },
-  { name: "CBT", desc: "Computer Based Test untuk ujian online.", href: "#layanan", icon: "cbt" },
-  { name: "E-Learning", desc: "Kelas dan materi pembelajaran daring.", href: "#layanan", icon: "elearning" },
-  { name: "Perpustakaan Digital", desc: "Koleksi buku dan jurnal elektronik.", href: "#layanan", icon: "library" },
-  { name: "Absensi Digital", desc: "Kehadiran siswa terpantau real-time.", href: "#layanan", icon: "attendance" },
-  { name: "E-Book Karya", desc: "Publikasi buku dan karya tulis siswa.", href: "#layanan", icon: "ebook" },
-  { name: "PPID & Pengaduan", desc: "Layanan informasi publik & aspirasi.", href: "#kontak", icon: "ppid" },
+export type DigitalService = {
+  name: string;
+  desc: string;
+  /** Halaman informasi internal (detail layanan, atau /ppdb untuk PPDB Online). */
+  href: string;
+  icon: IconName;
+  tone: "teal" | "blue" | "gold";
+  /**
+   * Halaman LOGIN sistem eksternal. Semua tombol yang membuka sistem harus
+   * menuju ke sini — jangan pernah menautkan/menampilkan isi sistem tanpa login.
+   * rdm & uam sudah dikonfirmasi; subdomain lain mengikuti pola — verifikasi sebelum rilis.
+   */
+  login?: { href: string; label: string };
+  /** Detail-page content; absent for services with their own dedicated page (PPDB). */
+  detail?: {
+    slug: string;
+    fullName: string;
+    audience: string;
+    about: string[];
+    features: string[];
+    steps: { title: string; desc: string }[];
+    note?: string;
+  };
+};
+
+export const digitalServices: DigitalService[] = [
+  {
+    name: "PPDB Online",
+    desc: "Pendaftaran peserta didik baru secara daring.",
+    href: "/ppdb",
+    icon: "ppdb",
+    tone: "teal",
+    login: { href: "https://ppdb.mankotabatu.sch.id/", label: "Masuk PPDB Online" },
+  },
+  {
+    name: "RDM",
+    desc: "Rapor Digital Madrasah untuk wali murid.",
+    href: "/layanan/rdm",
+    icon: "rdm",
+    tone: "blue",
+    login: { href: "https://rdm.mankotabatu.sch.id/", label: "Masuk ke RDM" },
+    detail: {
+      slug: "rdm",
+      fullName: "Rapor Digital Madrasah (RDM)",
+      audience: "Wali murid & siswa",
+      about: [
+        "Rapor Digital Madrasah (RDM) adalah aplikasi penilaian resmi dari Kementerian Agama yang digunakan MAN Kota Batu untuk mengelola dan menyajikan hasil belajar siswa secara digital. Melalui RDM, capaian belajar tercatat rapi setiap semester dan dapat diakses tanpa harus menunggu pembagian rapor cetak.",
+        "Layanan ini menjadi wujud transparansi penilaian madrasah: wali murid dapat memantau perkembangan akademik putra-putrinya, sementara guru mengelola nilai dalam satu sistem yang terstandar.",
+      ],
+      features: [
+        "Nilai setiap mata pelajaran beserta deskripsi capaian",
+        "Rekap kehadiran dan penilaian sikap",
+        "Arsip rapor antar-semester yang tersimpan rapi",
+        "Dapat diakses kapan saja dari perangkat apa pun",
+        "Rapor dapat diunduh dan dicetak mandiri",
+      ],
+      steps: [
+        { title: "Minta Akun", desc: "Wali murid menerima nama pengguna dan kata sandi dari wali kelas di awal tahun pelajaran." },
+        { title: "Masuk ke RDM", desc: "Buka aplikasi RDM madrasah, lalu masuk menggunakan akun yang diberikan." },
+        { title: "Pilih Semester", desc: "Tentukan tahun pelajaran dan semester yang ingin dilihat." },
+        { title: "Lihat & Unduh Rapor", desc: "Nilai dan deskripsi capaian dapat dibaca langsung atau diunduh sebagai arsip." },
+      ],
+      note: "Akun RDM diterbitkan resmi oleh madrasah. Jaga kerahasiaan kata sandi dan hubungi wali kelas apabila lupa akses.",
+    },
+  },
+  {
+    name: "CBT",
+    desc: "Computer Based Test untuk ujian online.",
+    href: "/layanan/cbt",
+    icon: "cbt",
+    tone: "gold",
+    login: { href: "https://uam.mankotabatu.sch.id/", label: "Masuk ke CBT (UAM)" },
+    detail: {
+      slug: "cbt",
+      fullName: "Computer Based Test (CBT)",
+      audience: "Siswa",
+      about: [
+        "CBT adalah platform ujian berbasis komputer yang digunakan MAN Kota Batu untuk penilaian tengah semester, penilaian akhir semester, ujian madrasah, hingga try out. Pelaksanaan ujian menjadi lebih efisien, hemat kertas, dan hasilnya dapat diolah dengan cepat.",
+        "Sistem ini juga melatih siswa terbiasa dengan model asesmen digital seperti ANBK dan seleksi masuk perguruan tinggi yang kini berbasis komputer.",
+      ],
+      features: [
+        "Soal terjadwal dengan token ujian yang aman",
+        "Pengacakan soal untuk menjaga integritas",
+        "Pewaktu otomatis sesuai durasi ujian",
+        "Penilaian objektif yang cepat dan akurat",
+        "Analisis hasil sebagai bahan evaluasi guru",
+      ],
+      steps: [
+        { title: "Cek Jadwal", desc: "Perhatikan jadwal, sesi, dan ruang ujian yang diumumkan madrasah." },
+        { title: "Siapkan Perangkat", desc: "Gunakan komputer laboratorium atau perangkat yang ditentukan panitia." },
+        { title: "Masuk dengan Token", desc: "Login menggunakan akun peserta dan token yang dibagikan pengawas saat ujian dimulai." },
+        { title: "Kerjakan & Kumpulkan", desc: "Kerjakan soal sesuai waktu; jawaban terkumpul otomatis saat sesi berakhir." },
+      ],
+      note: "Token ujian hanya dibagikan pengawas di ruang ujian sesaat sebelum sesi dimulai.",
+    },
+  },
+  {
+    name: "E-Learning",
+    desc: "Kelas dan materi pembelajaran daring.",
+    href: "/layanan/e-learning",
+    icon: "elearning",
+    tone: "teal",
+    login: { href: "https://elearning.mankotabatu.sch.id/", label: "Masuk ke E-Learning" },
+    detail: {
+      slug: "e-learning",
+      fullName: "E-Learning Madrasah",
+      audience: "Siswa & guru",
+      about: [
+        "E-Learning Madrasah adalah ruang kelas digital tempat guru membagikan materi, tugas, kuis, dan diskusi untuk melengkapi pembelajaran tatap muka di MAN Kota Batu.",
+        "Dengan e-learning, proses belajar tidak berhenti di jam pelajaran: siswa dapat mengulang materi, mengumpulkan tugas secara daring, dan memantau umpan balik guru dari mana saja.",
+      ],
+      features: [
+        "Materi dan modul tersusun per mata pelajaran",
+        "Pengumpulan tugas secara daring",
+        "Kuis dan penilaian berbasis kelas digital",
+        "Forum diskusi antara guru dan siswa",
+        "Rekam jejak progres belajar setiap siswa",
+      ],
+      steps: [
+        { title: "Masuk dengan Akun Madrasah", desc: "Gunakan akun pembelajaran yang diberikan oleh madrasah." },
+        { title: "Pilih Kelas & Mapel", desc: "Buka kelas digital sesuai jadwal dan mata pelajaran." },
+        { title: "Pelajari Materi & Kerjakan Tugas", desc: "Unduh materi, ikuti kuis, dan unggah tugas sebelum tenggat." },
+        { title: "Pantau Umpan Balik", desc: "Nilai dan catatan guru dapat dilihat langsung pada setiap aktivitas." },
+      ],
+    },
+  },
+  {
+    name: "Perpustakaan Digital",
+    desc: "Koleksi buku dan jurnal elektronik.",
+    href: "/layanan/perpustakaan-digital",
+    icon: "library",
+    tone: "blue",
+    login: { href: "https://perpustakaan.mankotabatu.sch.id/", label: "Masuk Perpustakaan Digital" },
+    detail: {
+      slug: "perpustakaan-digital",
+      fullName: "Perpustakaan Digital",
+      audience: "Siswa, guru & tenaga kependidikan",
+      about: [
+        "Perpustakaan MAN Kota Batu memadukan koleksi cetak dengan layanan digital: katalog daring, buku elektronik, dan referensi jurnal yang mendukung pembelajaran maupun penelitian siswa.",
+        "Sebagai madrasah penyelenggara riset, perpustakaan menjadi dapur literasi Kelas Riset — tempat siswa menelusuri pustaka untuk proposal, karya tulis ilmiah, dan publikasi.",
+      ],
+      features: [
+        "Katalog daring untuk menelusuri seluruh koleksi",
+        "Koleksi e-book dan jurnal elektronik",
+        "Referensi pendukung karya tulis ilmiah Kelas Riset",
+        "Layanan peminjaman dengan kartu anggota",
+        "Ruang baca yang nyaman untuk belajar",
+      ],
+      steps: [
+        { title: "Telusuri Katalog", desc: "Cari judul melalui katalog daring atau langsung di perpustakaan." },
+        { title: "Tunjukkan Kartu Anggota", desc: "Seluruh siswa dan guru MAKOBA otomatis menjadi anggota perpustakaan." },
+        { title: "Pinjam atau Baca Daring", desc: "Koleksi cetak dipinjam sesuai ketentuan; koleksi digital dibaca langsung." },
+        { title: "Kembalikan Tepat Waktu", desc: "Kembalikan pinjaman sesuai tenggat agar koleksi dapat dimanfaatkan bersama." },
+      ],
+      note: "Panduan akses koleksi digital dapat ditanyakan kepada pustakawan di jam layanan.",
+    },
+  },
+  {
+    name: "Absensi Digital",
+    desc: "Kehadiran siswa terpantau real-time.",
+    href: "/layanan/absensi-digital",
+    icon: "attendance",
+    tone: "gold",
+    detail: {
+      slug: "absensi-digital",
+      fullName: "Absensi Digital",
+      audience: "Wali murid",
+      about: [
+        "Absensi Digital mencatat kehadiran siswa MAN Kota Batu secara elektronik setiap hari. Data kehadiran terekap otomatis sehingga madrasah dan wali murid dapat memantau kedisiplinan siswa dengan mudah.",
+        "Sistem ini menjadi bagian dari pembinaan karakter: keterlambatan dan ketidakhadiran terpantau sejak dini sehingga dapat ditindaklanjuti bersama antara wali kelas dan orang tua.",
+      ],
+      features: [
+        "Pencatatan kehadiran elektronik setiap hari",
+        "Rekap otomatis harian, bulanan, dan semester",
+        "Pemantauan keterlambatan dan ketidakhadiran",
+        "Tindak lanjut pembinaan bersama wali kelas",
+        "Data akurat sebagai dasar penilaian kedisiplinan",
+      ],
+      steps: [
+        { title: "Siswa Melakukan Presensi", desc: "Presensi dilakukan setiap hari saat tiba di madrasah." },
+        { title: "Sistem Merekap Otomatis", desc: "Kehadiran, keterlambatan, dan izin terekam dalam satu sistem." },
+        { title: "Wali Murid Memantau", desc: "Informasi kehadiran dapat dikonfirmasi melalui wali kelas atau kanal informasi madrasah." },
+        { title: "Tindak Lanjut", desc: "Ketidakhadiran tanpa keterangan ditindaklanjuti wali kelas bersama orang tua." },
+      ],
+    },
+  },
+  {
+    name: "E-Book Karya",
+    desc: "Publikasi buku dan karya tulis siswa.",
+    href: "/layanan/e-book-karya",
+    icon: "ebook",
+    tone: "teal",
+    detail: {
+      slug: "e-book-karya",
+      fullName: "E-Book Karya MAKOBA",
+      audience: "Siswa, guru & masyarakat umum",
+      about: [
+        "E-Book Karya adalah rak digital yang memuat buku, antologi, dan karya tulis ilmiah hasil karya siswa serta guru MAN Kota Batu. Setiap karya yang lahir dari kelas, ekstrakurikuler, maupun program riset diabadikan agar dapat dibaca dan menginspirasi.",
+        "Publikasi ini merupakan buah dari budaya literasi madrasah penyelenggara riset — bukti bahwa menulis dan meneliti menjadi keseharian warga MAKOBA.",
+      ],
+      features: [
+        "Kumpulan buku dan antologi karya siswa & guru",
+        "Publikasi karya tulis ilmiah Kelas Riset",
+        "Dapat dibaca secara daring oleh masyarakat",
+        "Dokumentasi jejak karya setiap angkatan",
+        "Memotivasi budaya menulis di madrasah",
+      ],
+      steps: [
+        { title: "Buka Koleksi", desc: "Telusuri daftar karya yang telah diterbitkan madrasah." },
+        { title: "Pilih Judul", desc: "Pilih buku, antologi, atau karya ilmiah yang ingin dibaca." },
+        { title: "Baca Secara Daring", desc: "Karya dapat dibaca langsung dalam format digital." },
+        { title: "Terbitkan Karyamu", desc: "Siswa yang ingin menerbitkan karya dapat menghubungi guru pembina literasi." },
+      ],
+    },
+  },
+  {
+    name: "PPID & Pengaduan",
+    desc: "Layanan informasi publik & aspirasi.",
+    href: "/layanan/ppid",
+    icon: "ppid",
+    tone: "blue",
+    detail: {
+      slug: "ppid",
+      fullName: "PPID & Layanan Pengaduan",
+      audience: "Masyarakat umum",
+      about: [
+        "PPID (Pejabat Pengelola Informasi dan Dokumentasi) MAN Kota Batu melayani permohonan informasi publik sesuai Undang-Undang Nomor 14 Tahun 2008 tentang Keterbukaan Informasi Publik. Masyarakat berhak memperoleh informasi madrasah yang terbuka, cepat, dan tepat.",
+        "Layanan ini juga menerima pengaduan dan aspirasi atas penyelenggaraan pendidikan, sebagai bagian dari komitmen Zona Integritas menuju Wilayah Bebas dari Korupsi (WBK) dan Wilayah Birokrasi Bersih Melayani (WBBM).",
+      ],
+      features: [
+        "Permohonan informasi publik oleh masyarakat",
+        "Kanal pengaduan dan aspirasi layanan madrasah",
+        "Informasi berkala, serta-merta, dan tersedia setiap saat",
+        "Tindak lanjut yang transparan dan akuntabel",
+        "Bagian dari komitmen Zona Integritas WBK/WBBM",
+      ],
+      steps: [
+        { title: "Ajukan Permohonan", desc: "Sampaikan permohonan informasi atau pengaduan secara tertulis melalui surat resmi atau email madrasah." },
+        { title: "Lengkapi Identitas", desc: "Sertakan identitas yang jelas serta rincian informasi yang diminta dan tujuannya." },
+        { title: "Proses Verifikasi", desc: "Petugas PPID memverifikasi dan memproses permohonan sesuai ketentuan perundang-undangan." },
+        { title: "Terima Jawaban", desc: "Jawaban disampaikan melalui kontak pemohon sesuai batas waktu layanan informasi publik." },
+      ],
+      note: "Permohonan izin penelitian di madrasah juga dilayani melalui PPID atau bagian tata usaha.",
+    },
+  },
 ];
+
+export function getServiceBySlug(slug: string): DigitalService | undefined {
+  return digitalServices.find((s) => s.detail?.slug === slug);
+}
 
 export type Program = {
   slug: string;
@@ -385,6 +625,7 @@ export const navItems: { label: string; href: string; children?: { label: string
     label: "Informasi",
     href: "/#agenda",
     children: [
+      { label: "Layanan Digital", href: "/layanan" },
       { label: "Agenda", href: "/#agenda" },
       { label: "Fasilitas", href: "/#fasilitas" },
       { label: "Galeri", href: "/#galeri" },
@@ -415,7 +656,7 @@ export const profile = {
     { year: "2024", title: "Zona Integritas WBK", desc: "Memperkuat komitmen pelayanan bersih melalui pembangunan Zona Integritas WBK/WBBM." },
   ],
   org: [
-    { name: "Drs. H. Ahmad Fauzan, M.Pd.", role: "Kepala Madrasah", icon: "shield" as IconName },
+    { name: "Drs. H. Farhadi, M.Si", role: "Kepala Madrasah", icon: "shield" as IconName },
     { name: "Waka Kurikulum", role: "Bidang Kurikulum", icon: "book" as IconName },
     { name: "Waka Kesiswaan", role: "Bidang Kesiswaan", icon: "users" as IconName },
     { name: "Waka Sarana & Prasarana", role: "Bidang Sarpras", icon: "globe" as IconName },

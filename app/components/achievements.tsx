@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { motion, useInView, useReducedMotion } from "motion/react";
 import { Icon } from "./icons";
 import { Badge, Container, SectionHeading } from "./ui";
 import { Reveal } from "./reveal";
-import { Aurora } from "./aurora";
 import { Counter } from "./counter";
 import { achievements } from "@/lib/content";
 
@@ -19,16 +18,27 @@ const levelTone: Record<string, "teal" | "blue" | "gold" | "muted"> = {
   Kota: "muted",
 };
 
+// Medal-tier top border — gold for the highest level, down to neutral.
+const tierAccent: Record<string, string> = {
+  Internasional: "border-gold",
+  Nasional: "border-blue",
+  Provinsi: "border-teal",
+  Kota: "border-line",
+};
+
 export function Achievements() {
   const [filter, setFilter] = useState<Level>("Semua");
   const [hover, setHover] = useState(false);
   const [pressing, setPressing] = useState(false);
   const trackRef = useRef<HTMLDivElement>(null);
+  // Stable wrapper for visibility tracking — the track itself remounts per filter.
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(wrapRef, { amount: 0.3 });
   const drag = useRef({ active: false, startX: 0, startLeft: 0 });
   const reduce = useReducedMotion();
   const list = filter === "Semua" ? achievements : achievements.filter((a) => a.level === filter);
 
-  const paused = hover || pressing;
+  const paused = hover || pressing || !inView;
 
   const scroll = (dir: number) => {
     const el = trackRef.current;
@@ -69,12 +79,12 @@ export function Achievements() {
   };
 
   return (
-    <section id="prestasi" className="relative isolate scroll-mt-24 overflow-hidden py-24 sm:py-32">
-      <Aurora className="-z-10 opacity-70" />
+    <section id="prestasi" className="scroll-mt-24 py-24 sm:py-32">
       <Container>
         <div className="flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-end">
           <SectionHeading
             gradient
+            index="03"
             align="left"
             eyebrow="Papan Prestasi"
             title="Prestasi Membanggakan"
@@ -140,41 +150,43 @@ export function Achievements() {
         </Reveal>
 
         {/* Carousel: autoplay + drag (mouse) + native swipe (touch) */}
-        <motion.div
-          key={filter}
-          ref={trackRef}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          onMouseEnter={() => setHover(true)}
-          onMouseLeave={() => setHover(false)}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={endDrag}
-          onPointerCancel={endDrag}
-          className="mt-8 flex cursor-grab snap-x snap-mandatory select-none gap-5 overflow-x-auto scroll-smooth pb-4 active:cursor-grabbing [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          {list.map((a) => (
-            <article
-              key={a.title}
-              className="flex shrink-0 basis-[85%] snap-start flex-col rounded-card bg-surface p-6 shadow-card sm:basis-[47%] lg:basis-[31.5%]"
-            >
-              <div className="flex items-center justify-between">
-                <Badge tone={levelTone[a.level]}>{a.level}</Badge>
-                <span className="text-xs text-muted">{a.year}</span>
-              </div>
-              <h3 className="mt-4 font-display text-lg font-bold leading-snug text-ink">{a.title}</h3>
-              <p className="mt-1.5 text-sm font-medium text-teal">{a.student}</p>
-              <div className="mt-5 flex items-center justify-between border-t border-line pt-4 text-xs text-muted">
-                <span className="inline-flex items-center gap-1.5">
-                  <Icon name="sparkle" className="h-3.5 w-3.5 text-gold" />
-                  {a.field}
-                </span>
-                <span className="line-clamp-1">{a.organizer}</span>
-              </div>
-            </article>
-          ))}
-        </motion.div>
+        <div ref={wrapRef}>
+          <motion.div
+            key={filter}
+            ref={trackRef}
+            onMouseEnter={() => setHover(true)}
+            onMouseLeave={() => setHover(false)}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={endDrag}
+            onPointerCancel={endDrag}
+            className="mt-8 flex cursor-grab snap-x snap-mandatory select-none gap-5 overflow-x-auto scroll-smooth pb-4 active:cursor-grabbing [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {list.map((a, i) => (
+              <motion.article
+                key={a.title}
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: Math.min(i * 0.06, 0.42), ease: [0.22, 1, 0.36, 1] }}
+                className={`flex shrink-0 basis-[85%] snap-start flex-col rounded-card border-t-4 ${tierAccent[a.level]} bg-surface p-6 shadow-card sm:basis-[47%] lg:basis-[31.5%]`}
+              >
+                <div className="flex items-center justify-between">
+                  <Badge tone={levelTone[a.level]}>{a.level}</Badge>
+                  <span className="text-xs text-muted">{a.year}</span>
+                </div>
+                <h3 className="mt-4 font-display text-lg font-bold leading-snug text-ink">{a.title}</h3>
+                <p className="mt-1.5 text-sm font-medium text-teal">{a.student}</p>
+                <div className="mt-5 flex items-center justify-between border-t border-line pt-4 text-xs text-muted">
+                  <span className="inline-flex items-center gap-1.5">
+                    <Icon name="sparkle" className="h-3.5 w-3.5 text-gold" />
+                    {a.field}
+                  </span>
+                  <span className="line-clamp-1">{a.organizer}</span>
+                </div>
+              </motion.article>
+            ))}
+          </motion.div>
+        </div>
 
         <p className="mt-2 text-center text-xs text-muted sm:hidden">Geser untuk melihat lainnya →</p>
       </Container>

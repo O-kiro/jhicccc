@@ -18,7 +18,7 @@ const ACTIVE_MAP: Record<string, { sections?: string[]; paths?: string[] }> = {
   Akademik: { sections: ["program", "ekskul"], paths: ["/program"] },
   Prestasi: { sections: ["prestasi"] },
   Berita: { sections: ["berita"], paths: ["/berita"] },
-  Informasi: { sections: ["layanan", "agenda", "fasilitas", "galeri", "faq"] },
+  Informasi: { sections: ["layanan", "agenda", "fasilitas", "galeri", "faq"], paths: ["/layanan"] },
   Kontak: { sections: ["kontak"], paths: ["/kontak", "/ppdb"] },
 };
 
@@ -98,6 +98,18 @@ export function SiteHeader() {
     };
   }, [menuOpen]);
 
+  // ⌘K / Ctrl+K opens search from anywhere.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   return (
     <>
       <header
@@ -157,6 +169,8 @@ export function SiteHeader() {
               type="button"
               onClick={() => setSearchOpen(true)}
               aria-label="Cari"
+              aria-keyshortcuts="Meta+K Control+K"
+              title="Cari (⌘K)"
               className="grid h-10 w-10 place-items-center rounded-full text-ink/70 transition-colors hover:bg-ink/[0.05] hover:text-blue"
             >
               <Icon name="search" className="h-5 w-5" />
@@ -188,9 +202,20 @@ export function SiteHeader() {
               transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
               className="overflow-hidden border-t border-line bg-canvas lg:hidden"
             >
-              <ul className="mx-auto max-w-6xl space-y-1 px-5 py-4 sm:px-8">
+              <motion.ul
+                className="mx-auto max-w-6xl space-y-1 px-5 py-4 sm:px-8"
+                initial="hidden"
+                animate="show"
+                variants={{ hidden: {}, show: { transition: { staggerChildren: 0.05, delayChildren: 0.08 } } }}
+              >
                 {navItems.map((item) => (
-                  <li key={item.label}>
+                  <motion.li
+                    key={item.label}
+                    variants={{
+                      hidden: { opacity: 0, x: -12 },
+                      show: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } },
+                    }}
+                  >
                     <Link
                       href={item.href}
                       onClick={() => setMenuOpen(false)}
@@ -212,14 +237,20 @@ export function SiteHeader() {
                         ))}
                       </div>
                     )}
-                  </li>
+                  </motion.li>
                 ))}
-                <li className="pt-2">
+                <motion.li
+                  className="pt-2"
+                  variants={{
+                    hidden: { opacity: 0, x: -12 },
+                    show: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } },
+                  }}
+                >
                   <Button href="/ppdb" className="w-full" icon={false} onClick={() => setMenuOpen(false)}>
                     PPDB 2026
                   </Button>
-                </li>
-              </ul>
+                </motion.li>
+              </motion.ul>
             </motion.div>
           )}
         </AnimatePresence>

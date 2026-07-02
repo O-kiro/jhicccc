@@ -26,6 +26,7 @@ export function Agenda() {
     <section id="agenda" className="scroll-mt-24 py-24 sm:py-32">
       <Container>
         <SectionHeading
+          index="07"
           eyebrow="Kalender Akademik"
           title="Agenda Kegiatan"
           desc="Jadwal kegiatan akademik, keagamaan, dan ekstrakurikuler madrasah tahun pelajaran 2026/2027."

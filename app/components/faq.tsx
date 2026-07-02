@@ -14,6 +14,7 @@ export function Faq() {
     <section id="faq" className="scroll-mt-24 bg-surface-2 py-24 sm:py-32">
       <Container>
         <SectionHeading
+          index="10"
           eyebrow="Pertanyaan Umum"
           title="Frequently Asked Questions"
           desc="Jawaban atas pertanyaan yang sering diajukan calon siswa, wali murid, dan masyarakat."

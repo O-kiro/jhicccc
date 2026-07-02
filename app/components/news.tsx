@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Icon } from "./icons";
-import { Badge, Container, PhotoTile, SectionHeading } from "./ui";
+import { Badge, Button, Container, PhotoTile, SectionHeading } from "./ui";
 import { Reveal } from "./reveal";
 import { news } from "@/lib/content";
 import { formatDate } from "@/lib/format";
@@ -16,6 +16,7 @@ export function News() {
         <div className="flex items-end justify-between gap-6">
           <SectionHeading
             align="left"
+            index="04"
             eyebrow="Kabar Terbaru"
             title="Berita & Informasi"
             desc="Ikuti perkembangan kegiatan, prestasi, dan pengumuman terbaru dari MAKOBA."
@@ -77,6 +78,13 @@ export function News() {
             ))}
           </div>
         </div>
+
+        {/* Mobile path to the full news index (the header link is sm+ only) */}
+        <Reveal className="mt-8 sm:hidden">
+          <Button href="/berita" variant="outline" className="w-full">
+            Semua berita
+          </Button>
+        </Reveal>
       </Container>
     </section>
   );

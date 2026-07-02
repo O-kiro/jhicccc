@@ -18,7 +18,7 @@ type Item = { label: string; group: string; href: string };
 
 const INDEX: Item[] = [
   ...programs.map((p) => ({ label: p.name, group: "Program", href: "/#program" })),
-  ...digitalServices.map((s) => ({ label: s.name, group: "Layanan Digital", href: `/${s.href}` })),
+  ...digitalServices.map((s) => ({ label: s.name, group: "Layanan Digital", href: s.href })),
   ...achievements.map((a) => ({ label: a.title, group: "Prestasi", href: "/#prestasi" })),
   ...news.map((n) => ({ label: n.title, group: "Berita", href: `/berita/${n.slug}` })),
   ...extracurriculars.map((e) => ({ label: e.name, group: "Ekstrakurikuler", href: "/#ekskul" })),
@@ -39,8 +39,10 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
 
   useEffect(() => {
     if (!open) return;
-    setQ("");
-    const id = requestAnimationFrame(() => inputRef.current?.focus());
+    const id = requestAnimationFrame(() => {
+      setQ("");
+      inputRef.current?.focus();
+    });
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     document.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
