@@ -16,9 +16,9 @@ const quickLinks = [
 // Tautan sistem menuju halaman LOGIN masing-masing (bukan isi sistem).
 const serviceLinks = [
   { label: "PPDB Online", href: "https://ppdb.mankotabatu.sch.id/", external: true },
-  { label: "Rapor Digital (RDM)", href: "https://rdm.mankotabatu.sch.id/", external: true },
+  { label: "Rapor Digital (RDM)", href: "/portal/rdm", external: false },
   { label: "E-Learning", href: "https://elearning.mankotabatu.sch.id/", external: true },
-  { label: "CBT (UAM)", href: "https://uam.mankotabatu.sch.id/", external: true },
+  { label: "CBT", href: "/portal/cbt", external: false },
   { label: "PPID & Pengaduan", href: "/layanan/ppid", external: false },
 ];
 

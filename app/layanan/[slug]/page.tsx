@@ -61,7 +61,7 @@ export default async function ServicePage({ params }: Params) {
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               {service.login ? (
                 <>
-                  <Button href={service.login.href} external>
+                  <Button href={service.login.href} external={service.login.href.startsWith("http")}>
                     {service.login.label}
                   </Button>
                   <Button href="/kontak" variant="outline" icon={false}>

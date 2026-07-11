@@ -1,0 +1,2 @@
+{"timestamp":"2026-07-11T04:59:58.123Z","type":"plugin","status":"connected","clientId":"1b00902e-a9c3-44cb-8ecb-8e740543d3de","targetAlias":"studio-1","placeId":102240195341399,"placeName":"Place3","message":"Plugin connected — 1b00902e-a9c3-44cb-8ecb-8e740543d3de"}
+{"timestamp":"2026-07-11T05:07:19.019Z","type":"plugin","status":"disconnected","clientId":"1b00902e-a9c3-44cb-8ecb-8e740543d3de","targetAlias":"studio-1","placeId":102240195341399,"placeName":"Place3","message":"Plugin disconnected — 1b00902e-a9c3-44cb-8ecb-8e740543d3de"}

@@ -43,9 +43,10 @@ export type DigitalService = {
   icon: IconName;
   tone: "teal" | "blue" | "gold";
   /**
-   * Halaman LOGIN sistem eksternal. Semua tombol yang membuka sistem harus
-   * menuju ke sini — jangan pernah menautkan/menampilkan isi sistem tanpa login.
-   * rdm & uam sudah dikonfirmasi; subdomain lain mengikuti pola — verifikasi sebelum rilis.
+   * Halaman LOGIN sistem — semua tombol yang membuka sistem harus menuju ke sini;
+   * jangan pernah menautkan/menampilkan isi sistem tanpa login.
+   * RDM & CBT punya halaman login di dalam situs (/portal/*) meniru portal aslinya;
+   * lainnya menuju subdomain eksternal (pola — verifikasi sebelum rilis).
    */
   login?: { href: string; label: string };
   /** Detail-page content; absent for services with their own dedicated page (PPDB). */
@@ -75,7 +76,7 @@ export const digitalServices: DigitalService[] = [
     href: "/layanan/rdm",
     icon: "rdm",
     tone: "blue",
-    login: { href: "https://rdm.mankotabatu.sch.id/", label: "Masuk ke RDM" },
+    login: { href: "/portal/rdm", label: "Masuk ke RDM" },
     detail: {
       slug: "rdm",
       fullName: "Rapor Digital Madrasah (RDM)",
@@ -106,7 +107,7 @@ export const digitalServices: DigitalService[] = [
     href: "/layanan/cbt",
     icon: "cbt",
     tone: "gold",
-    login: { href: "https://uam.mankotabatu.sch.id/", label: "Masuk ke CBT (UAM)" },
+    login: { href: "/portal/cbt", label: "Masuk ke CBT" },
     detail: {
       slug: "cbt",
       fullName: "Computer Based Test (CBT)",
@@ -397,6 +398,7 @@ export const news: NewsItem[] = [
     date: "2026-06-18",
     author: "Humas MAKOBA",
     tone: "teal",
+    image: "/photos/berita-medali-emas.jpg",
     excerpt: "Tim riset MAN Kota Batu kembali mengharumkan nama madrasah dengan riset bertema energi terbarukan di ajang KRSM 2026.",
     content: [
       "Tim riset MAN Kota Batu kembali menorehkan prestasi membanggakan dengan meraih medali emas pada Kompetisi Riset Sains Madrasah (KRSM) tingkat nasional tahun 2026. Penelitian yang diusung mengangkat tema pemanfaatan limbah kulit apel khas Kota Batu sebagai sumber bioetanol ramah lingkungan.",
@@ -411,6 +413,7 @@ export const news: NewsItem[] = [
     date: "2026-06-10",
     author: "Panitia PPDB",
     tone: "blue",
+    image: "/photos/berita-ppdb-dibuka.jpg",
     excerpt: "Pendaftaran peserta didik baru jalur prestasi, afirmasi, dan reguler dibuka secara daring melalui portal PPDB MAKOBA.",
     content: [
       "Penerimaan Peserta Didik Baru (PPDB) MAN Kota Batu untuk tahun pelajaran 2026/2027 resmi dibuka. Pendaftaran dilakukan secara daring melalui portal PPDB madrasah untuk memudahkan calon siswa dari berbagai daerah.",
@@ -425,6 +428,7 @@ export const news: NewsItem[] = [
     date: "2026-06-02",
     author: "Humas MAKOBA",
     tone: "gold",
+    image: "/photos/berita-wisuda-tahfidz.jpg",
     excerpt: "Prosesi wisuda tahfidz angkatan ke-7 berlangsung khidmat di Aula MAKOBA bersama wali murid dan dewan guru.",
     content: [
       "Sebanyak 42 siswa Kelas Tahfidz MAN Kota Batu mengikuti prosesi wisuda tahfidz angkatan ke-7. Acara berlangsung khidmat di Aula MAKOBA dan dihadiri oleh wali murid, dewan guru, serta para pembina hafidz.",
@@ -439,6 +443,7 @@ export const news: NewsItem[] = [
     date: "2026-05-24",
     author: "Humas MAKOBA",
     tone: "teal",
+    image: "/photos/berita-workshop-kti.jpg",
     excerpt: "Menghadirkan dosen pembimbing dari perguruan tinggi negeri untuk mengasah metodologi penelitian siswa.",
     content: [
       "Kelas Riset MAN Kota Batu menggelar workshop penulisan karya ilmiah dengan menghadirkan dosen pembimbing dari perguruan tinggi negeri. Kegiatan ini bertujuan mengasah metodologi penelitian dan kualitas penulisan siswa.",
@@ -455,6 +460,7 @@ export function getNewsBySlug(slug: string): NewsItem | undefined {
 export const principal: { name: string; role: string; message: string; photo?: string } = {
   name: "Drs. H. Farhadi, M.Si",
   role: "Kepala MAN Kota Batu",
+  photo: "/photos/kepala-madrasah.jpg",
   message:
     "Assalamu'alaikum warahmatullahi wabarakatuh. Selamat datang di laman resmi MAN Kota Batu. Kami berkomitmen menghadirkan pendidikan yang menyeimbangkan keunggulan akademik, kedalaman spiritual, dan akhlak mulia. Melalui program Riset, Olimpiade, dan Tahfidz, kami ikhtiarkan setiap siswa tumbuh menjadi generasi yang berilmu, berakhlak, dan berprestasi — siap memberi manfaat bagi umat dan bangsa.",
 };
@@ -480,12 +486,12 @@ export const facilities: { name: string; desc: string; icon: IconName }[] = [
 ];
 
 export const galleryItems: { title: string; date: string; category: string; tone: "teal" | "blue" | "gold"; image?: string }[] = [
-  { title: "Upacara Hari Santri Nasional", date: "2025-10-22", category: "Keagamaan", tone: "teal" },
-  { title: "Pekan Riset & Pameran Karya", date: "2026-03-15", category: "Akademik", tone: "blue" },
-  { title: "Wisuda Tahfidz Angkatan VII", date: "2026-06-02", category: "Keagamaan", tone: "gold" },
-  { title: "Kompetisi Robotik Internal", date: "2026-02-08", category: "Teknologi", tone: "blue" },
-  { title: "Class Meeting & Pentas Seni", date: "2025-12-12", category: "Seni", tone: "gold" },
-  { title: "Studi Lapangan Kelas Riset", date: "2026-04-20", category: "Akademik", tone: "teal" },
+  { title: "Upacara Hari Santri Nasional", date: "2025-10-22", category: "Keagamaan", tone: "teal", image: "/photos/galeri-hari-santri.jpg" },
+  { title: "Pekan Riset & Pameran Karya", date: "2026-03-15", category: "Akademik", tone: "blue", image: "/photos/galeri-pekan-riset.jpg" },
+  { title: "Wisuda Tahfidz Angkatan VII", date: "2026-06-02", category: "Keagamaan", tone: "gold", image: "/photos/galeri-wisuda-tahfidz.jpg" },
+  { title: "Kompetisi Robotik Internal", date: "2026-02-08", category: "Teknologi", tone: "blue", image: "/photos/galeri-robotik.jpg" },
+  { title: "Class Meeting & Pentas Seni", date: "2025-12-12", category: "Seni", tone: "gold", image: "/photos/galeri-pentas-seni.jpg" },
+  { title: "Studi Lapangan Kelas Riset", date: "2026-04-20", category: "Akademik", tone: "teal", image: "/photos/galeri-studi-lapangan.jpg" },
 ];
 
 export const testimonials: { name: string; role: string; quote: string }[] = [

@@ -28,6 +28,9 @@ function Media({
   alt?: string;
   sizes?: string;
 }) {
+  // Photo fades in once loaded; until then (or if the file is missing)
+  // the pastel tile stays as the placeholder.
+  const [loaded, setLoaded] = useState(false);
   return (
     <motion.div layoutId={layoutId} className={`relative h-full w-full ${tone[t]}`}>
       <div className="absolute inset-0 grid place-items-center opacity-60">
@@ -39,7 +42,8 @@ function Media({
           alt={alt ?? ""}
           fill
           sizes={sizes ?? "(max-width: 768px) 50vw, 33vw"}
-          className="absolute inset-0 h-full w-full object-cover"
+          onLoad={() => setLoaded(true)}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${loaded ? "opacity-100" : "opacity-0"}`}
         />
       )}
     </motion.div>

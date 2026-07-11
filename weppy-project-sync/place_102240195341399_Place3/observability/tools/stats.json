@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 5,
+  "lastUpdated": "2026-07-11T05:00:11.310Z",
+  "totalSessions": 1,
+  "totalCalls": 1,
+  "totalSuccessCalls": 1,
+  "totalFailedCalls": 0,
+  "totalFallbackCalls": 0,
+  "totalUnsupportedCalls": 0,
+  "totalWarningCalls": 0,
+  "tools": {
+    "system_info": {
+      "tool": "system_info",
+      "tier": "basic",
+      "commands": {
+        "system_info_ping": {
+          "command": "system_info_ping",
+          "tier": "basic",
+          "totalCalls": 1,
+          "successCount": 1,
+          "failureCount": 0,
+          "fallbackCount": 0,
+          "unsupportedCount": 0,
+          "warningCount": 0,
+          "totalExecutionTimeMs": 14,
+          "avgExecutionTimeMs": 14,
+          "firstUsed": "2026-07-11T05:00:10.309Z",
+          "lastUsed": "2026-07-11T05:00:10.309Z"
+        }
+      },
+      "totalCalls": 1,
+      "successCount": 1,
+      "failureCount": 0,
+      "fallbackCount": 0,
+      "unsupportedCount": 0,
+      "warningCount": 0,
+      "totalExecutionTimeMs": 14,
+      "avgExecutionTimeMs": 14,
+      "firstUsed": "2026-07-11T05:00:10.309Z",
+      "lastUsed": "2026-07-11T05:00:10.309Z"
+    }
+  },
+  "tierSummary": {
+    "basic": {
+      "totalCalls": 0,
+      "successCount": 0,
+      "failureCount": 0,
+      "fallbackCount": 0,
+      "unsupportedCount": 0,
+      "warningCount": 0
+    },
+    "pro": {
+      "totalCalls": 0,
+      "successCount": 0,
+      "failureCount": 0,
+      "fallbackCount": 0,
+      "unsupportedCount": 0,
+      "warningCount": 0
+    }
+  }
+}
