@@ -42,7 +42,7 @@ export function AboutStats() {
               align="left"
               eyebrow="Tentang MAKOBA"
               title="Madrasah Aliyah Negeri Kota Batu"
-              desc={`${school.longName} (MAKOBA) berlokasi di jantung Kota Batu, Jawa Timur — memadukan estetika Islami yang elegan dengan pendidikan modern yang ${school.motto.toLowerCase()}.`}
+              desc={`${school.longName} (MAKOBA) berlokasi di jantung Kota Batu, Jawa Timur memadukan estetika Islami yang elegan dengan pendidikan modern yang maju, bermutu, dan mendunia.`}
             />
             <Reveal delay={0.1}>
               <ul className="mt-8 space-y-3.5">
@@ -58,7 +58,7 @@ export function AboutStats() {
             </Reveal>
             <Reveal delay={0.15}>
               <div className="mt-9">
-                <Button href="#program">Lihat Program Unggulan</Button>
+                <Button href="/#program">Lihat Program Unggulan</Button>
               </div>
             </Reveal>
           </div>

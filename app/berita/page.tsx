@@ -24,13 +24,23 @@ export default function BeritaPage() {
           align="left"
           eyebrow="Kabar Terbaru"
           title="Berita & Informasi"
-          desc="Ikuti perkembangan kegiatan, prestasi, dan pengumuman terbaru dari MAN Kota Batu."
+          desc="Ikuti perkembangan kegiatan, prestasi, dan pengumuman terbaru dari Madrasah Aliyah Negeri Kota Batu melalui portal berita resmi kami."
         />
 
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {news.map((item) => (
             <NewsCard key={item.slug} item={item} />
           ))}
+        </div>
+
+        {/* Figma: Tombol ← Lihat Selengkapnya */}
+        <div className="mt-12 flex justify-center">
+          <Link
+            href="/berita"
+            className="group inline-flex items-center gap-2 rounded-full border border-line bg-surface px-6 py-3 text-sm font-semibold text-ink shadow-card transition-all hover:-translate-y-0.5 hover:text-blue"
+          >
+            ← Lihat Selengkapnya
+          </Link>
         </div>
       </Container>
     </main>

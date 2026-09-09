@@ -79,6 +79,25 @@ export function News() {
           </div>
         </div>
 
+        {/* Figma Kartu ajakan: Ingin Info Lebih Cepat? Ikuti Instagram */}
+        <Reveal delay={0.1}>
+          <div className="mt-10 flex flex-col items-start justify-between gap-4 rounded-card bg-dark p-6 text-on-dark shadow-card sm:flex-row sm:items-center sm:p-8">
+            <div>
+              <h3 className="font-display text-xl font-bold text-on-dark">Ingin Info Lebih Cepat?</h3>
+              <p className="mt-1 text-sm text-on-dark/70">Ikuti Instagram resmi kami!!</p>
+            </div>
+            <a
+              href="https://www.instagram.com/mankotabatuofficial/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-surface px-6 py-3 text-sm font-semibold text-blue shadow-card transition-all hover:-translate-y-0.5"
+            >
+              Follow Sekarang
+              <Icon name="external" className="h-4 w-4" />
+            </a>
+          </div>
+        </Reveal>
+
         {/* Mobile path to the full news index (the header link is sm+ only) */}
         <Reveal className="mt-8 sm:hidden">
           <Button href="/berita" variant="outline" className="w-full">

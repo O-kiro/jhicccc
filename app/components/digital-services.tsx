@@ -15,7 +15,8 @@ const iconTone: Record<string, string> = {
 };
 
 // Bento rhythm: wide tiles on the first and last rows, compact tiles between.
-const WIDE = new Set([0, 1, 6, 7]);
+// Figma: 6 layanan — first and last tiles wide, middle tiles compact
+const WIDE = new Set([0, 5]);
 const cardBase =
   "card-glow flex h-full rounded-card bg-surface shadow-card transition-all duration-200 hover:-translate-y-1.5 hover:shadow-hover";
 
@@ -61,7 +62,7 @@ export function DigitalServices() {
           {digitalServices.map((s, i) => {
             const tint = iconTone[s.tone];
             const wide = WIDE.has(i);
-            const href = s.login?.href ?? s.href;
+            const href = s.href;
             const external = href.startsWith("http");
             const actionIcon = external ? "external" : "arrow";
             const actionLabel = s.login ? "Masuk" : "Buka";

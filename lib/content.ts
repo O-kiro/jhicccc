@@ -1,6 +1,7 @@
 /**
  * Single source of truth for the MAN Kota Batu homepage.
- * All copy is real (PRD §13 — target: 0 konten placeholder), in Bahasa Indonesia.
+ * Diselaraskan 1:1 dengan figma.md (prototype Figma).
+ * All copy in Bahasa Indonesia.
  * Social/contact links are best-effort official handles — verify before launch.
  */
 
@@ -28,9 +29,10 @@ export const school = {
   researchDecree: "SK Dirjen Pendidikan Islam No. 6757 Tahun 2020",
 };
 
+// Figma §1 Hero — Statistik cepat: 1.248 Siswa Aktif · 99 Guru & Tendik · 38 Rombongan Belajar · 32 Mata Pelajaran
 export const stats: { value: number; suffix?: string; label: string; icon: IconName }[] = [
-  { value: 1299, label: "Siswa Aktif", icon: "users" },
-  { value: 84, label: "Guru & Tenaga Pendidik", icon: "book" },
+  { value: 1248, label: "Siswa Aktif", icon: "users" },
+  { value: 99, label: "Guru & Tendik", icon: "book" },
   { value: 38, label: "Rombongan Belajar", icon: "globe" },
   { value: 32, label: "Mata Pelajaran", icon: "sparkle" },
 ];
@@ -61,6 +63,8 @@ export type DigitalService = {
   };
 };
 
+// Figma §1 — Layanan Digital MAKOBA (6):
+// PPDB Online · RDM · CBT · E-Learning · Perpustakaan Digital · PPID & Pengaduan
 export const digitalServices: DigitalService[] = [
   {
     name: "PPDB Online",
@@ -194,64 +198,6 @@ export const digitalServices: DigitalService[] = [
     },
   },
   {
-    name: "Absensi Digital",
-    desc: "Kehadiran siswa terpantau real-time.",
-    href: "/layanan/absensi-digital",
-    icon: "attendance",
-    tone: "gold",
-    detail: {
-      slug: "absensi-digital",
-      fullName: "Absensi Digital",
-      audience: "Wali murid",
-      about: [
-        "Absensi Digital mencatat kehadiran siswa MAN Kota Batu secara elektronik setiap hari. Data kehadiran terekap otomatis sehingga madrasah dan wali murid dapat memantau kedisiplinan siswa dengan mudah.",
-        "Sistem ini menjadi bagian dari pembinaan karakter: keterlambatan dan ketidakhadiran terpantau sejak dini sehingga dapat ditindaklanjuti bersama antara wali kelas dan orang tua.",
-      ],
-      features: [
-        "Pencatatan kehadiran elektronik setiap hari",
-        "Rekap otomatis harian, bulanan, dan semester",
-        "Pemantauan keterlambatan dan ketidakhadiran",
-        "Tindak lanjut pembinaan bersama wali kelas",
-        "Data akurat sebagai dasar penilaian kedisiplinan",
-      ],
-      steps: [
-        { title: "Siswa Melakukan Presensi", desc: "Presensi dilakukan setiap hari saat tiba di madrasah." },
-        { title: "Sistem Merekap Otomatis", desc: "Kehadiran, keterlambatan, dan izin terekam dalam satu sistem." },
-        { title: "Wali Murid Memantau", desc: "Informasi kehadiran dapat dikonfirmasi melalui wali kelas atau kanal informasi madrasah." },
-        { title: "Tindak Lanjut", desc: "Ketidakhadiran tanpa keterangan ditindaklanjuti wali kelas bersama orang tua." },
-      ],
-    },
-  },
-  {
-    name: "E-Book Karya",
-    desc: "Publikasi buku dan karya tulis siswa.",
-    href: "/layanan/e-book-karya",
-    icon: "ebook",
-    tone: "teal",
-    detail: {
-      slug: "e-book-karya",
-      fullName: "E-Book Karya MAKOBA",
-      audience: "Siswa, guru & masyarakat umum",
-      about: [
-        "E-Book Karya adalah rak digital yang memuat buku, antologi, dan karya tulis ilmiah hasil karya siswa serta guru MAN Kota Batu. Setiap karya yang lahir dari kelas, ekstrakurikuler, maupun program riset diabadikan agar dapat dibaca dan menginspirasi.",
-        "Publikasi ini merupakan buah dari budaya literasi madrasah penyelenggara riset — bukti bahwa menulis dan meneliti menjadi keseharian warga MAKOBA.",
-      ],
-      features: [
-        "Kumpulan buku dan antologi karya siswa & guru",
-        "Publikasi karya tulis ilmiah Kelas Riset",
-        "Dapat dibaca secara daring oleh masyarakat",
-        "Dokumentasi jejak karya setiap angkatan",
-        "Memotivasi budaya menulis di madrasah",
-      ],
-      steps: [
-        { title: "Buka Koleksi", desc: "Telusuri daftar karya yang telah diterbitkan madrasah." },
-        { title: "Pilih Judul", desc: "Pilih buku, antologi, atau karya ilmiah yang ingin dibaca." },
-        { title: "Baca Secara Daring", desc: "Karya dapat dibaca langsung dalam format digital." },
-        { title: "Terbitkan Karyamu", desc: "Siswa yang ingin menerbitkan karya dapat menghubungi guru pembina literasi." },
-      ],
-    },
-  },
-  {
     name: "PPID & Pengaduan",
     desc: "Layanan informasi publik & aspirasi.",
     href: "/layanan/ppid",
@@ -303,7 +249,7 @@ export const programs: Program[] = [
   {
     slug: "riset",
     name: "Kelas Riset",
-    tag: "Sains & Inovasi",
+    tag: "Karya ilmiah",
     icon: "research",
     color: "teal",
     desc: "Sebagai madrasah penyelenggara riset resmi, MAKOBA membimbing siswa melakukan penelitian ilmiah dari penyusunan proposal, eksperimen, hingga publikasi karya pada lomba dan jurnal nasional.",
@@ -322,7 +268,7 @@ export const programs: Program[] = [
   {
     slug: "olimpiade",
     name: "Kelas Olimpiade",
-    tag: "Akademik Kompetitif",
+    tag: "kompetisi akademik",
     icon: "olympiad",
     color: "blue",
     desc: "Pembinaan intensif bagi siswa berbakat untuk berkompetisi di olimpiade sains, matematika, dan ilmu sosial mulai tingkat kota hingga internasional dengan kurikulum pengayaan khusus.",
@@ -341,7 +287,7 @@ export const programs: Program[] = [
   {
     slug: "tahfidz",
     name: "Kelas Tahfidz",
-    tag: "Qurani & Akhlak",
+    tag: "Penghafal Al-Qur'an",
     icon: "tahfidz",
     color: "gold",
     desc: "Program tahfidzul Qur'an yang memadukan hafalan, tahsin, dan pemahaman makna, membentuk pribadi siswa yang berakhlak mulia tanpa meninggalkan prestasi akademik.",
@@ -363,16 +309,18 @@ export function getProgramBySlug(slug: string): Program | undefined {
   return programs.find((p) => p.slug === slug);
 }
 
+// Figma §1 — Prestasi Membanggakan (filter KOTA · PROVINSI · NASIONAL · INTERNASIONAL)
+// Figma list: Silver Medal KOSSMI Robotik — Reza Malik (2026), Silver Medal Robotik ITS — M. Alief & M. Azriel (2026), Medali Perunggu IPSI — Raskha Aqila
 export const achievements: {
   title: string; student: string; level: "Kota" | "Provinsi" | "Nasional" | "Internasional";
   year: number; organizer: string; field: string;
 }[] = [
+  { title: "Silver Medal KOSSMI Robotik", student: "Reza Malik", level: "Nasional", year: 2026, organizer: "KOSSMI 2026 — Universitas Telkom", field: "Robotik" },
+  { title: "Silver Medal Robotik ITS", student: "M. Alief & M. Azriel", level: "Nasional", year: 2026, organizer: "ITS Surabaya", field: "Robotik" },
+  { title: "Medali Perunggu IPSI", student: "Raskha Aqila", level: "Kota", year: 2026, organizer: "IPSI Kota Batu", field: "Pencak Silat" },
   { title: "Medali Emas — Riset Sains Madrasah", student: "Tim Riset MAKOBA", level: "Nasional", year: 2026, organizer: "Kemenag RI", field: "Riset" },
   { title: "Juara 1 Olimpiade Matematika", student: "Aisyah Nur Haliza", level: "Provinsi", year: 2026, organizer: "Dindik Jatim", field: "Akademik" },
   { title: "Best Paper — Science Fair", student: "M. Fariz Abdullah", level: "Internasional", year: 2025, organizer: "ASEAN Youth Science", field: "Riset" },
-  { title: "Juara 2 MTQ Pelajar", student: "Khaled Ibrahim", level: "Provinsi", year: 2026, organizer: "LPTQ Jatim", field: "Keagamaan" },
-  { title: "Juara 1 KSM Geografi", student: "Salsabila Putri", level: "Nasional", year: 2025, organizer: "Kemenag RI", field: "Akademik" },
-  { title: "Juara Umum Pencak Silat", student: "Tim Tapak Suci", level: "Kota", year: 2026, organizer: "IPSI Kota Batu", field: "Olahraga" },
   { title: "Gold Medal — Robotics Challenge", student: "Tim Robotik MAKOBA", level: "Internasional", year: 2026, organizer: "World Robotic Olympiad", field: "Teknologi" },
   { title: "Juara 1 Tahfidz 5 Juz", student: "Fatimah Az-Zahra", level: "Kota", year: 2026, organizer: "Kemenag Kota Batu", field: "Keagamaan" },
 ];
@@ -390,24 +338,25 @@ export type NewsItem = {
   image?: string;
 };
 
+// Figma §2 — Daftar Berita (6 item) + Figma §1 Berita utama KOSSMI
 export const news: NewsItem[] = [
   {
-    slug: "medali-emas-riset-sains-nasional",
-    title: "MAKOBA Raih Medali Emas Kompetisi Riset Sains Madrasah Nasional",
+    slug: "makoba-raih-tiga-medali-kossmi-2026",
+    title: "MAKOBA Raih Tiga Medali Dalam Ajang KOSSMI 2026, Universitas Telkom",
     category: "Prestasi",
     date: "2026-06-18",
     author: "Humas MAKOBA",
     tone: "teal",
-    image: "/photos/berita-medali-emas.jpg",
-    excerpt: "Tim riset MAN Kota Batu kembali mengharumkan nama madrasah dengan riset bertema energi terbarukan di ajang KRSM 2026.",
+    image: "/photos/berita-kossmi-2026.jpg",
+    excerpt: "MAKOBA M NYA MENYALA!! K NYA KEREN!!!🔥🔥 — Tim Robotik dan Riset MAKOBA borong medali di ajang Kompetisi Sains Siswa Madrasah Indonesia 2026.",
     content: [
-      "Tim riset MAN Kota Batu kembali menorehkan prestasi membanggakan dengan meraih medali emas pada Kompetisi Riset Sains Madrasah (KRSM) tingkat nasional tahun 2026. Penelitian yang diusung mengangkat tema pemanfaatan limbah kulit apel khas Kota Batu sebagai sumber bioetanol ramah lingkungan.",
-      "Karya ini lahir dari proses pembimbingan intensif di laboratorium riset madrasah, mulai dari penyusunan proposal, eksperimen, hingga penulisan laporan ilmiah. Para juri menilai riset ini relevan dengan kearifan lokal sekaligus menjawab tantangan energi terbarukan.",
-      "Kepala madrasah menyampaikan apresiasi atas capaian ini dan berharap semangat meneliti terus tumbuh di kalangan siswa. Prestasi ini menegaskan posisi MAKOBA sebagai madrasah penyelenggara riset yang konsisten melahirkan inovasi.",
+      "MAKOBA M NYA MENYALA!! K NYA KEREN!!!🔥🔥 — MAN Kota Batu kembali mengharumkan nama madrasah dengan meraih tiga medali pada ajang Kompetisi Sains Siswa Madrasah Indonesia (KOSSMI) 2026 yang digelar di Universitas Telkom.",
+      "Capaian ini diraih berkat pembinaan intensif di Kelas Riset dan Kelas Robotik: Silver Medal KOSSMI Robotik oleh Reza Malik, Silver Medal kategori Creative Open di ITS oleh M. Alief & M. Azriel, serta medali perunggu IPSI oleh Raskha Aqila yang turut mengharumkan nama madrasah pada pekan yang sama.",
+      "Kepala madrasah menyampaikan rasa syukur dan apresiasi kepada siswa, pembina, dan orang tua. Prestasi ini menegaskan posisi MAKOBA sebagai madrasah penyelenggara riset yang konsisten melahirkan inovasi — Berilmu, Berakhlak, Berprestasi.",
     ],
   },
   {
-    slug: "ppdb-2026-2027-dibuka",
+    slug: "pembukaan-ppdb-2026-2027",
     title: "Pembukaan PPDB Tahun Pelajaran 2026/2027 Resmi Dimulai",
     category: "Pengumuman",
     date: "2026-06-10",
@@ -422,7 +371,7 @@ export const news: NewsItem[] = [
     ],
   },
   {
-    slug: "wisuda-tahfidz-angkatan-7",
+    slug: "wisuda-tahfidz-42-siswa-khatam-5-juz",
     title: "Wisuda Tahfidz: 42 Siswa Khatamkan Hafalan 5 Juz",
     category: "Keagamaan",
     date: "2026-06-02",
@@ -437,18 +386,48 @@ export const news: NewsItem[] = [
     ],
   },
   {
-    slug: "workshop-karya-ilmiah",
-    title: "Workshop Penulisan Karya Ilmiah untuk Kelas Riset",
+    slug: "siswa-makoba-raih-medali-perak-its-creative-open",
+    title: "Siswa MAKOBA Berhasil Meraih Medali Perak Di ITS Surabaya",
     category: "Akademik",
     date: "2026-05-24",
     author: "Humas MAKOBA",
     tone: "teal",
-    image: "/photos/berita-workshop-kti.jpg",
-    excerpt: "Menghadirkan dosen pembimbing dari perguruan tinggi negeri untuk mengasah metodologi penelitian siswa.",
+    image: "/photos/berita-its-perak.jpg",
+    excerpt: "Pada Kategori Creative Open di ITS, Siswa Makoba Berhasil Meraih Medali Perak — suatu kebanggaan bagi madrasah.",
     content: [
-      "Kelas Riset MAN Kota Batu menggelar workshop penulisan karya ilmiah dengan menghadirkan dosen pembimbing dari perguruan tinggi negeri. Kegiatan ini bertujuan mengasah metodologi penelitian dan kualitas penulisan siswa.",
-      "Peserta dibekali materi mulai dari perumusan masalah, kajian pustaka, metode penelitian, hingga teknik penyajian data. Sesi praktik membuat siswa langsung menerapkan kaidah penulisan ilmiah pada riset mereka.",
-      "Workshop semacam ini rutin diselenggarakan untuk menjaga kualitas riset siswa agar siap berkompetisi di tingkat nasional maupun internasional.",
+      "Pada Kategori Creative Open di Institut Teknologi Sepuluh Nopember (ITS) Surabaya, siswa MAN Kota Batu berhasil meraih medali perak. Kompetisi ini mempertemukan inovator muda dari berbagai daerah untuk menampilkan karya robotik kreatif.",
+      "M. Alief dan M. Azriel tampil memukau dengan robot rakitan yang menggabungkan mekanik presisi dan pemrograman. Juri mengapresiasi kreativitas solusi dan kemampuan presentasi tim MAKOBA.",
+      "Capaian ini melengkapi raihan medali KOSSMI di pekan yang sama dan menjadi motivasi bagi ekstrakurikuler Robotik untuk terus berkarya.",
+    ],
+  },
+  {
+    slug: "ribuan-siswi-serentak-minum-tablet-tambah-darah",
+    title: "Ribuan Siswi Serentak Minum Tablet Tambah Darah",
+    category: "Kesehatan",
+    date: "2026-05-04",
+    author: "Humas MAKOBA",
+    tone: "blue",
+    image: "/photos/berita-ttd.jpg",
+    excerpt: "Kota Batu, 4 Mei 2026. Suasana berbeda terasa di Aula MAN Kota Batu pada peringatan Hari Kesehatan — ribuan siswi serentak minum tablet tambah darah.",
+    content: [
+      "Kota Batu, 4 Mei 2026. Suasana berbeda terasa di Aula MAN Kota Batu pada peringatan Hari Kesehatan. Ribuan siswi mengikuti gerakan serentak minum tablet tambah darah (TTD) sebagai upaya pencegahan anemia remaja putri.",
+      "Kegiatan ini bekerja sama dengan Dinas Kesehatan Kota Batu dan Puskesmas setempat. Edukasi gizi seimbang dan pentingnya TTD mingguan disampaikan sebelum pelaksanaan serentak.",
+      "Madrasah berkomitmen mendukung kesehatan peserta didik sebagai fondasi prestasi belajar yang optimal.",
+    ],
+  },
+  {
+    slug: "man-kota-batu-raih-predikat-zona-integritas",
+    title: "MAN Kota Batu Raih Predikat Zona Integritas Menuju WBK/WBBM",
+    category: "Prestasi",
+    date: "2026-05-24",
+    author: "Humas MAKOBA",
+    tone: "gold",
+    image: "/photos/berita-zi.jpg",
+    excerpt: "Madrasah Aliyah Negeri (MAN) Kota Batu kembali menunjukkan komitmennya dalam membangun tata kelola madrasah yang bersih dan melayani.",
+    content: [
+      "Madrasah Aliyah Negeri (MAN) Kota Batu kembali menunjukkan komitmennya dalam membangun tata kelola madrasah yang bersih, transparan, dan melayani melalui penguatan Zona Integritas menuju Wilayah Bebas dari Korupsi (WBK) dan Wilayah Birokrasi Bersih Melayani (WBBM).",
+      "Berbagai inovasi layanan — mulai dari PPID, keterbukaan informasi publik, hingga digitalisasi layanan akademik — menjadi bukti keseriusan madrasah dalam menghadirkan pelayanan prima bagi siswa, orang tua, dan masyarakat.",
+      "Predikat ini menjadi motivasi bagi seluruh warga madrasah untuk terus menjaga integritas, profesionalisme, dan semangat Berilmu, Berakhlak, Berprestasi.",
     ],
   },
 ];
@@ -457,23 +436,25 @@ export function getNewsBySlug(slug: string): NewsItem | undefined {
   return news.find((n) => n.slug === slug);
 }
 
+// Figma §1 — Sambutan Kepala Madrasah (full text per figma.md)
 export const principal: { name: string; role: string; message: string; photo?: string } = {
   name: "Drs. H. Farhadi, M.Si",
   role: "Kepala MAN Kota Batu",
   photo: "/photos/kepala-madrasah.jpg",
   message:
-    "Assalamu'alaikum warahmatullahi wabarakatuh. Selamat datang di laman resmi MAN Kota Batu. Kami berkomitmen menghadirkan pendidikan yang menyeimbangkan keunggulan akademik, kedalaman spiritual, dan akhlak mulia. Melalui program Riset, Olimpiade, dan Tahfidz, kami ikhtiarkan setiap siswa tumbuh menjadi generasi yang berilmu, berakhlak, dan berprestasi — siap memberi manfaat bagi umat dan bangsa.",
+    "Assalamu'alaikum warahmatullahi wabarakatuh. Selamat datang di website resmi MAN Kota Batu. Website ini menjadi sarana informasi dan komunikasi untuk mengenal komitmen kami dalam menghadirkan pendidikan unggul di bawah Kementerian Agama Republik Indonesia. Dengan tenaga pendidik profesional, lingkungan belajar yang kondusif, serta berbagai prestasi akademik dan nonakademik, kami berkomitmen mencetak generasi yang berilmu, berakhlak mulia, dan siap menghadapi tantangan masa depan. Semoga website ini dapat mempererat sinergi antara madrasah, orang tua, alumni, dan masyarakat.",
 };
 
+// Figma §1 — Ekstrakurikuler (8): Tata Boga, Pramuka, Basket, Catur, Paduan Suara, Robotik, Badminton, Futsal
 export const extracurriculars: { name: string; category: string; desc: string; icon: IconName }[] = [
-  { name: "Karya Ilmiah Remaja", category: "Akademik", desc: "Wadah penelitian dan inovasi ilmiah siswa.", icon: "flask" },
-  { name: "Hadrah & Banjari", category: "Keagamaan", desc: "Seni musik islami untuk syiar dan kreativitas.", icon: "mic" },
-  { name: "Pramuka", category: "Kepanduan", desc: "Pembentukan karakter, disiplin, dan kepemimpinan.", icon: "leaf" },
-  { name: "Pencak Silat", category: "Olahraga", desc: "Bela diri tradisional pembentuk fisik & mental.", icon: "ball" },
-  { name: "English Club", category: "Bahasa", desc: "Pengembangan kemampuan berbahasa Inggris.", icon: "globe" },
-  { name: "Jurnalistik & Fotografi", category: "Seni", desc: "Dokumentasi dan literasi media madrasah.", icon: "camera" },
-  { name: "Robotik & Coding", category: "Teknologi", desc: "Rancang bangun robot dan pemrograman dasar.", icon: "cbt" },
-  { name: "Seni Rupa & Kaligrafi", category: "Seni", desc: "Ekspresi seni visual dan kaligrafi islami.", icon: "palette" },
+  { name: "Tata Boga", category: "Keterampilan", desc: "Cita Rasa dan Kreativitas.", icon: "palette" },
+  { name: "Pramuka", category: "Kepanduan", desc: "Pembentukan Karakter, Disiplin, dan Kepemimpinan.", icon: "leaf" },
+  { name: "Basket", category: "Olahraga", desc: "Disiplin, Mental, Strategi Kerja Sama Tim", icon: "ball" },
+  { name: "Catur", category: "Olahraga", desc: "Olah Pikir, Asah Taktik, Strategi, Kefokusan", icon: "globe" },
+  { name: "Paduan Suara", category: "Seni Suara", desc: "Mengekspresikan Diri, Nada Indah, Sejuta Pesona.", icon: "mic" },
+  { name: "Robotik", category: "Teknologi", desc: "Rancang Bangun Robot dan Pemrograman Dasar.", icon: "cbt" },
+  { name: "Badminton", category: "Olahraga", desc: "Kecepatan, Kekuatan, Prestasi, Olah Taktik", icon: "ball" },
+  { name: "Futsal", category: "Olahraga", desc: "Gocek Cepat, Kerja Sama, Strategi, Taktik Cerdas, Aksi Tangkas.", icon: "ball" },
 ];
 
 export const facilities: { name: string; desc: string; icon: IconName }[] = [
@@ -494,7 +475,13 @@ export const galleryItems: { title: string; date: string; category: string; tone
   { title: "Studi Lapangan Kelas Riset", date: "2026-04-20", category: "Akademik", tone: "teal", image: "/photos/galeri-studi-lapangan.jpg" },
 ];
 
+// Figma §1 — Apa Kata Mereka: ELLLL etc + tambahan real testimoni
 export const testimonials: { name: string; role: string; quote: string }[] = [
+  {
+    name: "ELLLL",
+    role: "Alumni pertama",
+    quote: "Awalnya saya deg-degan masuk sekolah baru, tapi lewat MAKOBA saya jadi kenal banyak teman dan kakak kelas. Acaranya seru dan nggak membosankan!",
+  },
   {
     name: "Hanifah Salsabila",
     role: "Alumni 2023 · Mahasiswi UGM",
@@ -509,11 +496,6 @@ export const testimonials: { name: string; role: string; quote: string }[] = [
     name: "Muhammad Iqbal",
     role: "Siswa Kelas XII · Kelas Tahfidz",
     quote: "Di MAKOBA saya bisa menghafal Al-Qur'an sambil tetap fokus belajar. Lingkungannya benar-benar mendukung.",
-  },
-  {
-    name: "Dewi Anggraini",
-    role: "Alumni 2022 · Wirausaha Muda",
-    quote: "Organisasi dan ekstrakurikuler di madrasah membentuk kepemimpinan saya. Terima kasih, MAKOBA.",
   },
 ];
 
@@ -547,6 +529,7 @@ export const alumni: {
   },
 ];
 
+// Figma §1 — FAQ (4 item sesuai figma.md)
 export const faqs: { q: string; a: string }[] = [
   {
     q: "Kapan pendaftaran PPDB MAN Kota Batu dibuka?",
@@ -557,49 +540,29 @@ export const faqs: { q: string; a: string }[] = [
     a: "Terdapat tiga program unggulan: Kelas Riset, Kelas Olimpiade, dan Kelas Tahfidz, yang dapat dipilih sesuai minat dan bakat siswa.",
   },
   {
-    q: "Apakah MAN Kota Batu menyediakan asrama?",
-    a: "MAKOBA memfasilitasi program pembinaan, termasuk dukungan bagi siswa tahfidz. Informasi detail asrama dapat ditanyakan langsung ke pihak madrasah.",
+    q: "Apa Saja Fasilitas di Asrama",
+    a: "MAKOBA memfasilitasi program pembinaan, termasuk dukungan bagi siswa tahfidz. Informasi detail asrama dapat ditanyakan langsung ke pihak madrasah melalui kontak resmi.",
   },
   {
     q: "Bagaimana cara mengakses rapor digital (RDM)?",
     a: "Wali murid dapat masuk ke layanan RDM melalui menu Layanan Digital menggunakan akun yang diberikan oleh wali kelas.",
   },
-  {
-    q: "Apa itu status Madrasah Penyelenggara Riset?",
-    a: `MAKOBA ditetapkan sebagai madrasah penyelenggara riset resmi berdasarkan ${school.researchDecree}, sehingga riset menjadi bagian dari pembelajaran.`,
-  },
-  {
-    q: "Bagaimana prosedur mengajukan izin penelitian di madrasah?",
-    a: "Peneliti eksternal dapat mengajukan surat permohonan melalui layanan PPID atau menghubungi bagian tata usaha madrasah.",
-  },
-  {
-    q: "Apakah tersedia beasiswa bagi siswa berprestasi?",
-    a: "Tersedia berbagai program apresiasi dan keringanan bagi siswa berprestasi maupun kurang mampu sesuai ketentuan yang berlaku.",
-  },
-  {
-    q: "Di mana lokasi MAN Kota Batu?",
-    a: `MAKOBA beralamat di ${school.address}. Lokasi dapat dilihat pada peta di bagian Kontak.`,
-  },
 ];
 
+// Figma §1 — Agenda Kegiatan (3): MPLM, Awal Tahun Pelajaran 2026/2027, Tahun Baru Hijriah 1448 H
 export const agenda: {
   date: string; title: string; category: "Ujian" | "Ekstrakurikuler" | "Keagamaan" | "Umum";
 }[] = [
   { date: "2026-07-07", title: "Masa Pengenalan Lingkungan Madrasah (MPLM)", category: "Umum" },
   { date: "2026-07-14", title: "Awal Tahun Pelajaran 2026/2027", category: "Umum" },
   { date: "2026-07-26", title: "Peringatan Tahun Baru Hijriah 1448 H", category: "Keagamaan" },
-  { date: "2026-08-09", title: "Seleksi Kelas Olimpiade", category: "Ujian" },
-  { date: "2026-08-17", title: "Upacara HUT Kemerdekaan RI ke-81", category: "Umum" },
-  { date: "2026-08-23", title: "Gelar Karya Riset Siswa", category: "Ekstrakurikuler" },
-  { date: "2026-09-06", title: "Penilaian Tengah Semester Ganjil", category: "Ujian" },
-  { date: "2026-09-20", title: "Pekan Olahraga & Seni Madrasah", category: "Ekstrakurikuler" },
 ];
 
+// Figma — Footer tiap halaman: Instagram, YouTube, Facebook (3)
 export const socials: { name: string; href: string; icon: IconName }[] = [
   { name: "Instagram", href: "https://www.instagram.com/mankotabatuofficial/", icon: "instagram" },
   { name: "YouTube", href: "https://www.youtube.com/@mankotabatuofficial3160", icon: "youtube" },
   { name: "Facebook", href: "https://www.facebook.com/mankotabatuofficial?rdid=14F5S8fbcuWTPb2W&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2FNUhA5wfroPR5aW51%2F#", icon: "facebook" },
-  { name: "TikTok", href: "https://www.tiktok.com/@mankotabatuofficial?_t=8qcHwAexXH8&_r=1", icon: "tiktok" },
 ];
 
 export const navItems: { label: string; href: string; children?: { label: string; href: string }[] }[] = [
@@ -641,55 +604,57 @@ export const navItems: { label: string; href: string; children?: { label: string
   { label: "Kontak", href: "/kontak" },
 ];
 
+// Figma §6 — Profil MAN Kota Batu
 export const profile = {
   intro: [
     "Madrasah Aliyah Negeri Kota Batu (MAKOBA) adalah lembaga pendidikan menengah berciri khas agama Islam di bawah naungan Kementerian Agama. Berlokasi di jantung Kota Batu, Jawa Timur, MAKOBA berkomitmen menyelenggarakan pendidikan yang menyeimbangkan keunggulan akademik, kedalaman spiritual, dan akhlak mulia.",
-    "Sebagai madrasah penyelenggara riset resmi, MAKOBA menghadirkan tiga program unggulan — Kelas Riset, Kelas Olimpiade, dan Kelas Tahfidz — yang membentuk generasi berilmu, berakhlak, dan berprestasi.",
+    "Sebagai madrasah penyelenggara riset resmi, MAKOBA menghadirkan tiga program unggulan (Kelas Riset, Kelas Olimpiade, dan Kelas Tahfidz) yang membentuk generasi berilmu, berakhlak, dan berprestasi.",
   ],
   vision:
-    "Terwujudnya madrasah yang unggul dalam imtak dan iptek, berkarakter Islami, serta mampu bersaing di tingkat nasional dan global.",
+    "Terwujudnya Madrasah Unggul dan Bermartabat untuk Mencetak Generasi Cerdas, Maslahat, dan Berkontribusi Menuju Indonesia Emas 2045",
   missions: [
-    "Menyelenggarakan pembelajaran yang berkualitas, kreatif, dan berbasis riset.",
-    "Menanamkan nilai-nilai keislaman dan akhlak mulia dalam kehidupan sehari-hari.",
-    "Mengembangkan potensi siswa di bidang akademik, olimpiade, dan tahfidz.",
-    "Membangun budaya berprestasi yang kompetitif dan kolaboratif.",
-    "Mewujudkan tata kelola madrasah yang bersih, profesional, dan melayani.",
+    "Meningkatkan ketaatan beribadah, berperilaku islami, nasionalis dan berakhlak mulia",
+    "Mempersiapkan sumber daya manusia yang unggul dalam akademik dan non akademik",
+    "Mempersiapkan peserta didik melanjutkan ke perguruan tinggi",
+    "Membekali peserta didik dengan ketrampilan dan kecakapan hidup",
+    "Menciptakan lingkungan belajar yang ramah dan pembelajaran yang berbasis literasi (Baca tulis, numerasi, sains, digital finansial, budaya dan kewarganegaraan)",
   ],
   history: [
-    { year: "1980", title: "Cikal Bakal Madrasah", desc: "Berdiri sebagai lembaga pendidikan Islam yang menjadi cikal bakal MAN Kota Batu." },
-    { year: "1995", title: "Penegerian", desc: "Resmi menjadi Madrasah Aliyah Negeri dengan pengakuan dan dukungan pemerintah." },
-    { year: "2020", title: "Madrasah Penyelenggara Riset", desc: "Ditetapkan sebagai madrasah riset melalui SK Dirjen Pendidikan Islam No. 6757 Tahun 2020." },
-    { year: "2024", title: "Zona Integritas WBK", desc: "Memperkuat komitmen pelayanan bersih melalui pembangunan Zona Integritas WBK/WBBM." },
+    { year: "1970", title: "Cikal Bakal Madrasah", desc: "Berdiri sebagai PGAA NU Batu, diresmikan menjadi SPIAIN Sunan Ampel melalui SK Menteri Agama RI No. 02 Tahun 1970." },
+    { year: "1978", title: "Penegerian", desc: "Resmi menjadi Madrasah Aliyah Negeri Malang II berdasarkan SK Menteri Agama RI No. 17 Tahun 1978." },
+    { year: "1979", title: "Pindah Lokasi", desc: "Menempati gedung sewa milik MI Raoudlatul Ulum di Jl. Lahor 23 Batu." },
+    { year: "1981", title: "Gedung Sendiri", desc: "Menempati gedung milik sendiri (pemerintah) di Jl. Patimura No. 25 Batu, dibangun dengan dana DIP Tahun Anggaran 1980/1981." },
+    { year: "2014", title: "Perubahan Nama", desc: "Berubah menjadi Madrasah Aliyah Negeri Kota Batu berdasarkan SK Menteri Agama No. 157 Tahun 2014." },
   ],
   org: [
     { name: "Drs. H. Farhadi, M.Si", role: "Kepala Madrasah", icon: "shield" as IconName },
-    { name: "Waka Kurikulum", role: "Bidang Kurikulum", icon: "book" as IconName },
     { name: "Waka Kesiswaan", role: "Bidang Kesiswaan", icon: "users" as IconName },
     { name: "Waka Sarana & Prasarana", role: "Bidang Sarpras", icon: "globe" as IconName },
+    { name: "Waka Kurikulum", role: "Bidang Kurikulum", icon: "book" as IconName },
     { name: "Waka Humas", role: "Hubungan Masyarakat", icon: "mail" as IconName },
     { name: "Kepala Tata Usaha", role: "Administrasi & Tata Usaha", icon: "rdm" as IconName },
   ],
 };
 
+// Figma §3 — PPDB 2026/2027 (Dua Jalur + 5 Tahapan + Persyaratan)
 export const ppdbInfo = {
   yearLabel: "2026 / 2027",
-  // Countdown target — penutupan pendaftaran gelombang 1
+  // Countdown target — penutupan pendaftaran
   deadlineISO: "2026-07-05T23:59:59+07:00",
   jalur: [
     { name: "Jalur Prestasi", icon: "trophy" as IconName, desc: "Bagi siswa dengan prestasi akademik maupun non-akademik tingkat kota hingga internasional." },
-    { name: "Jalur Afirmasi", icon: "heart" as IconName, desc: "Bagi calon siswa dari keluarga kurang mampu dengan dukungan keringanan biaya." },
-    { name: "Jalur Reguler", icon: "users" as IconName, desc: "Jalur umum melalui seleksi administrasi dan tes masuk madrasah." },
+    { name: "Jalur Reguler", icon: "users" as IconName, desc: "Jalur umum melalui seleksi administrasi dan tes masuk madrasah secara kompetitif." },
   ],
   timeline: [
-    { date: "2026-06-10", title: "Pendaftaran Dibuka", desc: "Pendaftaran daring gelombang 1 melalui portal PPDB MAKOBA." },
-    { date: "2026-07-05", title: "Penutupan Gelombang 1", desc: "Batas akhir pendaftaran dan unggah berkas gelombang 1." },
-    { date: "2026-07-09", title: "Tes Seleksi", desc: "Tes potensi akademik, baca Al-Qur'an, dan wawancara." },
-    { date: "2026-07-12", title: "Pengumuman Hasil", desc: "Pengumuman kelulusan diumumkan melalui portal PPDB." },
-    { date: "2026-07-16", title: "Daftar Ulang", desc: "Verifikasi dan daftar ulang bagi calon siswa yang diterima." },
+    { date: "2026-06-10", title: "Pendaftaran & Upload Berkas", desc: "Pendaftaran daring dan unggah berkas melalui portal PPDBM Online, sesuai jalur yang dipilih (Prestasi, Reguler 1, atau Reguler 2/Afirmasi)." },
+    { date: "2026-06-20", title: "Verifikasi Berkas", desc: "Panitia melakukan verifikasi kelengkapan dan keabsahan berkas yang diunggah calon siswa." },
+    { date: "2026-07-01", title: "Simulasi CBT & Tes Seleksi", desc: "Simulasi Computer Based Test dilanjutkan tes seleksi meliputi psikotes, akademik, dan Baca Tulis Al-Qur'an (BTQ)." },
+    { date: "2026-07-05", title: "Pengumuman Hasil", desc: "Pengumuman kelulusan diumumkan melalui portal PPDB sesuai jadwal masing-masing jalur." },
+    { date: "2026-07-10", title: "Daftar Ulang", desc: "Verifikasi dan daftar ulang bagi calon siswa yang dinyatakan diterima." },
   ],
   requirements: [
     "Fotokopi ijazah / SKL SMP/MTs",
-    "Fotokopi rapor semester 1–5",
+    "Fotokopi rapor semester 1-5",
     "Fotokopi Kartu Keluarga & akta kelahiran",
     "Pas foto terbaru",
     "Sertifikat prestasi (untuk jalur prestasi)",

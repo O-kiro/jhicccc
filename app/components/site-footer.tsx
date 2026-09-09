@@ -2,27 +2,32 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Icon } from "./icons";
 import { Container } from "./ui";
 import { school, socials } from "@/lib/content";
 
+// Figma footer spec: Tautan Cepat 4, Layanan 5 (tanpa CBT di footer)
 const quickLinks = [
-  { label: "Tentang Kami", href: "/#tentang" },
+  { label: "Tentang Kami", href: "/profil" },
   { label: "Program Unggulan", href: "/#program" },
   { label: "Prestasi", href: "/#prestasi" },
   { label: "Berita", href: "/berita" },
 ];
 
-// Tautan sistem menuju halaman LOGIN masing-masing (bukan isi sistem).
+// Figma footer Layanan: PPDB Online · Rapor Digital (RDM) · E-Learning · Perpustakaan Digital · PPID & Pengaduan
+// Semua route internal — portal eksternal hanya via tombol login di halaman detail
 const serviceLinks = [
-  { label: "PPDB Online", href: "https://ppdb.mankotabatu.sch.id/", external: true },
-  { label: "Rapor Digital (RDM)", href: "/portal/rdm", external: false },
-  { label: "E-Learning", href: "https://elearning.mankotabatu.sch.id/", external: true },
-  { label: "CBT", href: "/portal/cbt", external: false },
+  { label: "PPDB Online", href: "/ppdb", external: false },
+  { label: "Rapor Digital (RDM)", href: "/layanan/rdm", external: false },
+  { label: "E-Learning", href: "/layanan/e-learning", external: false },
+  { label: "Perpustakaan Digital", href: "/layanan/perpustakaan-digital", external: false },
   { label: "PPID & Pengaduan", href: "/layanan/ppid", external: false },
 ];
 
 export function SiteFooter() {
+  const pathname = usePathname();
+  if (pathname === "/login" || pathname.startsWith("/login/") || pathname === "/ppdb/login" || pathname.startsWith("/ppdb/login/")) return null;
   return (
     <footer id="kontak" className="scroll-mt-24 border-t border-line bg-surface-2 text-ink">
       <Container className="py-20">
@@ -44,7 +49,7 @@ export function SiteFooter() {
               </span>
             </Link>
             <p className="mt-5 max-w-xs text-sm leading-relaxed text-muted">
-              {school.longName} — madrasah penyelenggara riset yang {school.motto.toLowerCase()}.
+              {school.longName}, Madrasah penyelenggara riset yang maju, bermutu, dan mendunia.
             </p>
             <p className="mt-4 font-serif text-sm italic text-teal">“{school.tagline}”</p>
 
@@ -136,7 +141,7 @@ export function SiteFooter() {
 
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-line pt-6 sm:flex-row">
           <p className="text-xs text-muted">
-            © {new Date().getFullYear()} {school.longName}. Hak cipta dilindungi.
+            © 2026 {school.longName}. Hak cipta dilindungi.
           </p>
           <div className="flex items-center gap-3 text-xs text-muted">
             <span className="inline-flex items-center gap-1.5">

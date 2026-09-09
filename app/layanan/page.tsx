@@ -10,7 +10,7 @@ import { digitalServices } from "@/lib/content";
 export const metadata: Metadata = {
   title: "Layanan Digital",
   description:
-    "Satu pintu layanan digital MAN Kota Batu — PPDB Online, RDM, CBT, E-Learning, Perpustakaan Digital, Absensi Digital, E-Book Karya, serta PPID & Pengaduan.",
+    "Satu pintu layanan digital MAN Kota Batu — PPDB Online, RDM, CBT, E-Learning, Perpustakaan Digital, serta PPID & Pengaduan.",
 };
 
 const tint: Record<string, string> = {

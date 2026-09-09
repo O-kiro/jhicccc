@@ -10,6 +10,14 @@ import { achievements } from "@/lib/content";
 
 const LEVELS = ["Semua", "Kota", "Provinsi", "Nasional", "Internasional"] as const;
 type Level = (typeof LEVELS)[number];
+// Figma displays uppercase: KOTA · PROVINSI · NASIONAL · INTERNASIONAL
+const levelLabel: Record<string, string> = {
+  Semua: "SEMUA",
+  Kota: "KOTA",
+  Provinsi: "PROVINSI",
+  Nasional: "NASIONAL",
+  Internasional: "INTERNASIONAL",
+};
 
 const levelTone: Record<string, "teal" | "blue" | "gold" | "muted"> = {
   Internasional: "gold",
@@ -123,7 +131,7 @@ export function Achievements() {
                         : "bg-surface text-muted shadow-card hover:-translate-y-0.5 hover:text-blue"
                     }`}
                   >
-                    {lvl}
+                    {levelLabel[lvl] ?? lvl}
                   </button>
                 );
               })}
@@ -189,6 +197,20 @@ export function Achievements() {
         </div>
 
         <p className="mt-2 text-center text-xs text-muted sm:hidden">Geser untuk melihat lainnya →</p>
+
+        {/* Figma CTA card: Prestasi Man Kota Batu */}
+        <Reveal delay={0.1}>
+          <div className="mt-10 flex flex-col items-start justify-between gap-4 rounded-card bg-dark p-6 text-on-dark shadow-card sm:flex-row sm:items-center sm:p-8">
+            <div>
+              <h3 className="font-display text-xl font-bold text-on-dark">Prestasi MAN Kota Batu</h3>
+              <p className="mt-1 text-sm text-on-dark/70">Prestasi membanggakan dari para siswa dan siswi.</p>
+            </div>
+            <a href="/#prestasi" className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-surface px-6 py-3 text-sm font-semibold text-blue shadow-card transition-all hover:-translate-y-0.5">
+              Lihat Semua Prestasi
+              <Icon name="arrow" className="h-4 w-4" />
+            </a>
+          </div>
+        </Reveal>
       </Container>
     </section>
   );

@@ -77,6 +77,9 @@ export function SiteHeader() {
   const pathname = usePathname();
   const activeSection = useActiveSection(SECTION_IDS);
 
+  // Figma: Login page has no header/footer
+  if (pathname === "/login" || pathname.startsWith("/login/") || pathname === "/ppdb/login" || pathname.startsWith("/ppdb/login/")) return null;
+
   const isActive = (label: string) => {
     const m = ACTIVE_MAP[label];
     if (!m) return false;

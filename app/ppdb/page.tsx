@@ -41,6 +41,10 @@ export default function PpdbPage() {
                 <Button href="https://ppdb.mankotabatu.sch.id/" external variant="light">
                   Daftar Sekarang
                 </Button>
+                <Button href="/login" variant="outlineDark" icon={false}>Masuk Penyerahan</Button>
+              </div>
+              <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+                <Button href="/ppdb/dokumen" variant="outlineDark" icon={false}>Lihat Dokumen</Button>
                 <Button href="/kontak" variant="outlineDark" icon={false}>Tanya Panitia</Button>
               </div>
               <p className="mt-4 flex items-center gap-2 text-sm text-on-dark/70">
@@ -53,14 +57,14 @@ export default function PpdbPage() {
         </div>
       </Container>
 
-      {/* Jalur */}
+      {/* Jalur — Figma: Dua Jalur Pendaftaran */}
       <Container className="py-24">
         <SectionHeading
           eyebrow="Pilihan Jalur"
-          title="Tiga Jalur Pendaftaran"
+          title="Dua Jalur Pendaftaran"
           desc="Pilih jalur yang paling sesuai dengan profil dan potensimu."
         />
-        <StaggerGroup className="mt-12 grid gap-6 md:grid-cols-3">
+        <StaggerGroup className="mt-12 grid gap-6 md:grid-cols-2">
           {ppdbInfo.jalur.map((j) => (
             <StaggerItem key={j.name} className="h-full">
               <article className="flex h-full flex-col rounded-card bg-surface p-7 shadow-card">
@@ -118,9 +122,17 @@ export default function PpdbPage() {
                       </li>
                     ))}
                   </ul>
-                  <Button href="https://ppdb.mankotabatu.sch.id/" external className="mt-8 w-full">
-                    Daftar via PPDB Online
-                  </Button>
+                  <div className="mt-8 grid gap-3">
+                    <Button href="https://ppdb.mankotabatu.sch.id/" external className="w-full">
+                      Daftar via PPDB Online
+                    </Button>
+                    <Button href="/login" variant="outline" className="w-full" icon={false}>
+                      Masuk ke Penyerahan Dokumen
+                    </Button>
+                    <Button href="/kontak" variant="outline" className="w-full" icon={false}>
+                      Hubungi Panitia
+                    </Button>
+                  </div>
                 </div>
               </Reveal>
             </div>

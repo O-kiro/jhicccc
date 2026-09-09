@@ -112,8 +112,8 @@ export function Hero() {
             <Button href="/ppdb" size="lg">
               Daftar PPDB 2026
             </Button>
-            <Button href="#program" size="lg" variant="outline" icon={false}>
-              Jelajahi Program Unggulan
+            <Button href="/#program" size="lg" variant="outline" icon={false}>
+              Jelajah Program Unggulan
             </Button>
           </motion.div>
 

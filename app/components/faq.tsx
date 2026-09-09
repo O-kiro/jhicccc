@@ -16,7 +16,7 @@ export function Faq() {
         <SectionHeading
           index="10"
           eyebrow="Pertanyaan Umum"
-          title="Frequently Asked Questions"
+          title="FAQ"
           desc="Jawaban atas pertanyaan yang sering diajukan calon siswa, wali murid, dan masyarakat."
         />
 

@@ -17,7 +17,7 @@ import {
 type Item = { label: string; group: string; href: string };
 
 const INDEX: Item[] = [
-  ...programs.map((p) => ({ label: p.name, group: "Program", href: "/#program" })),
+  ...programs.map((p) => ({ label: p.name, group: "Program", href: `/program/${p.slug}` })),
   ...digitalServices.map((s) => ({ label: s.name, group: "Layanan Digital", href: s.href })),
   ...achievements.map((a) => ({ label: a.title, group: "Prestasi", href: "/#prestasi" })),
   ...news.map((n) => ({ label: n.title, group: "Berita", href: `/berita/${n.slug}` })),
