@@ -48,6 +48,22 @@ const paths: Record<IconName, ReactNode> = {
   mic: <><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></>,
   leaf: <><path d="M4 20C4 11 11 4 20 4c0 9-7 16-16 16zM4 20c4-7 8-9 12-11" /></>,
   camera: <><rect x="3" y="7" width="18" height="13" rx="2" /><path d="M8 7l1.5-3h5L16 7" /><circle cx="12" cy="13" r="3.2" /></>,
+
+  /* Portal siswa */
+  flame: <><path d="M12 3c.5 3-2 4-2 6a2 2 0 0 0 4 0c0-.8-.3-1.4-.3-1.4C15.6 9 17 11 17 13.5a5 5 0 0 1-10 0C7 10 10 8 12 3z" /></>,
+  bell: <><path d="M6 9a6 6 0 1 1 12 0c0 4 1.5 5.5 1.5 5.5h-15S6 13 6 9z" /><path d="M10 18a2 2 0 0 0 4 0" /></>,
+  download: <><path d="M12 4v10M8 11l4 4 4-4" /><path d="M5 18h14" /></>,
+  chat: <><path d="M20 12a7 7 0 0 1-7 7H8l-4 3v-4.6A7 7 0 0 1 4 12a7 7 0 0 1 7-7h2a7 7 0 0 1 7 7z" /></>,
+  logout: <><path d="M14 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3" /><path d="M10 8l-4 4 4 4M6 12h9" /></>,
+  help: <><circle cx="12" cy="12" r="9" /><path d="M9.5 9.5a2.5 2.5 0 1 1 3.2 2.4c-.5.2-.7.6-.7 1.1v.5M12 16.5h.01" /></>,
+  flag: <><path d="M6 21V4M6 4h11l-2 3.5L17 11H6" /></>,
+  chart: <><path d="M4 20V6M4 20h16" /><path d="m7 15 3.5-4 3 2.5L20 8" /></>,
+  wifi: <><path d="M4 9a13 13 0 0 1 16 0M7 12.5a8 8 0 0 1 10 0M10 16a3.5 3.5 0 0 1 4 0M12 19.5h.01" /></>,
+  grid: <><rect x="4" y="4" width="7" height="7" rx="1.5" /><rect x="13" y="4" width="7" height="7" rx="1.5" /><rect x="4" y="13" width="7" height="7" rx="1.5" /><rect x="13" y="13" width="7" height="7" rx="1.5" /></>,
+  plus: <><path d="M12 5v14M5 12h14" /></>,
+  eye: <><path d="M2.5 12S6 6 12 6s9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z" /><circle cx="12" cy="12" r="2.8" /></>,
+  bookmark: <><path d="M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z" /></>,
+  sigma: <><path d="M17 5H7l5 7-5 7h10" /></>,
 };
 
 export function Icon({

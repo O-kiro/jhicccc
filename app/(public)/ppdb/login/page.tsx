@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import LoginPage from "@/app/login/page";
+import LoginPage from "@/app/(public)/login/page";
 
 export const metadata: Metadata = {
   title: "Login Upload Berkas — PPDB",

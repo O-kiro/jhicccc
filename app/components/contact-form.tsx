@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Icon } from "./icons";
-import { cn } from "./ui";
+import { cn } from "@/lib/styles";
 
 type Fields = { nama: string; email: string; pesan: string };
 

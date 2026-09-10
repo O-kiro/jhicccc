@@ -9,6 +9,8 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
   },
+  // Allow the dev server to be reached from this LAN address (phone/tablet testing).
+  allowedDevOrigins: ["172.16.5.116"],
 };
 
 export default nextConfig;

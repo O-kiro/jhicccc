@@ -8,7 +8,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { Icon } from "./icons";
 import { ThemeToggle } from "./theme-toggle";
 import { SearchModal } from "./search-modal";
-import { Button, cn } from "./ui";
+import { Button } from "./ui";
+import { cn } from "@/lib/styles";
 import { navItems, school } from "@/lib/content";
 
 // Highlights the top-level nav item for the section currently in view (on the

@@ -12,7 +12,10 @@ export type IconName =
   | "arrow" | "chevron" | "pin" | "phone" | "mail" | "clock" | "quote" | "star8"
   | "instagram" | "youtube" | "facebook" | "tiktok" | "whatsapp" | "external"
   | "shield" | "users" | "book" | "globe" | "heart" | "play" | "check" | "flask"
-  | "palette" | "ball" | "mic" | "leaf" | "camera";
+  | "palette" | "ball" | "mic" | "leaf" | "camera"
+  // Portal siswa (design-siswa.md)
+  | "flame" | "bell" | "download" | "chat" | "logout" | "help" | "flag"
+  | "chart" | "wifi" | "grid" | "plus" | "eye" | "bookmark" | "sigma";
 
 export const school = {
   name: "MAN Kota Batu",
@@ -47,8 +50,8 @@ export type DigitalService = {
   /**
    * Halaman LOGIN sistem — semua tombol yang membuka sistem harus menuju ke sini;
    * jangan pernah menautkan/menampilkan isi sistem tanpa login.
-   * RDM & CBT punya halaman login di dalam situs (/portal/*) meniru portal aslinya;
-   * lainnya menuju subdomain eksternal (pola — verifikasi sebelum rilis).
+   * RDM, CBT, E-Learning, dan Perpustakaan Digital memakai satu gerbang yang sama
+   * di /siswa/login (design-siswa.md §1). PPDB tetap ke sistem PPDB eksternal.
    */
   login?: { href: string; label: string };
   /** Detail-page content; absent for services with their own dedicated page (PPDB). */
@@ -80,7 +83,7 @@ export const digitalServices: DigitalService[] = [
     href: "/layanan/rdm",
     icon: "rdm",
     tone: "blue",
-    login: { href: "/portal/rdm", label: "Masuk ke RDM" },
+    login: { href: "/siswa/login", label: "Masuk ke RDM" },
     detail: {
       slug: "rdm",
       fullName: "Rapor Digital Madrasah (RDM)",
@@ -111,7 +114,7 @@ export const digitalServices: DigitalService[] = [
     href: "/layanan/cbt",
     icon: "cbt",
     tone: "gold",
-    login: { href: "/portal/cbt", label: "Masuk ke CBT" },
+    login: { href: "/siswa/login", label: "Masuk ke CBT" },
     detail: {
       slug: "cbt",
       fullName: "Computer Based Test (CBT)",
@@ -142,7 +145,7 @@ export const digitalServices: DigitalService[] = [
     href: "/layanan/e-learning",
     icon: "elearning",
     tone: "teal",
-    login: { href: "https://elearning.mankotabatu.sch.id/", label: "Masuk ke E-Learning" },
+    login: { href: "/siswa/login", label: "Masuk ke E-Learning" },
     detail: {
       slug: "e-learning",
       fullName: "E-Learning Madrasah",
@@ -172,7 +175,7 @@ export const digitalServices: DigitalService[] = [
     href: "/layanan/perpustakaan-digital",
     icon: "library",
     tone: "blue",
-    login: { href: "https://perpustakaan.mankotabatu.sch.id/", label: "Masuk Perpustakaan Digital" },
+    login: { href: "/siswa/login", label: "Masuk Perpustakaan Digital" },
     detail: {
       slug: "perpustakaan-digital",
       fullName: "Perpustakaan Digital",
