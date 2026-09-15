@@ -1,4 +1,4 @@
-import { gradeHistory } from "@/lib/siswa";
+export type GradePoint = { month: string; score: number };
 
 const W = 620;
 const H = 220;
@@ -6,15 +6,24 @@ const PAD = { top: 18, right: 14, bottom: 30, left: 34 };
 const MIN = 70;
 const MAX = 100;
 
-const x = (i: number) =>
-  PAD.left + (i * (W - PAD.left - PAD.right)) / Math.max(1, gradeHistory.length - 1);
 const y = (score: number) =>
   PAD.top + ((MAX - score) / (MAX - MIN)) * (H - PAD.top - PAD.bottom);
 
 /** Grafik garis nilai bulanan. SVG inline — mewarisi warna tema lewat CSS vars. */
-export function GradeChart() {
-  const line = gradeHistory.map((d, i) => `${i === 0 ? "M" : "L"}${x(i)},${y(d.score)}`).join(" ");
-  const area = `${line} L${x(gradeHistory.length - 1)},${H - PAD.bottom} L${x(0)},${H - PAD.bottom} Z`;
+export function GradeChart({ data }: { data: GradePoint[] }) {
+  if (data.length === 0) {
+    return (
+      <p className="py-10 text-center text-sm text-muted">
+        Belum ada nilai yang tercatat untuk periode ini.
+      </p>
+    );
+  }
+
+  const x = (i: number) =>
+    PAD.left + (i * (W - PAD.left - PAD.right)) / Math.max(1, data.length - 1);
+
+  const line = data.map((d, i) => `${i === 0 ? "M" : "L"}${x(i)},${y(d.score)}`).join(" ");
+  const area = `${line} L${x(data.length - 1)},${H - PAD.bottom} L${x(0)},${H - PAD.bottom} Z`;
   const ticks = [70, 80, 90, 100];
 
   return (
@@ -23,7 +32,7 @@ export function GradeChart() {
         viewBox={`0 0 ${W} ${H}`}
         className="h-auto w-full"
         role="img"
-        aria-label={`Sejarah nilai bulanan: ${gradeHistory.map((d) => `${d.month} ${d.score}`).join(", ")}`}
+        aria-label={`Sejarah nilai bulanan: ${data.map((d) => `${d.month} ${d.score}`).join(", ")}`}
       >
         <defs>
           <linearGradient id="grade-fill" x1="0" y1="0" x2="0" y2="1">
@@ -58,7 +67,7 @@ export function GradeChart() {
           strokeLinejoin="round"
         />
 
-        {gradeHistory.map((d, i) => (
+        {data.map((d, i) => (
           <g key={d.month}>
             <circle cx={x(i)} cy={y(d.score)} r="4.5" fill="var(--surface)" stroke="var(--blue)" strokeWidth="2.5" />
             <text

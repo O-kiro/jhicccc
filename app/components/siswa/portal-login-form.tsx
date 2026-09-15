@@ -1,30 +1,79 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Icon } from "@/app/components/icons";
 
 const inputBase =
-  "w-full rounded-xl border border-line bg-surface px-4 py-3 text-ink outline-none transition-colors placeholder:text-muted focus:border-blue";
+  "w-full rounded-xl border border-line bg-surface px-4 py-3 text-ink outline-none transition-colors placeholder:text-muted focus:border-blue disabled:opacity-60";
 
 export function PortalLoginForm() {
   const router = useRouter();
-  const [nisn, setNisn] = useState("");
+  const params = useSearchParams();
+  const [pending, startTransition] = useTransition();
+
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
   const [showPass, setShowPass] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    params.get("expired") ? "Sesi kamu sudah berakhir. Silakan masuk lagi." : null,
+  );
+  const [submitting, setSubmitting] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!nisn.trim() || !password.trim()) {
-      setError("NISN dan Kata Sandi wajib diisi.");
+
+    if (!identifier.trim() || !password.trim()) {
+      setError("NISN/Email dan Kata Sandi wajib diisi.");
       return;
     }
+
     setError(null);
-    router.push("/siswa");
+    setSubmitting(true);
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identifier, password, remember }),
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        setError(
+          res.status === 429
+            ? "Terlalu banyak percobaan. Coba lagi sebentar lagi."
+            : (data?.message ?? "NISN/Email atau kata sandi salah."),
+        );
+        setSubmitting(false);
+        return;
+      }
+
+      // Admin diserahkan ke Laravel lewat tautan sekali pakai yang membuat
+      // sesi Filament. Itu origin lain, jadi router Next.js tidak dipakai —
+      // dan `replace` menjaga tautan sekali-pakai lepas dari riwayat.
+      if (data?.role === "admin" && typeof data.redirect === "string") {
+        window.location.replace(data.redirect);
+        return;
+      }
+
+      // Siswa: cookie sudah dipasang route handler; refresh agar server
+      // component membaca sesi baru sebelum berpindah halaman.
+      const next = params.get("next") ?? "/siswa";
+      startTransition(() => {
+        router.replace(next);
+        router.refresh();
+      });
+    } catch {
+      setError("Tidak dapat menghubungi server. Periksa koneksimu.");
+      setSubmitting(false);
+    }
   }
+
+  const busy = submitting || pending;
 
   return (
     <div className="mx-auto w-full max-w-md">
@@ -33,19 +82,22 @@ export function PortalLoginForm() {
 
       <form onSubmit={handleSubmit} noValidate className="mt-8 space-y-4">
         <div>
-          <label htmlFor="portal-nisn" className="mb-1.5 block text-sm font-medium text-ink">
-            NISN
+          <label htmlFor="portal-identifier" className="mb-1.5 block text-sm font-medium text-ink">
+            NISN atau Email
           </label>
           <input
-            id="portal-nisn"
+            id="portal-identifier"
             type="text"
-            inputMode="numeric"
-            value={nisn}
-            onChange={(e) => setNisn(e.target.value)}
-            placeholder="Masukkan NISN"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
+            placeholder="NISN siswa, atau email untuk guru & staf"
             autoComplete="username"
+            disabled={busy}
             className={inputBase}
           />
+          <p className="mt-1.5 text-xs text-muted">
+            Siswa memakai NISN. Guru dan staf memakai email madrasah.
+          </p>
         </div>
 
         <div>
@@ -65,6 +117,7 @@ export function PortalLoginForm() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Masukkan Kata Sandi"
               autoComplete="current-password"
+              disabled={busy}
               className={`${inputBase} pr-12`}
             />
             <button
@@ -83,24 +136,28 @@ export function PortalLoginForm() {
             type="checkbox"
             checked={remember}
             onChange={(e) => setRemember(e.target.checked)}
+            disabled={busy}
             className="h-4 w-4 rounded border-line accent-[var(--blue)]"
           />
           Ingat saya di perangkat ini
         </label>
 
         {error && (
-          <p role="alert" className="flex items-center gap-2 text-sm font-medium text-gold-strong">
-            <Icon name="ppid" className="h-4 w-4" />
+          <p role="alert" className="flex items-start gap-2 text-sm font-medium text-gold-strong">
+            <Icon name="ppid" className="mt-0.5 h-4 w-4 shrink-0" />
             {error}
           </p>
         )}
 
         <button
           type="submit"
-          className="btn-sheen bg-blue-gradient group inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3.5 text-[15px] font-semibold text-white transition-transform hover:-translate-y-0.5"
+          disabled={busy}
+          className="btn-sheen bg-blue-gradient press lift group inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3.5 text-[15px] font-semibold text-white disabled:pointer-events-none disabled:opacity-60"
         >
-          Masuk ke Portal
-          <Icon name="arrow" className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          {busy ? "Memproses…" : "Masuk ke Portal"}
+          {!busy && (
+            <Icon name="arrow" className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          )}
         </button>
       </form>
 

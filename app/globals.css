@@ -95,6 +95,12 @@
 
   --animate-marquee: marquee 40s linear infinite;
   --animate-spin-slow: spin 40s linear infinite;
+
+  /* Easing bawaan CSS terlalu lemah untuk UI. Kurva ini bergerak tegas di
+     awal — penting karena justru saat itulah mata pengguna memperhatikan. */
+  --ease-snap: cubic-bezier(0.23, 1, 0.32, 1);      /* elemen masuk/keluar */
+  --ease-move: cubic-bezier(0.77, 0, 0.175, 1);     /* perpindahan di layar */
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);    /* panel geser ala iOS  */
 }
 
 @layer base {
@@ -245,6 +251,51 @@
   /* Let readers catch a pillar mid-scroll */
   .marquee-mask:hover .marquee-track {
     animation-play-state: paused;
+  }
+
+  /*
+   | Angkat saat hover — hanya untuk perangkat dengan penunjuk sungguhan.
+   | Di layar sentuh, :hover menyala saat diketuk dan baru padam setelah
+   | pengguna menyentuh tempat lain, sehingga elemen tampak tersangkut naik.
+   */
+  @media (hover: hover) and (pointer: fine) {
+    .lift {
+      transition: transform 200ms var(--ease-snap), box-shadow 200ms var(--ease-snap);
+    }
+    .lift:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--hover-shadow);
+    }
+  }
+
+  /*
+   | Umpan balik tekan. Tanpa ini tombol terasa mati — pengguna tidak yakin
+   | ketukannya terbaca. Skalanya dijaga halus (0.97): terasa, bukan terlihat.
+   |
+   | Harus ditulis SETELAH .lift: keduanya mengatur `transform` dengan
+   | spesifisitas sama, jadi yang belakangan menang. Kalau urutannya dibalik,
+   | menekan tombol yang sedang di-hover tidak memberi efek apa pun.
+   */
+  .press {
+    transition: transform 160ms var(--ease-snap);
+  }
+  .press:active {
+    transform: scale(0.97);
+  }
+  /* Saat elemen bisa diangkat sekaligus ditekan, tekan harus mengalahkan angkat. */
+  .lift.press:active {
+    transform: scale(0.97);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .press,
+    .lift {
+      transition: none;
+    }
+    .press:active,
+    .lift:hover {
+      transform: none;
+    }
   }
 
   /* Light sweep across filled buttons on hover */

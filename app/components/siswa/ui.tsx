@@ -83,7 +83,7 @@ export function StatCard({
   tone: "teal" | "blue" | "gold";
 }) {
   return (
-    <Panel className="card-glow transition-shadow hover:shadow-card">
+    <Panel className="card-glow lift">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.06em] text-muted">{label}</p>
@@ -118,7 +118,10 @@ export function Progress({
       aria-label={label}
       className={cn("h-1.5 w-full overflow-hidden rounded-full bg-line", className)}
     >
-      <div className={cn("h-full rounded-full transition-[width] duration-700", toneBar[tone])} style={{ width: `${value}%` }} />
+      <div
+        className={cn("h-full rounded-full transition-[width] duration-500 ease-snap", toneBar[tone])}
+        style={{ width: `${value}%` }}
+      />
     </div>
   );
 }

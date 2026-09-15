@@ -4,7 +4,8 @@ import { Icon } from "@/app/components/icons";
 import { Reveal, StaggerGroup, StaggerItem } from "@/app/components/reveal";
 import { cn } from "@/lib/styles";
 import { Panel, PanelTitle, Pill, StatCard } from "@/app/components/siswa/ui";
-import { announcements, overviewQuote, overviewStats, student, todaySchedule } from "@/lib/siswa";
+import { overviewQuote } from "@/lib/siswa";
+import { getOverview } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 
 export const metadata: Metadata = {
@@ -12,7 +13,35 @@ export const metadata: Metadata = {
   description: "Ringkasan akademik, jadwal hari ini, dan pengumuman madrasah.",
 };
 
-export default function OverviewPage() {
+export default async function OverviewPage() {
+  const { student, summary, today_schedule: todaySchedule, announcements } = await getOverview();
+
+  // Kartu ringkasan dirakit dari respons API; nilai yang belum ada
+  // ditampilkan sebagai "—" alih-alih angka palsu.
+  const overviewStats = [
+    {
+      label: "Rata-Rata Rapor",
+      value: summary.average_score !== null ? summary.average_score.toFixed(1) : "—",
+      note: "Semester berjalan",
+      icon: "chart" as const,
+      tone: "blue" as const,
+    },
+    {
+      label: "Kehadiran",
+      value: summary.attendance_percentage !== null ? summary.attendance_percentage.toFixed(1) : "—",
+      note: (summary.attendance_percentage ?? 0) >= 95 ? "Good" : "Perlu perhatian",
+      icon: "attendance" as const,
+      tone: "teal" as const,
+    },
+    {
+      label: "Daily Streak",
+      value: String(summary.streak_days),
+      note: "hari berturut-turut",
+      icon: "flame" as const,
+      tone: "gold" as const,
+    },
+  ];
+
   return (
     <div className="mx-auto max-w-6xl">
       {/* Sapaan + streak */}
@@ -35,7 +64,7 @@ export default function OverviewPage() {
             <div className="mt-7 flex flex-wrap items-center gap-3">
               <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-2 text-sm font-semibold">
                 <Icon name="flame" className="h-4 w-4 text-gold" />
-                Daily Streak: {student.streak} Hari
+                Daily Streak: {summary.streak_days} Hari
               </span>
               <Link
                 href="/siswa/kursus"
@@ -73,10 +102,15 @@ export default function OverviewPage() {
             <PanelTitle icon="calendar" action={<Pill tone="muted">{todaySchedule.length} sesi</Pill>}>
               Jadwal Hari Ini
             </PanelTitle>
+            {todaySchedule.length === 0 && (
+              <p className="rounded-xl border border-line bg-surface-2 p-5 text-sm text-muted">
+                Tidak ada jadwal pelajaran hari ini.
+              </p>
+            )}
             <ol className="space-y-2.5">
               {todaySchedule.map((slot) => (
                 <li
-                  key={slot.subject}
+                  key={slot.id}
                   className={cn(
                     "flex flex-wrap items-center gap-x-4 gap-y-3 rounded-xl border p-3.5 transition-colors sm:flex-nowrap",
                     slot.live
@@ -103,14 +137,16 @@ export default function OverviewPage() {
                     </span>
                     <span className="mt-0.5 block truncate text-xs text-muted">{slot.teacher}</span>
                   </span>
-                  {slot.live && (
-                    <button
-                      type="button"
+                  {slot.live && slot.meeting_url && (
+                    <a
+                      href={slot.meeting_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="btn-sheen bg-blue-gradient inline-flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold text-white transition-transform hover:-translate-y-0.5"
                     >
                       <Icon name="play" className="h-3.5 w-3.5" />
                       Gabung Kelas
-                    </button>
+                    </a>
                   )}
                 </li>
               ))}
@@ -124,20 +160,20 @@ export default function OverviewPage() {
             <PanelTitle icon="bell">Pengumuman</PanelTitle>
             <ul className="space-y-1">
               {announcements.map((n, i) => (
-                <li key={n.title}>
+                <li key={n.id}>
                   <article
                     className={cn(
                       "group py-3.5",
                       i !== announcements.length - 1 && "border-b border-line",
                     )}
                   >
-                    <time dateTime={n.date} className="text-[11px] font-semibold uppercase tracking-[0.06em] text-gold-strong">
-                      {formatDate(n.date)}
+                    <time dateTime={n.published_at ?? undefined} className="text-[11px] font-semibold uppercase tracking-[0.06em] text-gold-strong">
+                      {n.published_at ? formatDate(n.published_at) : "Tanpa tanggal"}
                     </time>
                     <h3 className="mt-1.5 font-display text-sm font-extrabold text-ink transition-colors group-hover:text-blue">
                       {n.title}
                     </h3>
-                    <p className="mt-1 text-xs leading-relaxed text-muted">{n.desc}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-muted">{n.body}</p>
                   </article>
                 </li>
               ))}

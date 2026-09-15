@@ -24,7 +24,8 @@ export function CourseGrid() {
               aria-selected={active}
               onClick={() => setFilter(f)}
               className={cn(
-                "rounded-full px-4 py-2 text-sm font-semibold transition-colors",
+                "press rounded-full px-4 py-2 text-sm font-semibold",
+                "transition-[background-color,border-color,color,transform] duration-200 ease-snap",
                 active
                   ? "bg-ink text-canvas"
                   : "border border-line text-muted hover:border-ink/25 hover:text-ink",
@@ -70,7 +71,7 @@ export function CourseGrid() {
 
                 <button
                   type="button"
-                  className="group mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full border border-line px-4 py-2.5 text-sm font-semibold text-ink transition-colors hover:border-ink/25 hover:bg-surface-2"
+                  className="press group mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full border border-line px-4 py-2.5 text-sm font-semibold text-ink transition-[border-color,background-color,transform] duration-200 ease-snap hover:border-ink/25 hover:bg-surface-2"
                 >
                   View Modules
                   <Icon name="arrow" className="h-4 w-4 transition-transform group-hover:translate-x-1" />

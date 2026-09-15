@@ -116,7 +116,8 @@ export function ExamRunner() {
                   aria-checked={picked}
                   onClick={() => setAnswers((a) => ({ ...a, [current]: opt.key }))}
                   className={cn(
-                    "flex w-full items-center gap-4 rounded-xl border p-4 text-left transition-colors",
+                    "press flex w-full items-center gap-4 rounded-xl border p-4 text-left",
+                    "transition-[border-color,background-color,transform] duration-200 ease-snap",
                     picked
                       ? "border-blue bg-blue-soft/50"
                       : "border-line bg-surface-2 hover:border-ink/20",
@@ -144,7 +145,7 @@ export function ExamRunner() {
               type="button"
               disabled={current === 1}
               onClick={() => setCurrent((n) => Math.max(1, n - 1))}
-              className="inline-flex items-center gap-2 rounded-full border border-line px-5 py-2.5 text-sm font-semibold text-ink transition-colors hover:border-ink/25 hover:bg-surface-2 disabled:pointer-events-none disabled:opacity-40"
+              className="press inline-flex items-center gap-2 rounded-full border border-line px-5 py-2.5 text-sm font-semibold text-ink transition-[border-color,background-color,transform] duration-200 ease-snap hover:border-ink/25 hover:bg-surface-2 disabled:pointer-events-none disabled:opacity-40"
             >
               <Icon name="chevron" className="h-4 w-4 rotate-90" />
               Sebelumnya
@@ -154,7 +155,8 @@ export function ExamRunner() {
               onClick={toggleFlag}
               aria-pressed={isFlagged}
               className={cn(
-                "inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors",
+                "press inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold",
+                "transition-[background-color,border-color,color,transform] duration-200 ease-snap",
                 isFlagged
                   ? "bg-gold text-white hover:bg-gold-strong"
                   : "border border-line text-muted hover:border-gold/40 hover:text-gold-strong",
@@ -167,7 +169,7 @@ export function ExamRunner() {
               type="button"
               disabled={current === examSession.totalQuestions}
               onClick={() => setCurrent((n) => Math.min(examSession.totalQuestions, n + 1))}
-              className="btn-sheen bg-blue-gradient ml-auto inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-40"
+              className="btn-sheen bg-blue-gradient press lift ml-auto inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white disabled:pointer-events-none disabled:opacity-40"
             >
               Selanjutnya
               <Icon name="chevron" className="h-4 w-4 -rotate-90" />
@@ -193,7 +195,10 @@ export function ExamRunner() {
                   aria-label={`Soal nomor ${n}`}
                   aria-current={n === current ? "true" : undefined}
                   className={cn(
-                    "grid h-9 w-full place-items-center rounded-lg font-display text-xs font-extrabold tabular-nums transition-all",
+                    "press grid h-9 w-full place-items-center rounded-lg font-display text-xs font-extrabold tabular-nums",
+                    // Navigator ini diklik cepat dan berulang; batasi properti
+                    // yang ditransisikan agar tiap klik tidak memicu kerja ekstra.
+                    "transition-[background-color,color,transform] duration-150 ease-snap",
                     BUBBLE[statusOf(n)],
                   )}
                 >
