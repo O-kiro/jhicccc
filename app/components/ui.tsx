@@ -7,9 +7,7 @@ import { Icon } from "./icons";
 import { GeoTexture } from "./ornaments";
 import { Reveal } from "./reveal";
 import type { IconName } from "@/lib/content";
-
-export const cn = (...c: (string | false | undefined | null)[]) =>
-  c.filter(Boolean).join(" ");
+import { cn } from "@/lib/styles";
 
 export function Container({
   children,

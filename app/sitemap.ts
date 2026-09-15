@@ -12,8 +12,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/ppdb`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${BASE}/ppdb/dokumen`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE}/login`, lastModified: now, changeFrequency: "yearly", priority: 0.4 },
-    { url: `${BASE}/portal/rdm`, lastModified: now, changeFrequency: "yearly", priority: 0.5 },
-    { url: `${BASE}/portal/cbt`, lastModified: now, changeFrequency: "yearly", priority: 0.5 },
     { url: `${BASE}/berita`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
     { url: `${BASE}/layanan`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE}/alumni`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
