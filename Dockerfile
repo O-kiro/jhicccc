@@ -6,7 +6,7 @@ FROM node:22-alpine
 WORKDIR /app
 
 # Entrypoint ditulis langsung di sini agar tidak menambah folder baru di repo.
-RUN <<'SH' cat > /usr/local/bin/entrypoint && chmod +x /usr/local/bin/entrypoint
+RUN <<'SH' cat > /usr/local/bin/entrypoint
 #!/bin/sh
 set -e
 cd /app
@@ -19,6 +19,14 @@ fi
 echo "→ siap di http://localhost:3000"
 exec "$@"
 SH
+
+# Git di Windows mengubah akhir baris jadi CRLF saat checkout, dan skrip di
+# atas ikut terbawa. Shebang-nya lalu terbaca "#!/bin/sh\r", sehingga kernel
+# mencari penafsir bernama "/bin/sh\r" dan gagal dengan pesan menyesatkan:
+#   exec /usr/local/bin/entrypoint: no such file or directory
+# CR dibuang di sini supaya image tetap jalan walau checkout-nya CRLF.
+RUN sed -i 's/\r$//' /usr/local/bin/entrypoint \
+    && chmod +x /usr/local/bin/entrypoint
 
 EXPOSE 3000
 

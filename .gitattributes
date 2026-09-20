@@ -1,0 +1,10 @@
+# Git di Windows mengubah akhir baris jadi CRLF saat checkout. Untuk berkas
+# yang dijalankan di dalam container Linux, itu merusak: skrip dengan shebang
+# "#!/bin/sh\r" gagal dengan pesan menyesatkan
+# "exec ...: no such file or directory".
+#
+# Berkas-berkas di bawah dipaksa tetap LF di semua sistem operasi.
+Dockerfile      text eol=lf
+compose.yaml    text eol=lf
+*.sh            text eol=lf
+.dockerignore   text eol=lf
