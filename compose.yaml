@@ -1,0 +1,34 @@
+# Jalankan:  docker compose up
+#
+# Backend berjalan dari repo terpisah (jhicccc-backend), jadi keduanya tidak
+# berbagi jaringan Docker. Penghubungnya adalah host: backend mempublikasikan
+# port 8000, dan container ini memanggilnya lewat host.docker.internal.
+#
+# `extra_hosts` dengan host-gateway membuat nama itu juga bekerja di Linux,
+# bukan hanya Docker Desktop di macOS/Windows.
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      # node_modules dan .next berisi binary serta cache khusus platform —
+      # dipisahkan agar hasil build macOS di host tidak bentrok dengan Alpine.
+      - node_modules:/app/node_modules
+      - next_cache:/app/.next
+    environment:
+      # Dibaca lib/api.ts di sisi server. Tanpa ini portal jatuh ke
+      # http://localhost:8000 yang di dalam container menunjuk ke dirinya
+      # sendiri, bukan ke backend.
+      API_URL: http://host.docker.internal:8000/api/v1
+      # File watcher tidak selalu terdeteksi lintas mount di macOS/Windows.
+      WATCHPACK_POLLING: "true"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    stop_signal: SIGTERM
+    tty: true
+
+volumes:
+  node_modules:
+  next_cache:

@@ -1,0 +1,9 @@
+# Semuanya di-mount lewat compose, jadi konteks build dijaga tetap kecil.
+# node_modules dan .next berisi binary serta cache khusus OS host.
+/node_modules
+/.next
+
+/.git
+/.idea
+/.env*
+.DS_Store

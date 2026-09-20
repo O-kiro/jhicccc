@@ -1,12 +1,18 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Inter, Lora } from "next/font/google";
+import { Inter, Lora, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./components/providers";
 import { school, socials } from "@/lib/content";
 
-const display = Bricolage_Grotesque({
-  variable: "--font-bricolage",
+// Header. Plus Jakarta Sans dirancang oleh Tokotype (Indonesia) — geometris
+// dan tegas di bobot berat, tanpa keganjilan Bricolage Grotesque yang
+// berkesan agensi kreatif ketimbang institusi pendidikan.
+const display = Plus_Jakarta_Sans({
+  // Bukan --font-display: nama itu sudah dipakai token tema Tailwind di
+  // globals.css, dan merujuk dirinya sendiri membuat rantainya melingkar.
+  variable: "--font-jakarta",
   subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
   display: "swap",
 });
 
