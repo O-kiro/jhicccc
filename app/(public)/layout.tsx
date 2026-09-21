@@ -3,14 +3,17 @@ import { StickyCta } from "@/app/components/sticky-cta";
 import { BackToTop } from "@/app/components/back-to-top";
 import { SiteHeader } from "@/app/components/site-header";
 import { SiteFooter } from "@/app/components/site-footer";
+import { buildSearchIndex, getSite } from "@/lib/site";
 
 /**
  * Chrome situs publik. Dipisah dari root layout supaya portal siswa
  * (/siswa/*) bisa memakai shell-nya sendiri tanpa header/footer sekolah.
  */
-export default function PublicLayout({
+export default async function PublicLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const searchIndex = buildSearchIndex(await getSite());
+
   return (
     <>
       {/* Keyboard users can jump past the fixed header straight to content. */}
@@ -21,7 +24,7 @@ export default function PublicLayout({
         Lewati ke konten
       </a>
       <ScrollProgress />
-      <SiteHeader />
+      <SiteHeader searchIndex={searchIndex} />
       <div id="konten">{children}</div>
       <SiteFooter />
       <StickyCta />

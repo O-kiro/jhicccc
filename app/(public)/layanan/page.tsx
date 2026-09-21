@@ -5,7 +5,7 @@ import { Container } from "@/app/components/ui";
 import { Reveal, StaggerGroup, StaggerItem } from "@/app/components/reveal";
 import { SpotlightCard } from "@/app/components/spotlight-card";
 import { Icon } from "@/app/components/icons";
-import { digitalServices } from "@/lib/content";
+import { getSite } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Layanan Digital",
@@ -19,7 +19,8 @@ const tint: Record<string, string> = {
   gold: "bg-gold-soft text-gold-strong",
 };
 
-export default function LayananPage() {
+export default async function LayananPage() {
+  const { digitalServices } = await getSite();
   return (
     <main className="pb-24">
       <PageHero

@@ -6,7 +6,7 @@ import { Container, SectionHeading } from "./ui";
 import { GeoTexture } from "./ornaments";
 import { StaggerGroup, StaggerItem } from "./reveal";
 import { SpotlightCard } from "./spotlight-card";
-import { programs } from "@/lib/content";
+import type { Site } from "@/lib/site";
 
 const palette = {
   teal: { chip: "bg-teal-soft text-teal", accent: "text-teal" },
@@ -14,7 +14,8 @@ const palette = {
   gold: { chip: "bg-gold-soft text-gold-strong", accent: "text-gold-strong" },
 } as const;
 
-export function Programs() {
+/** Isinya dari CMS lewat getSite(); lihat lib/site.ts. */
+export function Programs({ programs }: { programs: Site["programs"] }) {
   return (
     <section id="program" className="scroll-mt-24 py-20 sm:py-28">
       <Container>

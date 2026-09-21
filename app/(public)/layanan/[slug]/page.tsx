@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { Button, Container } from "@/app/components/ui";
 import { Reveal, StaggerGroup, StaggerItem } from "@/app/components/reveal";
 import { Icon } from "@/app/components/icons";
-import { digitalServices, getServiceBySlug, school } from "@/lib/content";
+import { school } from "@/lib/content";
+import { getService, getSite } from "@/lib/site";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -14,25 +15,25 @@ const tone = {
   gold: { soft: "bg-gold-soft", text: "text-gold-strong" },
 } as const;
 
-export function generateStaticParams() {
-  return digitalServices.flatMap((s) => (s.detail ? [{ slug: s.detail.slug }] : []));
+export async function generateStaticParams() {
+  return (await getSite()).digitalServices.flatMap((s) => (s.detail ? [{ slug: s.detail.slug }] : []));
 }
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
-  const service = getServiceBySlug(slug);
+  const service = await getService(slug);
   if (!service?.detail) return { title: "Layanan tidak ditemukan" };
   return { title: service.detail.fullName, description: service.desc };
 }
 
 export default async function ServicePage({ params }: Params) {
   const { slug } = await params;
-  const service = getServiceBySlug(slug);
+  const service = await getService(slug);
   if (!service?.detail) notFound();
 
   const { detail } = service;
   const c = tone[service.tone];
-  const related = digitalServices.filter((s) => s.name !== service.name);
+  const related = (await getSite()).digitalServices.filter((s) => s.name !== service.name);
 
   return (
     <main className="pb-24">

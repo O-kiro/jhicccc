@@ -3,7 +3,7 @@ import { PageHero } from "@/app/components/page-hero";
 import { Container } from "@/app/components/ui";
 import { StaggerGroup, StaggerItem } from "@/app/components/reveal";
 import { Icon } from "@/app/components/icons";
-import { alumni } from "@/lib/content";
+import { getSite } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Alumni Berprestasi",
@@ -17,7 +17,8 @@ const avatarTone: Record<string, string> = {
   gold: "bg-gold-soft text-gold-strong",
 };
 
-export default function AlumniPage() {
+export default async function AlumniPage() {
+  const { alumni } = await getSite();
   return (
     <main className="pb-24">
       <PageHero

@@ -3,39 +3,27 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Icon } from "./icons";
-import {
-  achievements,
-  agenda,
-  digitalServices,
-  extracurriculars,
-  facilities,
-  faqs,
-  news,
-  programs,
-} from "@/lib/content";
+import type { SearchItem } from "@/lib/site";
 
-type Item = { label: string; group: string; href: string };
 
-const INDEX: Item[] = [
-  ...programs.map((p) => ({ label: p.name, group: "Program", href: `/program/${p.slug}` })),
-  ...digitalServices.map((s) => ({ label: s.name, group: "Layanan Digital", href: s.href })),
-  ...achievements.map((a) => ({ label: a.title, group: "Prestasi", href: "/#prestasi" })),
-  ...news.map((n) => ({ label: n.title, group: "Berita", href: `/berita/${n.slug}` })),
-  ...extracurriculars.map((e) => ({ label: e.name, group: "Ekstrakurikuler", href: "/#ekskul" })),
-  ...facilities.map((f) => ({ label: f.name, group: "Fasilitas", href: "/#fasilitas" })),
-  ...agenda.map((a) => ({ label: a.title, group: "Agenda", href: "/#agenda" })),
-  ...faqs.map((f) => ({ label: f.q, group: "FAQ", href: "/#faq" })),
-];
-
-export function SearchModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+/** Indeksnya disusun di server (buildSearchIndex) dan diteruskan lewat SiteHeader. */
+export function SearchModal({
+  open,
+  onClose,
+  index,
+}: {
+  open: boolean;
+  onClose: () => void;
+  index: SearchItem[];
+}) {
   const [q, setQ] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   const results = useMemo(() => {
     const t = q.trim().toLowerCase();
     if (!t) return [];
-    return INDEX.filter((i) => i.label.toLowerCase().includes(t)).slice(0, 8);
-  }, [q]);
+    return index.filter((i) => i.label.toLowerCase().includes(t)).slice(0, 8);
+  }, [q, index]);
 
   useEffect(() => {
     if (!open) return;

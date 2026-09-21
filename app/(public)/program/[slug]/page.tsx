@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Button, Container } from "@/app/components/ui";
 import { Icon } from "@/app/components/icons";
-import { getProgramBySlug, programs } from "@/lib/content";
+import { getProgram, getSite } from "@/lib/site";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -13,24 +13,24 @@ const tone = {
   gold: { soft: "bg-gold-soft", text: "text-gold-strong" },
 } as const;
 
-export function generateStaticParams() {
-  return programs.map((p) => ({ slug: p.slug }));
+export async function generateStaticParams() {
+  return (await getSite()).programs.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
-  const program = getProgramBySlug(slug);
+  const program = await getProgram(slug);
   if (!program) return { title: "Program tidak ditemukan" };
   return { title: program.name, description: program.desc };
 }
 
 export default async function ProgramPage({ params }: Params) {
   const { slug } = await params;
-  const program = getProgramBySlug(slug);
+  const program = await getProgram(slug);
   if (!program) notFound();
 
   const c = tone[program.color];
-  const related = programs.filter((p) => p.slug !== slug);
+  const related = (await getSite()).programs.filter((p) => p.slug !== slug);
 
   return (
     <main className="pb-24">

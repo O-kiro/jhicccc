@@ -1,9 +1,10 @@
 import type { MetadataRoute } from "next";
-import { digitalServices, news, programs } from "@/lib/content";
+import { getSite } from "@/lib/site";
 
 const BASE = "https://mankotabatu.sch.id";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const { digitalServices, news, programs } = await getSite();
   const now = new Date();
 
   const staticPages: MetadataRoute.Sitemap = [

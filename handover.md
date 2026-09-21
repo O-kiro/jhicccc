@@ -198,6 +198,20 @@ Semua ini sudah menghabiskan waktu sekali. Jangan mengulanginya.
     `host.docker.internal` — nama yang tidak bisa dibuka browser pengguna. Tautan
     handoff dibangun dari jalur relatif + `APP_URL`.
 
+### Basis data
+
+**`php artisan migrate:fresh` menghapus seluruh isi basis data.** Berkas
+SQLite-nya di-bind-mount dan diabaikan Git, jadi tidak ada riwayat yang bisa
+dipulihkan — data yang diubah lewat panel admin (NISN, kata sandi, topik forum
+yang ditulis siswa) hilang permanen. Cadangkan dulu sebelum menjalankannya:
+
+```bash
+cp database/database.sqlite "database/database.sqlite.bak-$(date +%F-%H%M)"
+```
+
+Untuk sekadar menguji seeder, pakai basis data uji: `php artisan test` memakai
+SQLite di memori dan tidak menyentuh berkas ini.
+
 ### Docker
 
 15. **Volume bernama membuat `node_modules` ada tapi kosong**, sehingga
@@ -248,12 +262,12 @@ Semua ini sudah menghabiskan waktu sekali. Jangan mengulanginya.
   `forum`, `forum/threads` (POST), `forum/threads/{id}`,
   `forum/threads/{id}/replies` (POST), `forum/threads/{id}/like` (POST)
 - Login tunggal siswa + admin, termasuk handoff
-- Panel admin: 9 resource CRUD + 17 halaman rangka modul
+- Panel admin: semua menu berfungsi — tidak ada lagi halaman rangka
 - Dasbor admin dengan susunan sama seperti portal siswa
 - Sistem token desain, tipografi, dan kontras terverifikasi (termasuk mode gelap)
 - Docker untuk kedua repo, diuji dari kondisi clone baru
 
-**Tes backend: 78/78 lolos.** Pint bersih.
+**Tes backend: 163/163 lolos.** Pint bersih.
 
 ### Seluruh portal siswa kini memakai API
 
@@ -291,22 +305,58 @@ Materi modul dan berkas buku disimpan sebagai **tautan** (`course_modules.url`,
 `books.url`), bukan berkas yang diunggah — itu keputusan sadar, bukan
 kekurangan. Keduanya boleh kosong; portal menampilkan "Materi belum tersedia".
 
-### Belum punya CRUD di panel admin
+### Panel admin lengkap
 
-Tabel modul baru belum punya Resource Filament, jadi isinya hanya bisa diubah
-lewat seeder atau tinker: `courses`, `course_modules`, `enrollments`, `exams`,
-`exam_questions`, `exam_question_options`, `exam_answers`, `exam_results`,
-`books`, `book_loans`, `forum_*`, `quotes`.
+Semua tabel punya pengelola di panel, dan ke-17 menu yang dulu rangka kini
+berfungsi:
 
-Yang paling terasa: **guru belum bisa membuat soal ujian lewat panel**,
-padahal teks soal hasil seed sendiri berbunyi "diisi guru lewat panel admin".
+| Grup | Menu |
+|---|---|
+| Akademik | Kursus (+ modul, peserta), Ujian (+ soal & kunci), Hasil Ujian |
+| Kesiswaan | Klasemen Poin, Buku Tatib, Catatan Kedisiplinan |
+| Absensi | Rekap Bulanan (matriks buku induk), Kehadiran Harian, Guru Piket, Jurnal KBM, Live Monitoring |
+| Humas | Buku Tamu, Katalog Layanan, PTSP |
+| Keuangan | Master Pembayaran, Tagihan & Kasir, Keuangan Komite |
+| Sarana & Prasarana | Master Ruang, Buku Induk Barang, Peminjaman & Booking |
+| E-Library | Buku, Pinjaman Buku, Meja Sirkulasi |
+| My Website | Pop-up, Layanan Cepat, Berita, Agenda, Program, Prestasi, Ekskul, Fasilitas, Galeri, QnA, Testimoni, Alumni |
+| Lainnya | Persuratan, Konseling, Kelola ZI, Sync Data |
 
-### Rangka, belum berisi
+Tiga yang bentuknya perlu diketahui:
 
-15 dari 19 modul di `dashboard-admin-tour.md` masih halaman placeholder yang
-menjelaskan rencana isinya: Kesiswaan, Absensi (4), Humas, Keuangan (2),
-Sarpras, E-Library, My Website, Kelola ZI, Persuratan, PTSP, Buku Tatib,
-Konseling, Sync Data.
+- **Meja Sirkulasi** memakai kolom teks biasa untuk NISN dan kode buku.
+  Pembaca RFID/barcode umumnya berperilaku seperti keyboard, jadi alat
+  sungguhan langsung bekerja tanpa integrasi khusus. Aturannya ada di
+  `app/Services/Sirkulasi.php`.
+- **Sync Data bukan sinkronisasi langsung.** Tidak ada sistem pusat (EMIS,
+  dll.) yang bisa dihubungi. Isinya impor siswa dari CSV, dua tahap: periksa
+  lalu terapkan. Siswa baru diberi sandi acak yang **hanya bisa diunduh sekali**
+  — bukan NISN, karena portal belum punya fitur ganti sandi.
+- **My Website** menggerakkan situs publik. Lihat bagian berikut.
+
+### Situs publik kini dikelola lewat CMS
+
+Sebelas daftar di `lib/content.ts` pindah ke basis data dan dibaca lewat
+`lib/site.ts` → `GET /api/v1/public/site` (tanpa token). Bentuk responsnya
+sengaja sama persis dengan ekspor `lib/content.ts`, jadi komponen situs tidak
+tahu dari mana datanya datang.
+
+- **Perubahan di admin tampil dalam ≤ 60 detik** (ISR `revalidate: 60`).
+  Diuji: berita baru muncul, berita yang dihapus hilang setelah 41 detik.
+- **Kalau API mati, situs tetap hidup** dengan isi bawaan `lib/content.ts`, dan
+  log server mencetak `[site] CMS tidak bisa dibaca …`. `next build` juga tetap
+  berhasil tanpa backend.
+- **Mengedit daftar-daftar itu di `lib/content.ts` tidak mengubah situs** selama
+  API berjalan. Berkas itu kini cadangan dan sumber isi awal saja. Identitas
+  sekolah, statistik, sambutan kepala, navigasi, profil, dan info PPDB masih
+  dibaca langsung dari sana.
+- Isi awal CMS diekspor langsung dari `lib/content.ts` ke
+  `backend/database/seeders/data/situs.json` — tidak diketik ulang. Ada tes yang
+  membuktikan API mengembalikan isi yang identik.
+- Satu perbedaan yang disengaja: **berita diurutkan berdasarkan tanggal**, jadi
+  berita baru otomatis jadi berita utama. Dulu urutannya manual; dua berita
+  terakhir kini bertukar tempat. Galeri dan prestasi tetap mengikuti urutan
+  manual (bisa diseret di panel).
 
 ---
 
@@ -340,9 +390,9 @@ Konseling, Sync Data.
    Sudah dibersihkan dari remote. Pastikan token itu sudah dicabut di
    https://github.com/settings/tokens.
 
-8. **Meminjam buku belum bisa dilakukan siswa.** Pinjaman hanya bisa dibuat
-   lewat seeder; tidak ada endpoint pinjam/kembalikan, dan `current_page`
-   tidak pernah berubah karena buku dibaca di luar portal.
+8. **Siswa belum bisa meminjam buku sendiri dari portal.** Peminjaman kini
+   dicatat petugas di Meja Sirkulasi, bukan swalayan. `current_page` tetap tidak
+   berubah otomatis karena buku dibaca di luar portal.
 
 9. **Progres kursus belum terhubung ke modul.** `enrollments.progress_percentage`
    masih angka yang disetel manual, bukan hasil hitungan modul yang selesai —
@@ -353,6 +403,23 @@ Konseling, Sync Data.
    "Active Members", "Total Topics", dan jumlah thread per kategori dihitung
    dari isi basis data, bukan angka hiasan seperti sebelumnya (`1.000`,
    `12k+`). Akan terlihat wajar begitu data asli masuk.
+
+11. **Panel admin belum mengenal peran.** Semua admin melihat semua menu,
+    termasuk Konseling. Penanda "Rahasia" pada catatan konseling hanya
+    menyembunyikan isinya di daftar — membuka catatannya tetap bisa. Perlu
+    peran (misal filament-shield) sebelum dipakai sungguhan.
+
+12. **Gambar di CMS berupa jalur teks, bukan unggahan.** Kolom gambar berita
+    dan galeri diisi seperti `/photos/berita.jpg`, jadi fotonya harus sudah ada
+    di folder `public/` frontend. Unggah langsung dari panel belum ada.
+
+13. **Perubahan CMS menunggu sampai 60 detik.** Bisa dibuat seketika dengan
+    revalidasi sesuai permintaan: Laravel memanggil endpoint Next.js yang
+    menjalankan `revalidateTag('site')` setiap kali konten disimpan. Tag-nya
+    sudah dipasang di `lib/site.ts`; endpoint dan pemanggilnya belum.
+
+14. **Build tanpa backend mencetak puluhan peringatan `[site]`** — satu per
+    halaman yang dibangun. Tidak berbahaya, tapi bising di log CI.
 
 ---
 

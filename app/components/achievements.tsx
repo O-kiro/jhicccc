@@ -6,7 +6,7 @@ import { Icon } from "./icons";
 import { Badge, Container, SectionHeading } from "./ui";
 import { Reveal } from "./reveal";
 import { Counter } from "./counter";
-import { achievements } from "@/lib/content";
+import type { Site } from "@/lib/site";
 
 const LEVELS = ["Semua", "Kota", "Provinsi", "Nasional", "Internasional"] as const;
 type Level = (typeof LEVELS)[number];
@@ -34,7 +34,8 @@ const tierAccent: Record<string, string> = {
   Kota: "border-line",
 };
 
-export function Achievements() {
+/** Isinya dari CMS lewat getSite(); lihat lib/site.ts. */
+export function Achievements({ achievements }: { achievements: Site["achievements"] }) {
   const [filter, setFilter] = useState<Level>("Semua");
   const [hover, setHover] = useState(false);
   const [pressing, setPressing] = useState(false);

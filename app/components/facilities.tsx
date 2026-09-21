@@ -4,7 +4,7 @@ import { Icon } from "./icons";
 import { Container, SectionHeading } from "./ui";
 import { StaggerGroup, StaggerItem } from "./reveal";
 import { SpotlightCard } from "./spotlight-card";
-import { facilities } from "@/lib/content";
+import type { Site } from "@/lib/site";
 
 const tones = ["teal", "blue", "gold"] as const;
 const panel: Record<"teal" | "blue" | "gold", { bg: string; icon: string }> = {
@@ -15,7 +15,8 @@ const panel: Record<"teal" | "blue" | "gold", { bg: string; icon: string }> = {
 
 const cardBase = "card-glow group h-full rounded-card p-7 transition-all duration-200 hover:-translate-y-1.5";
 
-export function Facilities() {
+/** Isinya dari CMS lewat getSite(); lihat lib/site.ts. */
+export function Facilities({ facilities }: { facilities: Site["facilities"] }) {
   return (
     <section id="fasilitas" className="scroll-mt-24 bg-surface-2 py-24 sm:py-32">
       <Container>

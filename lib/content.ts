@@ -1,8 +1,18 @@
 /**
- * Single source of truth for the MAN Kota Batu homepage.
- * Diselaraskan 1:1 dengan figma.md (prototype Figma).
- * All copy in Bahasa Indonesia.
+ * Konten situs MAN Kota Batu. Diselaraskan 1:1 dengan figma.md.
  * Social/contact links are best-effort official handles — verify before launch.
+ *
+ * PERHATIAN — sebagian isi berkas ini tidak lagi menjadi sumber tampilan.
+ * Sebelas daftar (digitalServices, news, agenda, programs, achievements,
+ * extracurriculars, facilities, galleryItems, faqs, testimonials, alumni)
+ * kini dikelola lewat panel admin → My Website, dan dibaca lewat lib/site.ts.
+ * Di sini daftar-daftar itu hanya berperan sebagai:
+ *   1. cadangan saat API tidak bisa dihubungi, dan
+ *   2. sumber isi awal CMS (diekspor ke backend/database/seeders/data/situs.json).
+ * Mengubahnya di sini TIDAK mengubah situs selama API berjalan.
+ *
+ * Yang masih dibaca langsung dari sini: identitas sekolah (school), statistik,
+ * sambutan kepala, media sosial, navigasi, profil, dan info PPDB.
  */
 
 export type IconName =
@@ -232,10 +242,6 @@ export const digitalServices: DigitalService[] = [
   },
 ];
 
-export function getServiceBySlug(slug: string): DigitalService | undefined {
-  return digitalServices.find((s) => s.detail?.slug === slug);
-}
-
 export type Program = {
   slug: string;
   name: string;
@@ -307,10 +313,6 @@ export const programs: Program[] = [
     ],
   },
 ];
-
-export function getProgramBySlug(slug: string): Program | undefined {
-  return programs.find((p) => p.slug === slug);
-}
 
 // Figma §1 — Prestasi Membanggakan (filter KOTA · PROVINSI · NASIONAL · INTERNASIONAL)
 // Figma list: Silver Medal KOSSMI Robotik — Reza Malik (2026), Silver Medal Robotik ITS — M. Alief & M. Azriel (2026), Medali Perunggu IPSI — Raskha Aqila
@@ -434,10 +436,6 @@ export const news: NewsItem[] = [
     ],
   },
 ];
-
-export function getNewsBySlug(slug: string): NewsItem | undefined {
-  return news.find((n) => n.slug === slug);
-}
 
 // Figma §1 — Sambutan Kepala Madrasah (full text per figma.md)
 export const principal: { name: string; role: string; message: string; photo?: string } = {

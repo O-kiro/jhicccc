@@ -5,9 +5,10 @@ import { AnimatePresence, motion } from "motion/react";
 import { Icon } from "./icons";
 import { Container, SectionHeading } from "./ui";
 import { Reveal } from "./reveal";
-import { faqs } from "@/lib/content";
+import type { Site } from "@/lib/site";
 
-export function Faq() {
+/** Isinya dari CMS lewat getSite(); lihat lib/site.ts. */
+export function Faq({ faqs }: { faqs: Site["faqs"] }) {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
