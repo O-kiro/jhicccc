@@ -1,16 +1,25 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Icon } from "@/app/components/icons";
 import { Reveal, StaggerGroup, StaggerItem } from "@/app/components/reveal";
 import { cn, toneSoft } from "@/lib/styles";
 import { PageHead, Panel, PanelTitle, Pill, Progress } from "@/app/components/siswa/ui";
-import { borrowedBooks, continueReading, libraryCategories, newArrivals } from "@/lib/siswa";
+import { getLibrary } from "@/lib/api";
 
 export const metadata: Metadata = {
   title: "Perpustakaan",
   description: "Perpustakaan digital madrasah — koleksi, pinjaman berjalan, dan bacaan terakhir.",
 };
 
-export default function PerpustakaanPage() {
+export default async function PerpustakaanPage() {
+  const {
+    categories,
+    new_arrivals: newArrivals,
+    loans,
+    loan_quota: loanQuota,
+    continue_reading: continueReading,
+  } = await getLibrary();
+
   return (
     <div className="mx-auto max-w-6xl">
       <PageHead
@@ -18,19 +27,19 @@ export default function PerpustakaanPage() {
         title="Jelajahi Koleksi"
         desc="Jelajahi sumber daya akademis dan spiritual pilihan kami."
         action={
-          <button
-            type="button"
-            className="group inline-flex shrink-0 items-center gap-2 rounded-full border border-line px-5 py-3 text-sm font-semibold text-ink transition-colors hover:border-ink/25 hover:bg-surface-2"
+          <Link
+            href="/siswa"
+            className="press group inline-flex shrink-0 items-center gap-2 rounded-full border border-line px-5 py-3 text-sm font-semibold text-ink transition-colors hover:border-ink/25 hover:bg-surface-2"
           >
             <Icon name="grid" className="h-4 w-4" />
             Dashboard Saya
-          </button>
+          </Link>
         }
       />
 
       {/* Kategori */}
       <StaggerGroup className="grid gap-4 sm:grid-cols-3">
-        {libraryCategories.map((c) => (
+        {categories.map((c) => (
           <StaggerItem key={c.name}>
             <Panel className="card-glow h-full transition-shadow hover:shadow-card">
               <span className={cn("grid h-11 w-11 place-items-center rounded-xl", toneSoft[c.tone])}>
@@ -43,7 +52,8 @@ export default function PerpustakaanPage() {
         ))}
       </StaggerGroup>
 
-      {/* Lanjutkan membaca */}
+      {/* Lanjutkan membaca — hanya muncul bila ada pinjaman yang sudah dibuka */}
+      {continueReading && (
       <Reveal>
         <Panel as="section" className="bg-teal-gradient mt-6 border-transparent p-0 text-on-dark">
           <div className="relative overflow-hidden rounded-card">
@@ -57,12 +67,13 @@ export default function PerpustakaanPage() {
                 <h2 className="mt-3 font-display text-2xl font-extrabold leading-tight">
                   {continueReading.title}
                 </h2>
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-on-dark/75">
-                  {continueReading.desc}
-                </p>
+                {continueReading.description && (
+                  <p className="mt-3 max-w-xl text-sm leading-relaxed text-on-dark/75">
+                    {continueReading.description}
+                  </p>
+                )}
                 <p className="mt-4 text-xs font-semibold text-on-dark/70">
-                  {continueReading.chapter} &middot; Page {continueReading.page} of{" "}
-                  {continueReading.totalPages}
+                  Halaman {continueReading.current_page} dari {continueReading.total_pages}
                 </p>
 
                 <div className="mt-4 max-w-md">
@@ -78,21 +89,26 @@ export default function PerpustakaanPage() {
                   </div>
                 </div>
 
+                {/* Tombol anotasi dihapus: menyorot teks menuntut isi buku
+                    yang bisa dibaca di dalam portal, sedangkan buku di sini
+                    ditautkan ke berkas luar. */}
                 <div className="mt-6 flex flex-wrap gap-3">
-                  <button
-                    type="button"
-                    className="btn-sheen group inline-flex items-center gap-2 rounded-full bg-surface px-5 py-2.5 text-sm font-semibold text-teal transition-transform hover:-translate-y-0.5"
-                  >
-                    Lanjutkan Membaca
-                    <Icon name="arrow" className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </button>
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-2 rounded-full border border-white/30 px-5 py-2.5 text-sm font-semibold transition-colors hover:bg-white/10"
-                  >
-                    <Icon name="eye" className="h-4 w-4" />
-                    Lihat Anotasi
-                  </button>
+                  {continueReading.url ? (
+                    <a
+                      href={continueReading.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-sheen press group inline-flex items-center gap-2 rounded-full bg-surface px-5 py-2.5 text-sm font-semibold text-teal transition-transform hover:-translate-y-0.5"
+                    >
+                      Lanjutkan Membaca
+                      <Icon name="external" className="h-4 w-4" />
+                    </a>
+                  ) : (
+                    <p className="inline-flex items-center gap-2 rounded-full bg-white/12 px-5 py-2.5 text-sm font-semibold text-on-dark/70">
+                      <Icon name="ebook" className="h-4 w-4" />
+                      Berkas buku belum ditautkan
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -109,6 +125,7 @@ export default function PerpustakaanPage() {
           </div>
         </Panel>
       </Reveal>
+      )}
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
         {/* Produk baru */}
@@ -117,7 +134,7 @@ export default function PerpustakaanPage() {
             <PanelTitle icon="sparkle">Produk Baru</PanelTitle>
             <StaggerGroup className="grid gap-4 sm:grid-cols-2">
               {newArrivals.map((b) => (
-                <StaggerItem key={b.title}>
+                <StaggerItem key={b.id}>
                   <article className="flex h-full items-center gap-4 rounded-xl border border-line bg-surface-2 p-4">
                     <span
                       className={cn(
@@ -143,26 +160,33 @@ export default function PerpustakaanPage() {
         {/* Dipinjam */}
         <Reveal delay={0.05}>
           <Panel as="section" className="h-full">
-            <PanelTitle icon="library" action={<Pill tone="muted">{borrowedBooks.length} judul</Pill>}>
+            <PanelTitle icon="library" action={<Pill tone="muted">{loans.length} judul</Pill>}>
               Dipinjam
             </PanelTitle>
+            {loans.length === 0 && (
+              <p className="rounded-xl border border-line bg-surface-2 p-4 text-sm text-muted">
+                Belum ada buku yang sedang dipinjam.
+              </p>
+            )}
             <ul className="space-y-3">
-              {borrowedBooks.map((b) => {
-                const urgent = b.dueInDays <= 2;
+              {loans.map((b) => {
+                const urgent = b.due_in_days <= 2;
                 return (
                   <li
-                    key={b.title}
+                    key={b.id}
                     className="flex items-center justify-between gap-3 rounded-xl border border-line bg-surface-2 p-3.5"
                   >
                     <span className="min-w-0">
                       <span className="block truncate text-sm font-semibold text-ink">{b.title}</span>
                       <span className="mt-0.5 block text-xs text-muted">
-                        Jatuh tempo dalam {b.dueInDays} hari
+                        {b.due_in_days < 0
+                          ? `Terlambat ${Math.abs(b.due_in_days)} hari`
+                          : `Jatuh tempo dalam ${b.due_in_days} hari`}
                       </span>
                     </span>
                     <Pill tone={urgent ? "gold" : "teal"}>
                       <Icon name="clock" className="h-3 w-3" />
-                      {b.dueInDays}h
+                      {b.due_in_days}h
                     </Pill>
                   </li>
                 );
@@ -171,9 +195,15 @@ export default function PerpustakaanPage() {
             <div className="mt-5">
               <div className="mb-1.5 flex items-center justify-between text-[11px] font-semibold text-muted">
                 <span>Kuota pinjaman</span>
-                <span className="tabular-nums text-ink">{borrowedBooks.length} / 5</span>
+                <span className="tabular-nums text-ink">
+                  {loans.length} / {loanQuota}
+                </span>
               </div>
-              <Progress value={(borrowedBooks.length / 5) * 100} tone="gold" label="Kuota pinjaman" />
+              <Progress
+                value={(loans.length / loanQuota) * 100}
+                tone="gold"
+                label="Kuota pinjaman"
+              />
             </div>
           </Panel>
         </Reveal>

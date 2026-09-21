@@ -4,7 +4,6 @@ import { Icon } from "@/app/components/icons";
 import { Reveal, StaggerGroup, StaggerItem } from "@/app/components/reveal";
 import { cn } from "@/lib/styles";
 import { Panel, PanelTitle, Pill, StatCard } from "@/app/components/siswa/ui";
-import { overviewQuote } from "@/lib/siswa";
 import { getOverview } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 
@@ -14,7 +13,13 @@ export const metadata: Metadata = {
 };
 
 export default async function OverviewPage() {
-  const { student, summary, today_schedule: todaySchedule, announcements } = await getOverview();
+  const {
+    student,
+    quote,
+    summary,
+    today_schedule: todaySchedule,
+    announcements,
+  } = await getOverview();
 
   // Kartu ringkasan dirakit dari respons API; nilai yang belum ada
   // ditampilkan sebagai "—" alih-alih angka palsu.
@@ -57,9 +62,16 @@ export default async function OverviewPage() {
             <h1 className="mt-3 font-display text-[clamp(1.75rem,3.6vw,2.75rem)] font-extrabold leading-tight tracking-[-0.03em]">
               Assalamu&rsquo;alaikum, {student.name}
             </h1>
-            <p className="mt-4 font-serif text-base italic leading-relaxed text-on-dark/80 sm:text-lg">
-              &ldquo;{overviewQuote}&rdquo;
-            </p>
+            {quote && (
+              <p className="mt-4 font-serif text-base italic leading-relaxed text-on-dark/80 sm:text-lg">
+                &ldquo;{quote.body}&rdquo;
+                {quote.source && (
+                  <span className="mt-1 block text-sm not-italic text-on-dark/60">
+                    &mdash; {quote.source}
+                  </span>
+                )}
+              </p>
+            )}
 
             <div className="mt-7 flex flex-wrap items-center gap-3">
               <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-2 text-sm font-semibold">

@@ -71,13 +71,15 @@ export default async function RaporPage() {
         title="Rapor Digital Madrasah"
         desc={`Semester ${reportCard.semester} ${reportCard.academic_year}`}
         action={
-          <button
-            type="button"
-            className="btn-sheen bg-blue-gradient group inline-flex shrink-0 items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5"
+          // Tautan biasa, bukan tombol: unduhan ditangani peramban, dan
+          // berkasnya dibuat server lewat /api/rapor/pdf.
+          <a
+            href="/api/rapor/pdf"
+            className="btn-sheen bg-blue-gradient press group inline-flex shrink-0 items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5"
           >
             <Icon name="download" className="h-4 w-4" />
             Unduh Rapor Digital Lengkap (PDF)
-          </button>
+          </a>
         }
       />
 

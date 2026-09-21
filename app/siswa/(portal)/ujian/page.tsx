@@ -4,7 +4,7 @@ import { Icon } from "@/app/components/icons";
 import { Reveal, StaggerGroup, StaggerItem } from "@/app/components/reveal";
 import { cn } from "@/lib/styles";
 import { Countdown, PageHead, Panel, PanelTitle, Pill } from "@/app/components/siswa/ui";
-import { examResults, examRules, upcomingExams } from "@/lib/siswa";
+import { getExams } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 
 export const metadata: Metadata = {
@@ -12,7 +12,9 @@ export const metadata: Metadata = {
   description: "Pusat ujian & evaluasi — jadwal CBT, hasil penilaian, dan simulasi.",
 };
 
-export default function UjianPage() {
+export default async function UjianPage() {
+  const { upcoming, results, rules } = await getExams();
+
   return (
     <div className="mx-auto max-w-6xl">
       <PageHead
@@ -27,15 +29,23 @@ export default function UjianPage() {
           <Reveal>
             <Panel as="section">
               <PanelTitle icon="calendar">Ujian Mendatang</PanelTitle>
+              {upcoming.length === 0 && (
+                <p className="rounded-xl border border-line bg-surface-2 p-5 text-sm text-muted">
+                  Belum ada ujian yang dijadwalkan.
+                </p>
+              )}
               <StaggerGroup className="space-y-3">
-                {upcomingExams.map((exam) => {
-                  const featured = exam.startsInSeconds !== undefined;
+                {upcoming.map((exam) => {
                   return (
-                    <StaggerItem key={exam.title}>
+                    <StaggerItem key={exam.id}>
                       <article
                         className={cn(
                           "rounded-card border p-5 transition-colors",
-                          featured ? "border-blue/35 bg-blue-soft/35" : "border-line bg-surface-2 hover:border-ink/15",
+                          exam.is_live
+                            ? "border-teal/40 bg-teal-soft/40"
+                            : exam.starts_in_seconds !== null
+                              ? "border-blue/35 bg-blue-soft/35"
+                              : "border-line bg-surface-2 hover:border-ink/15",
                         )}
                       >
                         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -57,14 +67,16 @@ export default function UjianPage() {
                           )}
                         </div>
 
-                        {featured && (
-                          <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-t border-blue/20 pt-4">
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
-                              Mulai dalam
-                              <Countdown
-                                seconds={exam.startsInSeconds!}
-                                className="ml-2 font-display text-xl font-extrabold tracking-normal text-blue"
-                              />
+                        {/* Sedang berlangsung: satu-satunya keadaan di mana
+                            sesi CBT benar-benar bisa dibuka. */}
+                        {exam.is_live && (
+                          <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-t border-teal/25 pt-4">
+                            <p className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-teal">
+                              <span className="relative flex h-1.5 w-1.5">
+                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal opacity-75" />
+                                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-teal" />
+                              </span>
+                              Sedang berlangsung
                             </p>
                             <Link
                               href="/siswa/cbt"
@@ -73,6 +85,20 @@ export default function UjianPage() {
                               Masuk Ke Dalam Ujian
                               <Icon name="arrow" className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                             </Link>
+                          </div>
+                        )}
+
+                        {/* Belum mulai: hitung mundur saja, tanpa tombol masuk
+                            — sesi belum dilayani server. */}
+                        {exam.starts_in_seconds !== null && (
+                          <div className="mt-5 border-t border-blue/20 pt-4">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
+                              Mulai dalam
+                              <Countdown
+                                seconds={exam.starts_in_seconds}
+                                className="ml-2 font-display text-xl font-extrabold tracking-normal text-blue"
+                              />
+                            </p>
                           </div>
                         )}
                       </article>
@@ -87,10 +113,15 @@ export default function UjianPage() {
           <Reveal>
             <Panel as="section">
               <PanelTitle icon="chart">Hasil Ujian</PanelTitle>
+              {results.length === 0 && (
+                <p className="rounded-xl border border-line bg-surface-2 p-5 text-sm text-muted">
+                  Belum ada hasil ujian yang diterbitkan.
+                </p>
+              )}
               <ul className="space-y-3">
-                {examResults.map((r) => (
+                {results.map((r) => (
                   <li
-                    key={r.subject}
+                    key={r.id}
                     className="flex flex-wrap items-center gap-4 rounded-xl border border-line bg-surface-2 p-4"
                   >
                     <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-teal-soft font-display text-xl font-extrabold tabular-nums text-teal">
@@ -101,7 +132,7 @@ export default function UjianPage() {
                         {r.subject}
                       </span>
                       <span className="mt-0.5 block text-xs text-muted">
-                        Selesai pada {formatDate(r.finishedOn)} &middot; Nilai {r.score}%
+                        Selesai pada {formatDate(r.finished_on)} &middot; Nilai {r.score}%
                       </span>
                     </span>
                     <Pill tone="teal">
@@ -143,7 +174,7 @@ export default function UjianPage() {
             <Panel as="section">
               <PanelTitle icon="shield">Aturan Ujian</PanelTitle>
               <ol className="space-y-3.5">
-                {examRules.map((rule, i) => (
+                {rules.map((rule, i) => (
                   <li key={rule} className="flex gap-3">
                     <span className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-gold-soft font-display text-xs font-extrabold text-gold-strong">
                       {i + 1}
