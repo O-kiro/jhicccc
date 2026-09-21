@@ -267,7 +267,7 @@ SQLite di memori dan tidak menyentuh berkas ini.
 - Sistem token desain, tipografi, dan kontras terverifikasi (termasuk mode gelap)
 - Docker untuk kedua repo, diuji dari kondisi clone baru
 
-**Tes backend: 163/163 lolos.** Pint bersih.
+**Tes backend: 229/229 lolos.** Pint bersih.
 
 ### Seluruh portal siswa kini memakai API
 
@@ -334,6 +334,33 @@ Tiga yang bentuknya perlu diketahui:
   — bukan NISN, karena portal belum punya fitur ganti sandi.
 - **My Website** menggerakkan situs publik. Lihat bagian berikut.
 
+### Peran panel admin
+
+Tujuh peran, didefinisikan di satu tempat — `backend/app/Support/Peran.php`:
+
+| Peran | Menu yang bisa dibuka |
+|---|---|
+| Admin Utama | Semua, termasuk **Pengaturan → Pengguna Panel** |
+| Wakasek Kurikulum | Data Master, Akademik |
+| Wakasek Kesiswaan | Data Master, Kesiswaan, Absensi |
+| Guru BK | Kesiswaan, Konseling (termasuk catatan rahasia) |
+| Tata Usaha | Data Master, Keuangan, Sarpras, Persuratan, Kelola ZI, Sync Data |
+| Humas | Humas, Konten, My Website |
+| Pustakawan | E-Library |
+
+URL yang diketik langsung pun dibalas 403, bukan hanya menunya yang hilang.
+Akun lama otomatis menjadi Admin Utama. Akun tanpa peran tidak bisa masuk.
+Admin Utama terakhir tidak bisa diturunkan atau dihapus.
+
+Akun per peran belum ada di data seed — buat lewat **Pengguna Panel**.
+
+### Fitur siswa yang ditambahkan terakhir
+
+- **Forum**: balas ke balasan (satu tingkat), hapus balasan sendiri
+- **Akun** (`/siswa/akun`, lewat chip profil): ganti kata sandi; sesi lain dicabut
+- **Katalog buku** (`/siswa/perpustakaan/katalog`): pinjam dan kembalikan sendiri
+- **Kursus**: tandai modul selesai; progres dihitung dari situ
+
 ### Situs publik kini dikelola lewat CMS
 
 Sebelas daftar di `lib/content.ts` pindah ke basis data dan dibaca lewat
@@ -341,8 +368,12 @@ Sebelas daftar di `lib/content.ts` pindah ke basis data dan dibaca lewat
 sengaja sama persis dengan ekspor `lib/content.ts`, jadi komponen situs tidak
 tahu dari mana datanya datang.
 
-- **Perubahan di admin tampil dalam ≤ 60 detik** (ISR `revalidate: 60`).
-  Diuji: berita baru muncul, berita yang dihapus hilang setelah 41 detik.
+- **Perubahan di admin tampil seketika**: Laravel memanggil webhook
+  `POST /api/revalidate` setiap konten disimpan atau dihapus. Diukur 0,4 detik.
+  Kalau webhook gagal atau belum dikonfigurasi, situs tetap menyusul sendiri
+  dalam ≤ 60 detik.
+- **Gambar bisa diunggah** di Berita dan Galeri. Unggahan disajikan sebagai
+  `/storage/...`, yang diteruskan Next.js ke backend (`next.config.ts`).
 - **Kalau API mati, situs tetap hidup** dengan isi bawaan `lib/content.ts`, dan
   log server mencetak `[site] CMS tidak bisa dibaca …`. `next build` juga tetap
   berhasil tanpa backend.
@@ -390,36 +421,27 @@ tahu dari mana datanya datang.
    Sudah dibersihkan dari remote. Pastikan token itu sudah dicabut di
    https://github.com/settings/tokens.
 
-8. **Siswa belum bisa meminjam buku sendiri dari portal.** Peminjaman kini
-   dicatat petugas di Meja Sirkulasi, bukan swalayan. `current_page` tetap tidak
-   berubah otomatis karena buku dibaca di luar portal.
-
-9. **Progres kursus belum terhubung ke modul.** `enrollments.progress_percentage`
-   masih angka yang disetel manual, bukan hasil hitungan modul yang selesai —
-   menandai modul selesai belum ada. Perlu tabel penyelesaian modul kalau mau
-   angkanya jujur.
-
-10. **Angka di beberapa kartu forum kecil karena data contohnya kecil.**
+8. **Angka di beberapa kartu forum kecil karena data contohnya kecil.**
    "Active Members", "Total Topics", dan jumlah thread per kategori dihitung
    dari isi basis data, bukan angka hiasan seperti sebelumnya (`1.000`,
    `12k+`). Akan terlihat wajar begitu data asli masuk.
 
-11. **Panel admin belum mengenal peran.** Semua admin melihat semua menu,
-    termasuk Konseling. Penanda "Rahasia" pada catatan konseling hanya
-    menyembunyikan isinya di daftar — membuka catatannya tetap bisa. Perlu
-    peran (misal filament-shield) sebelum dipakai sungguhan.
-
-12. **Gambar di CMS berupa jalur teks, bukan unggahan.** Kolom gambar berita
-    dan galeri diisi seperti `/photos/berita.jpg`, jadi fotonya harus sudah ada
-    di folder `public/` frontend. Unggah langsung dari panel belum ada.
-
-13. **Perubahan CMS menunggu sampai 60 detik.** Bisa dibuat seketika dengan
-    revalidasi sesuai permintaan: Laravel memanggil endpoint Next.js yang
-    menjalankan `revalidateTag('site')` setiap kali konten disimpan. Tag-nya
-    sudah dipasang di `lib/site.ts`; endpoint dan pemanggilnya belum.
-
-14. **Build tanpa backend mencetak puluhan peringatan `[site]`** — satu per
+9. **Build tanpa backend mencetak puluhan peringatan `[site]`** — satu per
     halaman yang dibangun. Tidak berbahaya, tapi bising di log CI.
+
+---
+
+10. **Rahasia webhook revalidasi di `compose.yaml` hanya untuk pengembangan.**
+   Kedua repo publik, jadi nilainya bisa dibaca siapa saja. Di server
+   sungguhan ganti `SITUS_REVALIDATE_SECRET` (backend) dan `REVALIDATE_SECRET`
+   (frontend) dengan nilai yang sama dan rahasia.
+
+11. **Catatan konseling rahasia tidak terlihat oleh Admin Utama.** Disengaja:
+   hanya peran Guru BK yang memuatnya. Admin Utama yang perlu membukanya harus
+   memberi dirinya peran BK lewat menu Pengguna Panel.
+
+12. **Progres kursus lama bergeser beberapa poin** setelah dikonversi jadi modul
+   selesai: 72% dari 12 modul bukan bilangan bulat, jadi menjadi 9/12 = 75%.
 
 ---
 
