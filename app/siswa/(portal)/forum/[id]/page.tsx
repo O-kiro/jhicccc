@@ -3,10 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Icon } from "@/app/components/icons";
 import { Reveal } from "@/app/components/reveal";
-import { cn } from "@/lib/styles";
 import { Panel, Pill } from "@/app/components/siswa/ui";
 import { LikeButton } from "@/app/components/siswa/like-button";
 import { ReplyForm } from "@/app/components/siswa/reply-form";
+import { ReplyList } from "@/app/components/siswa/reply-list";
 import { ApiError, getForumThread } from "@/lib/api";
 
 export const metadata: Metadata = {
@@ -64,7 +64,8 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
           <div className="mt-6 flex items-center gap-5 border-t border-line pt-4 text-[11px] font-semibold text-muted">
             <span className="inline-flex items-center gap-1.5">
               <Icon name="chat" className="h-3.5 w-3.5" />
-              {replies.length} Replies
+              {/* Hitungan server: termasuk balasan bersarang, tanpa yang dihapus. */}
+              {thread.replies} Replies
             </span>
             <LikeButton
               threadId={thread.id}
@@ -82,37 +83,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
             Balasan
           </h2>
 
-          {replies.length === 0 ? (
-            <p className="mt-5 rounded-xl border border-line bg-surface-2 p-5 text-sm text-muted">
-              Belum ada balasan. Jadilah yang pertama menanggapi.
-            </p>
-          ) : (
-            <ul className="mt-5 space-y-3">
-              {replies.map((r) => (
-                <li
-                  key={r.id}
-                  className={cn(
-                    "rounded-xl border p-4",
-                    // Balasan sendiri diberi tanda supaya mudah ditemukan
-                    // di utas yang panjang.
-                    r.is_mine ? "border-teal/35 bg-teal-soft/30" : "border-line bg-surface-2",
-                  )}
-                >
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="bg-blue-gradient grid h-7 w-7 shrink-0 place-items-center rounded-full font-display text-[11px] font-extrabold text-white">
-                      {r.author.replace(/^@/, "").charAt(0).toUpperCase()}
-                    </span>
-                    <span className="text-sm font-semibold text-ink">{r.author}</span>
-                    {r.is_mine && <Pill tone="teal">Kamu</Pill>}
-                    <span className="text-[11px] text-muted">{r.when}</span>
-                  </div>
-                  <p className="mt-2.5 whitespace-pre-line text-sm leading-relaxed text-ink/90">
-                    {r.body}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          )}
+          <ReplyList threadId={thread.id} replies={replies} />
 
           <ReplyForm threadId={thread.id} />
         </Panel>

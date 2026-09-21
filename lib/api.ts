@@ -87,6 +87,8 @@ export type ApiCourses = {
       description: string | null;
       /** Null berarti materinya belum ditautkan guru. */
       url: string | null;
+      /** Sudah ditandai selesai oleh siswa ini; menentukan progres kursus. */
+      completed: boolean;
     }[];
   }[];
 };
@@ -134,6 +136,7 @@ export type ApiExamSession = {
 
 type ApiLoan = {
   id: number;
+  book_id: number;
   title: string;
   author: string | null;
   description: string | null;
@@ -160,7 +163,17 @@ export type ApiLibrary = {
   }[];
   loans: ApiLoan[];
   loan_quota: number;
+  loan_durations: number[];
   continue_reading: ApiLoan | null;
+};
+
+export type ApiCatalogue = {
+  books: (ApiLibrary["new_arrivals"][number] & { borrowed_by_me: boolean })[];
+  categories: string[];
+  active_loans: number;
+  loan_quota: number;
+  /** Pilihan lama pinjam dalam hari, sama dengan meja sirkulasi. */
+  durations: number[];
 };
 
 export type ApiThread = {
@@ -176,15 +189,22 @@ export type ApiThread = {
   liked_by_me: boolean | null;
 };
 
+export type ApiReply = {
+  id: number;
+  parent_id: number | null;
+  /** Dihapus penulisnya; tampil sebagai penanda hanya bila masih ada anak. */
+  is_deleted: boolean;
+  author: string | null;
+  body: string | null;
+  when: string | null;
+  is_mine: boolean;
+  /** Satu tingkat sarang saja; anak tidak punya anak. */
+  children: ApiReply[];
+};
+
 export type ApiForumThread = {
   thread: ApiThread;
-  replies: {
-    id: number;
-    author: string;
-    body: string;
-    when: string | null;
-    is_mine: boolean;
-  }[];
+  replies: ApiReply[];
 };
 
 export type ApiForum = {
@@ -306,6 +326,16 @@ export const getLibrary = cache((): Promise<ApiLibrary> => authedGet<ApiLibrary>
 /** Melempar ApiError 404 bila topiknya sudah dihapus. */
 export const getForumThread = cache(
   (id: number): Promise<ApiForumThread> => authedGet<ApiForumThread>(`/forum/threads/${id}`),
+);
+
+export const getLibraryCatalogue = cache(
+  (q?: string, kategori?: string): Promise<ApiCatalogue> => {
+    const p = new URLSearchParams();
+    if (q) p.set("q", q);
+    if (kategori) p.set("kategori", kategori);
+    const qs = p.toString();
+    return authedGet<ApiCatalogue>(`/library/books${qs ? `?${qs}` : ""}`);
+  },
 );
 
 export const getForum = cache(

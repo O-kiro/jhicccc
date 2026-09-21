@@ -4,6 +4,7 @@ import { Icon } from "@/app/components/icons";
 import { Reveal, StaggerGroup, StaggerItem } from "@/app/components/reveal";
 import { cn, toneSoft } from "@/lib/styles";
 import { PageHead, Panel, PanelTitle, Pill, Progress } from "@/app/components/siswa/ui";
+import { BorrowButton, ReturnButton } from "@/app/components/siswa/loan-buttons";
 import { getLibrary } from "@/lib/api";
 
 export const metadata: Metadata = {
@@ -17,8 +18,12 @@ export default async function PerpustakaanPage() {
     new_arrivals: newArrivals,
     loans,
     loan_quota: loanQuota,
+    loan_durations: loanDurations,
     continue_reading: continueReading,
   } = await getLibrary();
+
+  const dipinjam = new Set(loans.map((l) => l.book_id));
+  const kuotaPenuh = loans.length >= loanQuota;
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -27,13 +32,22 @@ export default async function PerpustakaanPage() {
         title="Jelajahi Koleksi"
         desc="Jelajahi sumber daya akademis dan spiritual pilihan kami."
         action={
-          <Link
-            href="/siswa"
-            className="press group inline-flex shrink-0 items-center gap-2 rounded-full border border-line px-5 py-3 text-sm font-semibold text-ink transition-colors hover:border-ink/25 hover:bg-surface-2"
-          >
-            <Icon name="grid" className="h-4 w-4" />
-            Dashboard Saya
-          </Link>
+          <div className="flex shrink-0 flex-wrap gap-3">
+            <Link
+              href="/siswa/perpustakaan/katalog"
+              className="btn-sheen bg-blue-gradient press inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white"
+            >
+              <Icon name="search" className="h-4 w-4" />
+              Katalog Buku
+            </Link>
+            <Link
+              href="/siswa"
+              className="press group inline-flex items-center gap-2 rounded-full border border-line px-5 py-3 text-sm font-semibold text-ink transition-colors hover:border-ink/25 hover:bg-surface-2"
+            >
+              <Icon name="grid" className="h-4 w-4" />
+              Dashboard Saya
+            </Link>
+          </div>
         }
       />
 
@@ -41,13 +55,18 @@ export default async function PerpustakaanPage() {
       <StaggerGroup className="grid gap-4 sm:grid-cols-3">
         {categories.map((c) => (
           <StaggerItem key={c.name}>
-            <Panel className="card-glow h-full transition-shadow hover:shadow-card">
-              <span className={cn("grid h-11 w-11 place-items-center rounded-xl", toneSoft[c.tone])}>
-                <Icon name={c.icon} className="h-5 w-5" />
-              </span>
-              <h2 className="mt-4 font-display text-lg font-extrabold text-ink">{c.name}</h2>
-              <p className="mt-1 text-xs font-semibold text-muted">{c.count}</p>
-            </Panel>
+            <Link
+              href={`/siswa/perpustakaan/katalog?kategori=${encodeURIComponent(c.name)}`}
+              className="block h-full"
+            >
+              <Panel className="card-glow h-full transition-shadow hover:shadow-card">
+                <span className={cn("grid h-11 w-11 place-items-center rounded-xl", toneSoft[c.tone])}>
+                  <Icon name={c.icon} className="h-5 w-5" />
+                </span>
+                <h2 className="mt-4 font-display text-lg font-extrabold text-ink">{c.name}</h2>
+                <p className="mt-1 text-xs font-semibold text-muted">{c.count}</p>
+              </Panel>
+            </Link>
           </StaggerItem>
         ))}
       </StaggerGroup>
@@ -135,7 +154,7 @@ export default async function PerpustakaanPage() {
             <StaggerGroup className="grid gap-4 sm:grid-cols-2">
               {newArrivals.map((b) => (
                 <StaggerItem key={b.id}>
-                  <article className="flex h-full items-center gap-4 rounded-xl border border-line bg-surface-2 p-4">
+                  <article className="flex h-full flex-wrap items-center gap-4 rounded-xl border border-line bg-surface-2 p-4">
                     <span
                       className={cn(
                         "grid h-16 w-12 shrink-0 place-items-center rounded-md",
@@ -150,6 +169,14 @@ export default async function PerpustakaanPage() {
                       </span>
                       {b.author && <span className="mt-1 block text-xs text-muted">{b.author}</span>}
                     </span>
+                    <div className="w-full">
+                      <BorrowButton
+                        bookId={b.id}
+                        borrowed={dipinjam.has(b.id)}
+                        durations={loanDurations}
+                        full={kuotaPenuh}
+                      />
+                    </div>
                   </article>
                 </StaggerItem>
               ))}
@@ -184,10 +211,13 @@ export default async function PerpustakaanPage() {
                           : `Jatuh tempo dalam ${b.due_in_days} hari`}
                       </span>
                     </span>
-                    <Pill tone={urgent ? "gold" : "teal"}>
-                      <Icon name="clock" className="h-3 w-3" />
-                      {b.due_in_days}h
-                    </Pill>
+                    <span className="flex shrink-0 flex-col items-end gap-1.5">
+                      <Pill tone={urgent ? "gold" : "teal"}>
+                        <Icon name="clock" className="h-3 w-3" />
+                        {b.due_in_days}h
+                      </Pill>
+                      <ReturnButton loanId={b.id} title={b.title} />
+                    </span>
                   </li>
                 );
               })}

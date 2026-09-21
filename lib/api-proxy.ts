@@ -14,6 +14,15 @@ import { TOKEN_COOKIE } from "@/lib/api";
 const API_URL = process.env.API_URL ?? "http://localhost:8000/api/v1";
 
 export async function proxyPost(path: string, body: unknown): Promise<NextResponse> {
+  return proxySend("POST", path, body);
+}
+
+/** Sama dengan proxyPost untuk metode lain (DELETE, PUT). */
+export async function proxySend(
+  method: "POST" | "PUT" | "DELETE",
+  path: string,
+  body?: unknown,
+): Promise<NextResponse> {
   const token = (await cookies()).get(TOKEN_COOKIE)?.value;
 
   if (!token) {
@@ -21,13 +30,13 @@ export async function proxyPost(path: string, body: unknown): Promise<NextRespon
   }
 
   const res = await fetch(`${API_URL}${path}`, {
-    method: "POST",
+    method,
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify(body ?? {}),
+    body: method === "DELETE" ? undefined : JSON.stringify(body ?? {}),
     cache: "no-store",
   }).catch(() => null);
 

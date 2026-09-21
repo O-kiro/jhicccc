@@ -253,7 +253,13 @@ export function PortalShell({
                 <Icon name="bell" className="h-[18px] w-[18px]" />
                 <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-gold ring-2 ring-canvas" />
               </button>
-              <div className="flex items-center gap-2.5 rounded-full border border-line py-1 pl-1 pr-3.5">
+              {/* Chip profil menuju halaman Akun (ganti kata sandi). */}
+              <Link
+                href="/siswa/akun"
+                aria-label={`Akun ${student.name}`}
+                aria-current={pathname === "/siswa/akun" ? "page" : undefined}
+                className="press flex items-center gap-2.5 rounded-full border border-line py-1 pl-1 pr-3.5 transition-[background-color,border-color,transform] duration-200 ease-snap hover:border-ink/25 hover:bg-surface-2"
+              >
                 <span className="bg-blue-gradient grid h-8 w-8 place-items-center rounded-full font-display text-xs font-extrabold text-white">
                   {student.name.charAt(0)}
                 </span>
@@ -261,7 +267,7 @@ export function PortalShell({
                   <span className="block text-xs font-semibold text-ink">{student.name}</span>
                   <span className="block text-[11px] text-muted">Kelas {student.kelas ?? "—"}</span>
                 </span>
-              </div>
+              </Link>
             </div>
           </div>
         </header>
