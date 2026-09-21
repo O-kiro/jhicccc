@@ -9,7 +9,7 @@ import { Icon } from "@/app/components/icons";
 import { ThemeToggle } from "@/app/components/theme-toggle";
 import { cn } from "@/lib/styles";
 import { school } from "@/lib/content";
-import { portalNav } from "@/lib/siswa";
+import { portalNav } from "@/lib/portal-nav";
 import type { ApiStudent } from "@/lib/api";
 
 /** Sepadan dengan --ease-snap dan --ease-drawer di globals.css. */

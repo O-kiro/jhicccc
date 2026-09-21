@@ -242,25 +242,64 @@ Semua ini sudah menghabiskan waktu sekali. Jangan mengulanginya.
 
 - Situs publik (tidak disentuh sejak awal, tetap utuh)
 - Portal siswa — 8 halaman sesuai `design-siswa.md`
-- API v1: `login`, `logout`, `me`, `overview`, `report-card`, `announcements`
+- API v1, 18 endpoint: `login`, `logout`, `me`, `overview`, `report-card`,
+  `report-card/pdf`, `announcements`, `courses`, `exams`, `exam-session`,
+  `exam-session/answers` (POST), `exam-session/finish` (POST), `library`,
+  `forum`, `forum/threads` (POST), `forum/threads/{id}`,
+  `forum/threads/{id}/replies` (POST), `forum/threads/{id}/like` (POST)
 - Login tunggal siswa + admin, termasuk handoff
 - Panel admin: 9 resource CRUD + 17 halaman rangka modul
 - Dasbor admin dengan susunan sama seperti portal siswa
 - Sistem token desain, tipografi, dan kontras terverifikasi (termasuk mode gelap)
 - Docker untuk kedua repo, diuji dari kondisi clone baru
 
-**Tes backend: 24/24 lolos.** Pint bersih.
+**Tes backend: 78/78 lolos.** Pint bersih.
 
-### Belum tersambung ke backend
+### Seluruh portal siswa kini memakai API
 
-Enam halaman portal masih membaca konstanta dari `lib/siswa.ts`:
-**Kursus, Ujian, CBT, Perpustakaan, Forum.**
+`lib/siswa.ts` sudah dihapus. Kedelapan halaman mengambil datanya dari
+Laravel; yang tersisa di kode hanya `lib/portal-nav.ts` (peta rute aplikasi,
+memang bukan data madrasah).
 
-Tabel dan model untuk semuanya sudah ada (`courses`, `enrollments`, `exams`,
-`exam_results`, `books`, `book_loans`, `forum_*`). Yang kurang: controller API,
-Resource Filament, dan mengganti sumber data di komponen.
+**Tidak ada lagi tombol mati di portal siswa.** Kedelapan aksi yang dulu
+kosong kini berfungsi:
 
-Hanya **Overview** dan **Rapor Digital** yang sudah memakai data asli.
+| Aksi | Cara kerja |
+|---|---|
+| Selesai Ujian | Konfirmasi → dinilai server → nilai tampil → masuk Hasil Ujian |
+| Mulai Topik Baru | Dialog berisi kategori, judul, isi |
+| Buka diskusi | Halaman `/siswa/forum/[id]` — baru ada; sebelumnya 84 balasan tersimpan tapi tak terlihat |
+| Balas diskusi | Formulir di halaman topik; balasan sendiri ditandai "Kamu" |
+| Suka / batal suka | Sakelar, optimistik, satu suka per siswa (tabel `forum_thread_likes`) |
+| Muat Diskusi Lainnya | Lewat `?diskusi=N` di URL, bukan state klien |
+| Unduh Rapor PDF | Dibuat server dengan dompdf |
+| Lihat Modul | Daftar modul per mapel; materi berupa tautan luar |
+| Lanjutkan Membaca | Membuka tautan berkas buku |
+| Dashboard Saya | Menuju `/siswa` |
+| Lihat Anotasi | **Dihapus** — menyorot teks menuntut isi buku di dalam portal |
+
+Penilaian ujian dikerjakan server dan sesi terkunci setelah dikirim: kunci
+jawaban (`exam_question_options.is_correct`) tidak pernah sampai ke portal,
+dijaga dua lapis (`ExamQuestionResource` dan `#[Hidden]` di model) dan diuji.
+
+Angka suka: `forum_threads.like_count` tetap jadi angka yang ditampilkan
+(nilai seed seperti 82 jadi titik awal), sedangkan `forum_thread_likes`
+mencatat *siapa* yang menyukai — itu yang membuat tombolnya bisa dimatikan
+dan mencegah satu siswa menyukai dua kali.
+
+Materi modul dan berkas buku disimpan sebagai **tautan** (`course_modules.url`,
+`books.url`), bukan berkas yang diunggah — itu keputusan sadar, bukan
+kekurangan. Keduanya boleh kosong; portal menampilkan "Materi belum tersedia".
+
+### Belum punya CRUD di panel admin
+
+Tabel modul baru belum punya Resource Filament, jadi isinya hanya bisa diubah
+lewat seeder atau tinker: `courses`, `course_modules`, `enrollments`, `exams`,
+`exam_questions`, `exam_question_options`, `exam_answers`, `exam_results`,
+`books`, `book_loans`, `forum_*`, `quotes`.
+
+Yang paling terasa: **guru belum bisa membuat soal ujian lewat panel**,
+padahal teks soal hasil seed sendiri berbunyi "diisi guru lewat panel admin".
 
 ### Rangka, belum berisi
 
@@ -300,6 +339,20 @@ Konseling, Sync Data.
 7. **Token GitHub lama pernah tertulis polos** di URL remote `.git/config`.
    Sudah dibersihkan dari remote. Pastikan token itu sudah dicabut di
    https://github.com/settings/tokens.
+
+8. **Meminjam buku belum bisa dilakukan siswa.** Pinjaman hanya bisa dibuat
+   lewat seeder; tidak ada endpoint pinjam/kembalikan, dan `current_page`
+   tidak pernah berubah karena buku dibaca di luar portal.
+
+9. **Progres kursus belum terhubung ke modul.** `enrollments.progress_percentage`
+   masih angka yang disetel manual, bukan hasil hitungan modul yang selesai —
+   menandai modul selesai belum ada. Perlu tabel penyelesaian modul kalau mau
+   angkanya jujur.
+
+10. **Angka di beberapa kartu forum kecil karena data contohnya kecil.**
+   "Active Members", "Total Topics", dan jumlah thread per kategori dihitung
+   dari isi basis data, bukan angka hiasan seperti sebelumnya (`1.000`,
+   `12k+`). Akan terlihat wajar begitu data asli masuk.
 
 ---
 
