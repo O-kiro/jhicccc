@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default async function PerpustakaanPage() {
-  return <LibraryView base="/siswa" data={await getLibrary()} />;
+  return <LibraryView base="/guru" data={await getLibrary()} />;
 }

@@ -40,7 +40,7 @@ export function BorrowButton({
     return (
       <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-soft px-3 py-1.5 text-xs font-semibold text-teal">
         <Icon name="check" className="h-3.5 w-3.5" />
-        Sedang kamu pinjam
+        Sedang dipinjam
       </span>
     );
   }

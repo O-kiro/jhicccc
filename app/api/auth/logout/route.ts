@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { TOKEN_COOKIE } from "@/lib/api";
+import { ROLE_COOKIE, TOKEN_COOKIE } from "@/lib/api";
 
 const API_URL = process.env.API_URL ?? "http://localhost:8000/api/v1";
 
@@ -21,6 +21,7 @@ export async function POST() {
   }
 
   store.delete(TOKEN_COOKIE);
+  store.delete(ROLE_COOKIE);
 
   return NextResponse.json({ message: "Berhasil keluar." });
 }

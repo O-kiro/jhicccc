@@ -1,5 +1,6 @@
 /**
- * Klien API portal siswa.
+ * Klien API portal siswa (dan bagian yang dipakai bersama portal guru —
+ * perpustakaan dan ganti sandi). Endpoint khusus guru ada di lib/api-guru.ts.
  *
  * Semua pemanggilan berjalan di server: token disimpan dalam cookie httpOnly
  * sehingga tidak pernah terbaca JavaScript browser, dan base URL API tidak
@@ -12,6 +13,15 @@ import { redirect } from "next/navigation";
 import type { IconName } from "@/lib/content";
 
 export const TOKEN_COOKIE = "makoba-token";
+
+/**
+ * Portal milik token di atas: "siswa" atau "guru". Hanya dipakai proxy.ts
+ * untuk mengarahkan ke portal yang benar — bukan batas keamanan. Laravel
+ * tetap menolak token siswa di endpoint guru dan sebaliknya.
+ */
+export const ROLE_COOKIE = "makoba-peran";
+
+export type PortalRole = "siswa" | "guru";
 
 const API_URL = process.env.API_URL ?? "http://localhost:8000/api/v1";
 
@@ -274,7 +284,7 @@ export async function apiPost<T>(path: string, body: unknown): Promise<T> {
  * GET terautentikasi. Token 401/419 berarti sesi habis — pengguna dikembalikan
  * ke halaman masuk alih-alih melihat halaman rusak.
  */
-async function authedGet<T>(path: string): Promise<T> {
+export async function authedGet<T>(path: string): Promise<T> {
   const token = (await cookies()).get(TOKEN_COOKIE)?.value;
 
   if (!token) {

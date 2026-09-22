@@ -15,5 +15,5 @@ export default async function KatalogPage({
   const { q = "", kategori = "" } = await searchParams;
   const katalog = await getLibraryCatalogue(q.trim() || undefined, kategori || undefined);
 
-  return <CatalogueView base="/siswa" q={q} kategori={kategori} katalog={katalog} />;
+  return <CatalogueView base="/guru" q={q} kategori={kategori} katalog={katalog} />;
 }

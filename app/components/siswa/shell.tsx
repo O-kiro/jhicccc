@@ -9,24 +9,24 @@ import { Icon } from "@/app/components/icons";
 import { ThemeToggle } from "@/app/components/theme-toggle";
 import { cn } from "@/lib/styles";
 import { school } from "@/lib/content";
-import { portalNav } from "@/lib/portal-nav";
-import type { ApiStudent } from "@/lib/api";
+import { portals, type PortalConfig } from "@/lib/portal-nav";
+import type { PortalRole } from "@/lib/api";
 
 /** Sepadan dengan --ease-snap dan --ease-drawer di globals.css. */
 const EASE_SNAP = [0.23, 1, 0.32, 1] as const;
 const EASE_DRAWER = [0.32, 0.72, 0, 1] as const;
 
 /** Overview cocok persis; menu lain aktif untuk seluruh sub-route-nya. */
-function isActive(pathname: string, href: string) {
-  return href === "/siswa" ? pathname === "/siswa" : pathname.startsWith(href);
+function isActive(pathname: string, href: string, home: string) {
+  return href === home ? pathname === home : pathname.startsWith(href);
 }
 
-function NavList({ onNavigate }: { onNavigate?: () => void }) {
+function NavList({ config, onNavigate }: { config: PortalConfig; onNavigate?: () => void }) {
   const pathname = usePathname();
   return (
     <nav aria-label="Menu portal" className="space-y-1">
-      {portalNav.map((item) => {
-        const active = isActive(pathname, item.href);
+      {config.nav.map((item) => {
+        const active = isActive(pathname, item.href, config.home);
         return (
           <Link
             key={item.href}
@@ -43,7 +43,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
           >
             {active && (
               <motion.span
-                layoutId="siswa-nav-active"
+                layoutId="portal-nav-active"
                 className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-full bg-teal"
               />
             )}
@@ -61,6 +61,17 @@ export type NextClass = {
   time: string;
   live: boolean;
   meetingUrl: string | null;
+  /** Teks tombol tautan kelas — siswa "mengikuti", guru "membuka". */
+  joinLabel: string;
+};
+
+/** Identitas di chip profil topbar. */
+export type PortalUser = {
+  name: string;
+  /** Baris kedua chip, mis. "Kelas X-B" atau "NIP 1985…". */
+  subtitle: string;
+  /** Hanya siswa yang punya daily streak. */
+  streakDays?: number;
 };
 
 /** Kartu "Kelas Selanjutnya" — muncul di bawah menu pada tiap halaman portal. */
@@ -84,7 +95,7 @@ function NextClassCard({ nextClass }: { nextClass: NextClass }) {
           className="btn-sheen press mt-3.5 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-white/15 px-4 py-2 text-xs font-semibold text-on-dark transition-[background-color,transform] duration-200 ease-snap hover:bg-white/25"
         >
           <Icon name="play" className="h-3.5 w-3.5" />
-          Ikuti Kelas Live
+          {nextClass.joinLabel}
         </a>
       ) : (
         <p className="mt-3.5 text-center text-xs font-semibold text-on-dark/60">
@@ -96,17 +107,19 @@ function NextClassCard({ nextClass }: { nextClass: NextClass }) {
 }
 
 function SidebarBody({
+  config,
   nextClass,
   onLogout,
   onNavigate,
 }: {
+  config: PortalConfig;
   nextClass: NextClass | null;
   onLogout: () => void;
   onNavigate?: () => void;
 }) {
   return (
     <div className="flex h-full flex-col gap-6 overflow-y-auto px-4 py-6">
-      <Link href="/siswa" onClick={onNavigate} className="flex items-center gap-2.5 px-1.5">
+      <Link href={config.home} onClick={onNavigate} className="flex items-center gap-2.5 px-1.5">
         <Image
           src="/logo.png"
           alt={`Logo ${school.name}`}
@@ -117,11 +130,11 @@ function SidebarBody({
         />
         <span className="leading-tight">
           <span className="block font-display text-sm font-extrabold text-ink">{school.name}</span>
-          <span className="block text-[11px] text-muted">Portal Siswa</span>
+          <span className="block text-[11px] text-muted">{config.label}</span>
         </span>
       </Link>
 
-      <NavList onNavigate={onNavigate} />
+      <NavList config={config} onNavigate={onNavigate} />
 
       <div className="mt-auto space-y-3">
         {nextClass && <NextClassCard nextClass={nextClass} />}
@@ -148,15 +161,23 @@ function SidebarBody({
   );
 }
 
+/**
+ * Kerangka bersama portal siswa dan portal guru: sidebar, drawer mobile, dan
+ * topbar. Isinya — menu, label, chip profil — datang dari lib/portal-nav.ts
+ * sesuai `portal`, jadi kedua portal selalu tampil seragam.
+ */
 export function PortalShell({
-  student,
+  portal,
+  user,
   nextClass,
   children,
 }: {
-  student: ApiStudent;
+  portal: PortalRole;
+  user: PortalUser;
   nextClass: NextClass | null;
   children: React.ReactNode;
 }) {
+  const config = portals[portal];
   const [open, setOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const router = useRouter();
@@ -189,7 +210,7 @@ export function PortalShell({
     <div className="min-h-screen bg-canvas">
       {/* Sidebar tetap (desktop) */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 border-r border-line bg-surface lg:block">
-        <SidebarBody nextClass={nextClass} onLogout={handleLogout} />
+        <SidebarBody config={config} nextClass={nextClass} onLogout={handleLogout} />
       </aside>
 
       {/* Drawer (mobile) */}
@@ -220,7 +241,12 @@ export function PortalShell({
               }}
               className="fixed inset-y-0 left-0 z-50 w-72 border-r border-line bg-surface shadow-overlay lg:hidden"
             >
-              <SidebarBody nextClass={nextClass} onLogout={handleLogout} onNavigate={() => setOpen(false)} />
+              <SidebarBody
+                config={config}
+                nextClass={nextClass}
+                onLogout={handleLogout}
+                onNavigate={() => setOpen(false)}
+              />
             </motion.aside>
           </>
         )}
@@ -240,10 +266,12 @@ export function PortalShell({
             </button>
 
             <div className="ml-auto flex items-center gap-2">
-              <span className="mr-1 hidden items-center gap-1.5 rounded-full bg-gold-soft px-3 py-1.5 text-xs font-semibold text-gold-strong sm:inline-flex">
-                <Icon name="flame" className="h-3.5 w-3.5" />
-                {student.streak_days} Hari
-              </span>
+              {user.streakDays !== undefined && (
+                <span className="mr-1 hidden items-center gap-1.5 rounded-full bg-gold-soft px-3 py-1.5 text-xs font-semibold text-gold-strong sm:inline-flex">
+                  <Icon name="flame" className="h-3.5 w-3.5" />
+                  {user.streakDays} Hari
+                </span>
+              )}
               <ThemeToggle />
               <button
                 type="button"
@@ -255,17 +283,17 @@ export function PortalShell({
               </button>
               {/* Chip profil menuju halaman Akun (ganti kata sandi). */}
               <Link
-                href="/siswa/akun"
-                aria-label={`Akun ${student.name}`}
-                aria-current={pathname === "/siswa/akun" ? "page" : undefined}
+                href={config.account}
+                aria-label={`Akun ${user.name}`}
+                aria-current={pathname === config.account ? "page" : undefined}
                 className="press flex items-center gap-2.5 rounded-full border border-line py-1 pl-1 pr-3.5 transition-[background-color,border-color,transform] duration-200 ease-snap hover:border-ink/25 hover:bg-surface-2"
               >
                 <span className="bg-blue-gradient grid h-8 w-8 place-items-center rounded-full font-display text-xs font-extrabold text-white">
-                  {student.name.charAt(0)}
+                  {user.name.charAt(0)}
                 </span>
                 <span className="hidden leading-tight sm:block">
-                  <span className="block text-xs font-semibold text-ink">{student.name}</span>
-                  <span className="block text-[11px] text-muted">Kelas {student.kelas ?? "—"}</span>
+                  <span className="block text-xs font-semibold text-ink">{user.name}</span>
+                  <span className="block text-[11px] text-muted">{user.subtitle}</span>
                 </span>
               </Link>
             </div>

@@ -66,6 +66,10 @@ admin tampil tanpa gaya sama sekali. Ini jebakan yang paling sering terulang.
 |---|---|---|
 | Admin | `admin@mankotabatu.sch.id` | `password` |
 | Siswa | NISN `009283741` | `password` |
+| Guru | `rini@mankotabatu.sch.id` atau NIP `198503152010012007` | `password` |
+
+Hanya satu guru contoh yang punya akses portal. Guru lain belum diberi sandi —
+isi lewat **Data Master → Guru** di panel admin.
 
 > Di mesin pemilik proyek, NISN siswa sudah diubah lewat panel admin jadi `696969`
 > dengan kata sandi yang tidak tercatat. Berkas SQLite tidak masuk Git, jadi hasil
@@ -112,15 +116,38 @@ sendiri. **URL tidak berubah** — route group tidak ikut ke path.
   tanpa sidebar
 - `proxy.ts` menjaga `/siswa/*` (lihat jebakan #1)
 
+### Portal guru
+
+- `app/guru/(portal)/` — Overview, Jadwal Mengajar, Jurnal Mengajar,
+  Kelas & Materi, Penilaian, Perpustakaan, Akun
+- **Kerangkanya satu dengan portal siswa**: `PortalShell` menerima
+  `portal="siswa" | "guru"`, lalu menu, label, dan chip profil diambil dari
+  `lib/portal-nav.ts`. Mengubah tampilan shell berarti mengubah keduanya.
+- **Perpustakaan identik**: isi halamannya ada di
+  `app/components/portal/library-view.tsx` dan `catalogue-view.tsx`; halaman
+  siswa dan guru hanya membungkusnya dengan `base` berbeda. Endpoint Laravel-nya
+  pun satu (`/library`, `auth:student,teacher`).
+- Endpoint khusus guru: `/api/v1/guru/*` (guard `teacher`), klien di
+  `lib/api-guru.ts`
+- Cookie `makoba-peran` (`siswa`/`guru`) hanya penunjuk arah untuk `proxy.ts`.
+  Bukan batas keamanan: Laravel menolak token siswa di endpoint guru dan
+  sebaliknya, karena provider kedua guard berbeda.
+
 ### Login tunggal
 
-Satu form di `/masuk`. Laravel menentukan peran dari bentuk identitasnya
-(mengandung `@` → admin, selain itu → NISN siswa):
+Satu form di `/masuk`. Laravel menentukan peran dari identitasnya:
+
+- surel → akun admin lebih dulu, lalu akun guru
+- selain surel → NISN siswa lebih dulu, lalu NIP guru (NIP boleh berspasi)
 
 ```
-Siswa → token Sanctum → cookie httpOnly → /siswa
+Siswa → token Sanctum (guard student) → cookie httpOnly → /siswa
+Guru  → token Sanctum (guard teacher) → cookie httpOnly → /guru
 Admin → tautan handoff sekali pakai → sesi Filament → /admin
 ```
+
+Orang yang punya akun admin **dan** akun guru dengan surel serta sandi yang sama
+selalu masuk sebagai admin. Beri sandi berbeda bila perlu keduanya.
 
 Admin tidak bisa memakai token karena Filament berjalan di atas sesi, dan cookie
 sesi tidak bisa dipasang lintas origin. Jembatannya: token acak 64 karakter,
@@ -212,6 +239,17 @@ cp database/database.sqlite "database/database.sqlite.bak-$(date +%F-%H%M)"
 Untuk sekadar menguji seeder, pakai basis data uji: `php artisan test` memakai
 SQLite di memori dan tidak menyentuh berkas ini.
 
+**Kolom tanggal tersimpan `Y-m-d 00:00:00`**, bukan `Y-m-d`. Cari dengan
+`whereDate()`. `updateOrCreate(['date' => '2026-09-22'])` tidak pernah menemukan
+barisnya — lalu mencoba membuat baris baru dan menabrak indeks unik.
+
+**Zona waktu aplikasi `Asia/Jakarta`** (`config/app.php`, bisa ditimpa
+`APP_TIMEZONE`). Sampai 22 September 2026 nilainya `UTC`: "LIVE NOW" dan sesi CBT
+menyala tujuh jam terlambat, dan "hari ini" masih kemarin sampai pukul 07.00 WIB.
+Stempel `created_at` lama tertulis dalam UTC, jadi tampil tujuh jam lebih awal.
+Di frontend, jam dibaca lewat `jamWib()` (`lib/format.ts`) karena Node di Docker
+berjalan dalam UTC.
+
 ### Docker
 
 15. **Volume bernama membuat `node_modules` ada tapi kosong**, sehingga
@@ -267,7 +305,7 @@ SQLite di memori dan tidak menyentuh berkas ini.
 - Sistem token desain, tipografi, dan kontras terverifikasi (termasuk mode gelap)
 - Docker untuk kedua repo, diuji dari kondisi clone baru
 
-**Tes backend: 229/229 lolos.** Pint bersih.
+**Tes backend: 267/267 lolos.** Pint bersih.
 
 ### Seluruh portal siswa kini memakai API
 
@@ -361,6 +399,39 @@ Akun per peran belum ada di data seed — buat lewat **Pengguna Panel**.
 - **Katalog buku** (`/siswa/perpustakaan/katalog`): pinjam dan kembalikan sendiri
 - **Kursus**: tandai modul selesai; progres dihitung dari situ
 
+### Portal guru
+
+Dibangun dengan isi bawaan sambil menunggu dokumen fitur guru. Menu dan isinya
+bisa diubah tanpa menyentuh kerangka — lihat §5 "Portal guru".
+
+| Menu | Isi |
+|---|---|
+| Overview | Sapaan, kelas diampu, sesi hari ini, jurnal tertunda, pengumuman |
+| Jadwal Mengajar | Jadwal sepekan per hari, tautan kelas live |
+| Jurnal Mengajar | Sesi yang sudah mulai tapi belum dicatat (7 hari ke belakang), catat materi + jumlah hadir, riwayat, ubah, hapus. Tercatat di tabel yang sama dengan modul Jurnal KBM admin |
+| Kelas & Materi | Kursus yang diampu, progres rata-rata siswa terdaftar, tambah/ubah/hapus modul (tautan wajib http/https) — langsung tampil di Kursus siswa |
+| Penilaian | Lembar nilai per kelas; judul + tanggal yang sama berarti menyunting. Langsung masuk Rapor Digital siswa |
+| Perpustakaan | Sama persis dengan milik siswa; kuota 5 buku berlaku juga |
+| Akun | Identitas + ganti kata sandi (sesi lain dicabut) |
+
+Pendukungnya:
+
+- `teachers` punya `password` (boleh kosong = belum diberi akses) dan
+  `is_active`. Admin mengisinya di Data Master → Guru; kolom "Portal Guru"
+  menunjukkan statusnya.
+- `book_loans.teacher_id` baru; peminjam tepat satu dari siswa atau guru
+  (dijaga model). Meja sirkulasi menerima NISN **atau NIP**; form Peminjaman
+  punya pilihan peminjam guru.
+- "Kelas diampu" = gabungan pasangan mapel–kelas dari jadwal **dan** kursus
+  (`App\Support\Pengampuan`), karena keduanya tidak selalu diisi bersamaan.
+- Menonaktifkan siswa atau guru kini ikut mencabut semua tokennya.
+- Batas laju endpoint bersama memakai limiter bernama (`portal-sandi`,
+  `portal-tulis`): `throttle:5,1` biasa mengunci pada ID saja, sehingga siswa #1
+  dan guru #1 akan berbagi jatah.
+- Sekalian diperbaiki: token yang dicabut (mis. setelah ganti sandi di perangkat
+  lain) dulu membuat `/siswa` ↔ `/masuk` memantul tanpa henti. Kini
+  `/masuk?expired=1` membuang cookie-nya.
+
 ### Situs publik kini dikelola lewat CMS
 
 Sebelas daftar di `lib/content.ts` pindah ke basis data dan dibaca lewat
@@ -442,6 +513,16 @@ tahu dari mana datanya datang.
 
 12. **Progres kursus lama bergeser beberapa poin** setelah dikonversi jadi modul
    selesai: 72% dari 12 modul bukan bilangan bulat, jadi menjadi 9/12 = 75%.
+
+13. **Isi portal guru belum mengikuti dokumen resmi** — dokumennya menyusul.
+   Menu saat ini pilihan bawaan yang memakai tabel yang sudah ada.
+
+14. **Data contoh jadwal dan kursus tidak konsisten**: jadwal Fiqih diampu
+   Ust. H. Abdurrahman, kursus Fiqih diampu Ani Nur Aisyah. Portal guru
+   menampilkannya apa adanya — masing-masing melihat kelasnya di menu berbeda.
+
+15. **Pesan 422 Laravel masih berakhiran "(and 1 more error)"** dalam bahasa
+   Inggris. Formulir portal menampilkan galat per kolom, jadi jarang terlihat.
 
 ---
 
