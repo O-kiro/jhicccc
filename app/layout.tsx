@@ -3,6 +3,7 @@ import { Inter, Lora, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./components/providers";
 import { school, socials } from "@/lib/content";
+import { SITE_URL } from "@/lib/seo";
 
 // Header. Plus Jakarta Sans dirancang oleh Tokotype (Indonesia) — geometris
 // dan tegas di bobot berat, tanpa keganjilan Bricolage Grotesque yang
@@ -30,7 +31,7 @@ const serif = Lora({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://mankotabatu.sch.id"),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "MAN Kota Batu — Berilmu. Berakhlak. Berprestasi.",
     template: "%s | MAN Kota Batu",
@@ -71,8 +72,8 @@ const orgSchema = {
   "@type": "EducationalOrganization",
   name: school.longName,
   alternateName: [school.name, school.nick],
-  url: "https://mankotabatu.sch.id",
-  logo: "https://mankotabatu.sch.id/logo.png",
+  url: SITE_URL,
+  logo: `${SITE_URL}/logo.png`,
   description:
     "Madrasah Aliyah Negeri Kota Batu — madrasah penyelenggara riset dengan Kelas Riset, Olimpiade, dan Tahfidz.",
   address: {

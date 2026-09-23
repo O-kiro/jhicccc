@@ -432,6 +432,24 @@ Pendukungnya:
   lain) dulu membuat `/siswa` ↔ `/masuk` memantul tanpa henti. Kini
   `/masuk?expired=1` membuang cookie-nya.
 
+### SEO: sitemap.xml dan robots.txt
+
+`app/sitemap.ts` dibangun dari isi CMS, jadi berita, program, dan layanan baru
+masuk sendiri (disegarkan 60 detik seperti `getSite()`). Diverifikasi: 22 URL,
+XML sah, semuanya balas 200.
+
+- **Portal tidak pernah masuk sitemap** — `/siswa`, `/guru`, dan nanti alumni
+  ada di balik login, halamannya `noindex`, dan `robots.txt` melarangnya.
+  Tambahkan portal baru ke `disallow` di `app/robots.ts` saat dibuat.
+- **Halaman masuk sengaja dikeluarkan** (`/masuk`, `/login`, `/ppdb/login`):
+  tidak berguna di hasil pencarian.
+- **`lastModified` hanya diisi kalau tanggalnya diketahui** (berita, beranda,
+  indeks berita). Mengisi semuanya dengan "sekarang" membuat Google berhenti
+  memercayai nilainya.
+- **Alamat kanonik satu sumber**: `lib/seo.ts` → `SITE_URL`, dipakai
+  `metadataBase`, JSON-LD, `robots.txt`, dan `sitemap.xml`. Bisa ditimpa env
+  `SITE_URL` untuk domain lain.
+
 ### Situs publik kini dikelola lewat CMS
 
 Sebelas daftar di `lib/content.ts` pindah ke basis data dan dibaca lewat
