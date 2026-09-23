@@ -34,6 +34,17 @@ export const portals: Record<PortalRole, PortalConfig> = {
       { label: "Forum Murid", href: "/siswa/forum", icon: "users" },
     ],
   },
+  alumni: {
+    home: "/alumni/portal",
+    label: "Portal Alumni",
+    account: "/alumni/portal/akun",
+    nav: [
+      { label: "Overview", href: "/alumni/portal", icon: "grid" },
+      { label: "Portal Beasiswa", href: "/alumni/portal/beasiswa", icon: "trophy" },
+      { label: "Statistik & Sebaran", href: "/alumni/portal/statistik", icon: "chart" },
+      { label: "Forum Alumni", href: "/alumni/portal/forum", icon: "chat" },
+    ],
+  },
   guru: {
     home: "/guru",
     label: "Portal Guru",

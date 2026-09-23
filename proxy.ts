@@ -7,16 +7,34 @@ const TOKEN_COOKIE = "makoba-token";
 const ROLE_COOKIE = "makoba-peran";
 const LOGIN_PATH = "/masuk";
 
-const HOME = { siswa: "/siswa", guru: "/guru" } as const;
+const HOME = { siswa: "/siswa", guru: "/guru", alumni: "/alumni/portal" } as const;
 type Role = keyof typeof HOME;
 
 /** Sesi lama (sebelum ada portal guru) tidak punya cookie peran: itu siswa. */
 function roleOf(request: NextRequest): Role {
-  return request.cookies.get(ROLE_COOKIE)?.value === "guru" ? "guru" : "siswa";
+  const nilai = request.cookies.get(ROLE_COOKIE)?.value;
+
+  return nilai === "guru" || nilai === "alumni" ? nilai : "siswa";
 }
 
 /**
- * Menjaga area portal siswa dan portal guru. Di Next.js 16 berkas ini
+ * Area yang sedang dibuka. Perhatikan /alumni: halaman publiknya tetap
+ * terbuka untuk umum — hanya /alumni/portal yang dijaga.
+ */
+function areaOf(pathname: string): Role {
+  if (pathname === "/guru" || pathname.startsWith("/guru/")) {
+    return "guru";
+  }
+
+  if (pathname === "/alumni/portal" || pathname.startsWith("/alumni/portal/")) {
+    return "alumni";
+  }
+
+  return "siswa";
+}
+
+/**
+ * Menjaga portal siswa, guru, dan alumni. Di Next.js 16 berkas ini
  * bernama `proxy.ts` — konvensi `middleware.ts` sudah tidak dipakai lagi.
  *
  * Ini hanya memeriksa keberadaan cookie, bukan keabsahannya; verifikasi
@@ -53,8 +71,7 @@ export function proxy(request: NextRequest) {
   }
 
   // Siswa yang membuka /guru (atau sebaliknya) diantar ke portalnya sendiri.
-  const area: Role = pathname === "/guru" || pathname.startsWith("/guru/") ? "guru" : "siswa";
-  if (area !== role) {
+  if (areaOf(pathname) !== role) {
     return NextResponse.redirect(new URL(HOME[role], request.url));
   }
 
@@ -62,5 +79,14 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/masuk", "/siswa", "/siswa/:path*", "/guru", "/guru/:path*"],
+  // Halaman publik /alumni sengaja tidak masuk daftar ini.
+  matcher: [
+    "/masuk",
+    "/siswa",
+    "/siswa/:path*",
+    "/guru",
+    "/guru/:path*",
+    "/alumni/portal",
+    "/alumni/portal/:path*",
+  ],
 };

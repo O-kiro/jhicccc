@@ -15,13 +15,13 @@ import type { IconName } from "@/lib/content";
 export const TOKEN_COOKIE = "makoba-token";
 
 /**
- * Portal milik token di atas: "siswa" atau "guru". Hanya dipakai proxy.ts
+ * Portal milik token di atas: "siswa", "guru", atau "alumni". Dipakai proxy.ts
  * untuk mengarahkan ke portal yang benar — bukan batas keamanan. Laravel
  * tetap menolak token siswa di endpoint guru dan sebaliknya.
  */
 export const ROLE_COOKIE = "makoba-peran";
 
-export type PortalRole = "siswa" | "guru";
+export type PortalRole = "siswa" | "guru" | "alumni";
 
 const API_URL = process.env.API_URL ?? "http://localhost:8000/api/v1";
 

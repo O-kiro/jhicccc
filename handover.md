@@ -67,9 +67,12 @@ admin tampil tanpa gaya sama sekali. Ini jebakan yang paling sering terulang.
 | Admin | `admin@mankotabatu.sch.id` | `password` |
 | Siswa | NISN `009283741` | `password` |
 | Guru | `rini@mankotabatu.sch.id` atau NIP `198503152010012007` | `password` |
+| Alumni | `aldian@alumni.mankotabatu.sch.id` | `password` |
 
 Hanya satu guru contoh yang punya akses portal. Guru lain belum diberi sandi —
-isi lewat **Data Master → Guru** di panel admin.
+isi lewat **Data Master → Guru** di panel admin. Akun alumni dibuat lewat
+**Alumni → Akun Alumni**; seeder mengisi enam akun contoh, semuanya bersandi
+`password`.
 
 > Di mesin pemilik proyek, NISN siswa sudah diubah lewat panel admin jadi `696969`
 > dengan kata sandi yang tidak tercatat. Berkas SQLite tidak masuk Git, jadi hasil
@@ -133,21 +136,39 @@ sendiri. **URL tidak berubah** — route group tidak ikut ke path.
   Bukan batas keamanan: Laravel menolak token siswa di endpoint guru dan
   sebaliknya, karena provider kedua guard berbeda.
 
+### Portal alumni
+
+- `app/alumni/portal/` — Overview, Portal Beasiswa, Statistik & Sebaran,
+  Forum Alumni, Akun. Kerangkanya `PortalShell` yang sama.
+- **Alamatnya `/alumni/portal`, bukan `/alumni`**: halaman publik `/alumni`
+  (etalase profil alumni) tetap ada dan terbuka untuk umum. `proxy.ts` hanya
+  menjaga `/alumni/portal*`.
+- **Forum alumni memakai tabel sendiri** (`alumni_forum_*`), terpisah penuh
+  dari forum siswa — keputusan sadar: diskusi alumni dan siswa tidak boleh
+  tercampur. Bentuk JSON-nya sengaja dibuat sama, sehingga komponen
+  `NewThread`, `LikeButton`, `ReplyForm`, dan `ReplyList` dipakai dua portal
+  lewat prop `base` (awalan jalur API).
+- **Perpustakaan tidak diberikan ke alumni** — rutenya tetap `auth:student,teacher`.
+- Angka di portal dihitung dari data: sebaran kelulusan (`alumni_outcomes`),
+  katalog beasiswa (`scholarships`), dan isi forum. Tidak ada angka hiasan.
+
 ### Login tunggal
 
 Satu form di `/masuk`. Laravel menentukan peran dari identitasnya:
 
-- surel → akun admin lebih dulu, lalu akun guru
+- surel → akun admin lebih dulu, lalu guru, lalu alumni
 - selain surel → NISN siswa lebih dulu, lalu NIP guru (NIP boleh berspasi)
 
 ```
-Siswa → token Sanctum (guard student) → cookie httpOnly → /siswa
-Guru  → token Sanctum (guard teacher) → cookie httpOnly → /guru
-Admin → tautan handoff sekali pakai → sesi Filament → /admin
+Siswa  → token Sanctum (guard student) → cookie httpOnly → /siswa
+Guru   → token Sanctum (guard teacher) → cookie httpOnly → /guru
+Alumni → token Sanctum (guard alumni)  → cookie httpOnly → /alumni/portal
+Admin  → tautan handoff sekali pakai   → sesi Filament   → /admin
 ```
 
-Orang yang punya akun admin **dan** akun guru dengan surel serta sandi yang sama
-selalu masuk sebagai admin. Beri sandi berbeda bila perlu keduanya.
+Orang yang punya lebih dari satu akun dengan surel serta sandi yang sama selalu
+masuk sebagai yang paling awal (admin → guru → alumni). Beri sandi berbeda bila
+perlu keduanya.
 
 Admin tidak bisa memakai token karena Filament berjalan di atas sesi, dan cookie
 sesi tidak bisa dipasang lintas origin. Jembatannya: token acak 64 karakter,
@@ -305,7 +326,7 @@ berjalan dalam UTC.
 - Sistem token desain, tipografi, dan kontras terverifikasi (termasuk mode gelap)
 - Docker untuk kedua repo, diuji dari kondisi clone baru
 
-**Tes backend: 267/267 lolos.** Pint bersih.
+**Tes backend: 290/290 lolos.** Pint bersih.
 
 ### Seluruh portal siswa kini memakai API
 
@@ -450,6 +471,26 @@ XML sah, semuanya balas 200.
   `metadataBase`, JSON-LD, `robots.txt`, dan `sitemap.xml`. Bisa ditimpa env
   `SITE_URL` untuk domain lain.
 
+### Portal alumni (Career Center)
+
+Dibangun mengikuti `~/Documents/jhic26/alumni.md` (4 layar Figma).
+
+| Menu | Isi |
+|---|---|
+| Overview | Sapaan, 4 kartu ringkasan, 3 kartu modul, pemberitahuan madrasah |
+| Portal Beasiswa | Ringkasan (program aktif, kuota, pendaftar, penyerapan) + katalog dengan penyaring kategori dan badge status |
+| Statistik & Sebaran | Diagram donat + tabel rincian per kategori, penyaring tahun kelulusan |
+| Forum Alumni | 3 kategori, urut terbaru/populer, pencarian, balasan bersarang satu tingkat, suka, hapus balasan sendiri |
+| Akun | Identitas + ganti kata sandi |
+
+Tabel baru: `alumni_accounts`, `scholarships`, `alumni_outcomes`, dan empat
+tabel `alumni_forum_*`. Semuanya punya menu di panel admin (grup **Alumni**,
+dapat diakses Admin Utama dan Humas).
+
+Catatan angka: dokumen menyebut "8 program beasiswa" tapi katalognya memuat 6 —
+yang diseed 6, dan ringkasannya menghitung sendiri. Jumlah balasan juga
+dihitung dari tabel, bukan angka contoh di desain (24/48/12).
+
 ### Situs publik kini dikelola lewat CMS
 
 Sebelas daftar di `lib/content.ts` pindah ke basis data dan dibaca lewat
@@ -542,6 +583,24 @@ tahu dari mana datanya datang.
 15. **Pesan 422 Laravel masih berakhiran "(and 1 more error)"** dalam bahasa
    Inggris. Formulir portal menampilkan galat per kolom, jadi jarang terlihat.
 
+16. **Portal guru belum mengikuti dokumennya.** `man-kota-batu-dashboard-guru.md`
+   baru ditemukan setelah portal guru dibangun. Dokumen menyebut 10 menu; yang
+   ada 6, dan "Kelas & Materi" beda konsep dengan "Modul Pembelajaran" di
+   dokumen. Belum ada: RDM, Jurnal Harian, Bahan Ajar & LKPD, Lapor Tatib.
+   Disepakati dikerjakan setelah portal alumni.
+
+17. **Alumni belum bisa mendaftar sendiri.** Akunnya dibuat admin, sama seperti
+   guru. Kalau nanti perlu pendaftaran mandiri, butuh verifikasi data lulusan
+   supaya orang luar tidak bisa mengaku alumni.
+
+18. **Rekap sebaran disimpan sebagai agregat per tahun**, bukan per orang.
+   Cukup untuk diagram dan tabel, tapi tidak bisa menjawab "alumni A sekarang
+   di mana".
+
+19. **Batas memori pengujian dinaikkan ke 512M** di `phpunit.xml`. Tes render
+   PDF rapor memakai dompdf yang rakus memori; dengan 128M bawaan PHP, suite
+   penuh berhenti di tengah jalan.
+
 ---
 
 ## 9. Berkas rujukan
@@ -553,6 +612,8 @@ tahu dari mana datanya datang.
 | `jhicccc/figma.md` | Prototipe Figma situs publik |
 | `jhicccc/metamask.io-DESIGN.md` | Acuan sistem desain situs publik |
 | `~/Downloads/dashboard-admin-tour.md` | 19 modul panel admin MAKOBADIG |
+| `~/Documents/jhic26/man-kota-batu-dashboard-guru.md` | 10 layar Portal Guru (Figma) — belum diikuti penuh |
+| `~/Documents/jhic26/alumni.md` | 4 layar Portal Alumni (Figma) — sudah diikuti |
 | `backend/AGENTS.md` | Panduan Laravel Boost — **wajib dibaca sebelum ubah backend** |
 | `jhicccc/AGENTS.md` | Peringatan breaking change Next.js |
 

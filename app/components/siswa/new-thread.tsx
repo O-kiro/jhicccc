@@ -14,10 +14,20 @@ const ISI_MIN = 20;
 /**
  * Tombol dan dialog untuk membuka topik diskusi baru.
  *
- * Validasi tetap dikerjakan server; yang di sini hanya agar siswa tidak
+ * Validasi tetap dikerjakan server; yang di sini hanya agar penulis tidak
  * menunggu satu putaran jaringan untuk tahu tulisannya masih terlalu pendek.
  */
-export function NewThread({ categories }: { categories: ApiForum["categories"] }) {
+export function NewThread({
+  categories,
+  base = "/api/forum",
+  categoryField = "forum_category_id",
+}: {
+  categories: ApiForum["categories"];
+  /** Awalan jalur API: forum siswa atau forum alumni. */
+  base?: string;
+  /** Nama kolom kategori yang diminta Laravel di portal terkait. */
+  categoryField?: string;
+}) {
   const [open, setOpen] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,11 +50,11 @@ export function NewThread({ categories }: { categories: ApiForum["categories"] }
     setError(null);
 
     try {
-      const res = await fetch("/api/forum/topik", {
+      const res = await fetch(`${base}/topik`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          forum_category_id: categoryId,
+          [categoryField]: categoryId,
           title: title.trim(),
           body: body.trim(),
         }),

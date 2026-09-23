@@ -14,7 +14,16 @@ import type { ApiReply } from "@/lib/api";
  * Hanya satu formulir balasan yang terbuka pada satu waktu, supaya jelas
  * siapa yang sedang ditanggapi.
  */
-export function ReplyList({ threadId, replies }: { threadId: number; replies: ApiReply[] }) {
+export function ReplyList({
+  threadId,
+  replies,
+  base = "/api/forum",
+}: {
+  threadId: number;
+  /** Balasan forum alumni membawa `author_note` (angkatan); opsional di sini. */
+  replies: (ApiReply & { author_note?: string | null })[];
+  base?: string;
+}) {
   const [membalas, setMembalas] = useState<number | null>(null);
   const [menghapus, setMenghapus] = useState<number | null>(null);
   const [galat, setGalat] = useState<string | null>(null);
@@ -27,7 +36,7 @@ export function ReplyList({ threadId, replies }: { threadId: number; replies: Ap
     setGalat(null);
 
     try {
-      const res = await fetch(`/api/forum/balasan/${reply.id}`, { method: "DELETE" });
+      const res = await fetch(`${base}/balasan/${reply.id}`, { method: "DELETE" });
       const data = await res.json().catch(() => null);
       if (!res.ok) throw new Error(data?.message ?? "Balasan gagal dihapus.");
       router.refresh();
@@ -49,7 +58,7 @@ export function ReplyList({ threadId, replies }: { threadId: number; replies: Ap
   // Fungsi biasa, bukan komponen: komponen yang didefinisikan di dalam render
   // dianggap jenis baru tiap render, sehingga React memasang ulang isinya dan
   // teks yang sedang diketik di formulir balasan ikut hilang.
-  function item(r: ApiReply, anak = false) {
+  function item(r: ApiReply & { author_note?: string | null }, anak = false) {
     if (r.is_deleted) {
       return (
         <div className="rounded-xl border border-dashed border-line p-4 text-sm italic text-muted">
@@ -76,6 +85,8 @@ export function ReplyList({ threadId, replies }: { threadId: number; replies: Ap
             {nama.replace(/^@/, "").charAt(0).toUpperCase()}
           </span>
           <span className="text-sm font-semibold text-ink">{nama}</span>
+          {/* Forum alumni menyertakan angkatan penulis; forum siswa tidak. */}
+          {r.author_note && <Pill tone="muted">{r.author_note}</Pill>}
           {r.is_mine && <Pill tone="teal">Kamu</Pill>}
           <span className="text-[11px] text-muted">{r.when}</span>
         </div>
@@ -104,6 +115,7 @@ export function ReplyList({ threadId, replies }: { threadId: number; replies: Ap
         {membalas === r.id && (
           <ReplyForm
             threadId={threadId}
+            base={base}
             parentId={indukId}
             mention={nama}
             onDone={() => setMembalas(null)}

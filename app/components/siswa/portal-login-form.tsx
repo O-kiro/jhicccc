@@ -64,9 +64,10 @@ export function PortalLoginForm() {
       // server component membaca sesi baru sebelum berpindah halaman.
       //
       // `next` hanya dipakai bila menuju portal miliknya sendiri. Selain
-      // mencegah siswa terlempar ke /guru, ini juga menutup pengalihan ke
-      // situs luar lewat ?next=//situs-lain.
-      const home: string = data?.home === "/guru" ? "/guru" : "/siswa";
+      // mencegah siswa terlempar ke portal lain, ini juga menutup pengalihan
+      // ke situs luar lewat ?next=//situs-lain.
+      const PORTAL = ["/siswa", "/guru", "/alumni/portal"];
+      const home: string = PORTAL.includes(data?.home) ? data.home : "/siswa";
       const minta = params.get("next") ?? "";
       const next = minta === home || minta.startsWith(`${home}/`) ? minta : home;
       startTransition(() => {

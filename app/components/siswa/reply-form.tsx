@@ -14,11 +14,14 @@ const ISI_MIN = 2;
 export function ReplyForm({
   threadId,
   parentId,
+  base = "/api/forum",
   mention,
   onDone,
 }: {
   threadId: number;
   parentId?: number;
+  /** Awalan jalur API: forum siswa atau forum alumni. */
+  base?: string;
   /** Nama yang dibalas; diawali ke isi supaya jelas siapa yang ditanggapi. */
   mention?: string;
   onDone?: () => void;
@@ -51,7 +54,7 @@ export function ReplyForm({
     setError(null);
 
     try {
-      const res = await fetch(`/api/forum/topik/${threadId}/balas`, {
+      const res = await fetch(`${base}/topik/${threadId}/balas`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ body: body.trim(), parent_id: parentId }),
