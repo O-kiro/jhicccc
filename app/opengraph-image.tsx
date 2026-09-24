@@ -57,7 +57,7 @@ export default function Image() {
             Berilmu.
           </div>
           <div style={{ fontSize: 108, fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.04, color: "#0f6e56" }}>
-            Berakhlak.
+            Berakhl
           </div>
           <div style={{ fontSize: 108, fontWeight: 800, letterSpacing: "-0.04em", lineHeight: 1.04, color: "#ba7517" }}>
             Berprestasi.
