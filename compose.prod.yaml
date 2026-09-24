@@ -1,0 +1,33 @@
+# Produksi:  docker compose -f compose.prod.yaml up -d --build
+#
+# Bedanya dengan compose.yaml (pengembangan): halaman dibangun dulu
+# (`next build`) lalu disajikan `next start`, bukan `next dev`. Tanpa itu
+# setiap permintaan dikompilasi ulang dan situs terasa lambat.
+#
+# Taruh di belakang reverse proxy (Caddy atau Nginx) yang mengurus TLS.
+services:
+  web:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+      - next_cache:/app/.next
+    environment:
+      NODE_ENV: production
+      # Alamat kanonik situs — ikut ke sitemap, robots, dan tautan OpenGraph.
+      SITE_URL: ${SITE_URL:-https://jhic2026.rezasidin.my.id}
+      # Dibaca di sisi server saja; tidak pernah sampai ke browser.
+      API_URL: ${API_URL:-http://host.docker.internal:8000/api/v1}
+      # Harus SAMA dengan SITUS_REVALIDATE_SECRET di backend.
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET:?wajib diisi di .env}
+    command: sh -c "npm run build && npm start -- -H 0.0.0.0"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    stop_signal: SIGTERM
+
+volumes:
+  node_modules:
+  next_cache:

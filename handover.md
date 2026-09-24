@@ -60,6 +60,43 @@ cd jhicccc && npm run dev
 **`npm run build` di backend wajib.** Tanpa itu tema Filament tidak ada dan panel
 admin tampil tanpa gaya sama sekali. Ini jebakan yang paling sering terulang.
 
+### Memasang di server
+
+Yang di atas untuk laptop. Di server, pakai berkas produksinya — bedanya:
+halaman dibangun dulu (`next build`) alih-alih dikompilasi tiap permintaan,
+setelan dibaca dari `.env`, dan container hidup ulang sendiri setelah reboot.
+
+```bash
+# Backend
+cp .env.production.example .env          # lalu isi yang bertanda ISI
+docker compose -f compose.prod.yaml run --rm app php artisan key:generate
+docker compose -f compose.prod.yaml up -d --build
+
+# Frontend
+cp .env.production.example .env          # SITE_URL, API_URL, REVALIDATE_SECRET
+docker compose -f compose.prod.yaml up -d --build
+```
+
+Yang wajib diperiksa sebelum dibuka ke publik:
+
+| Hal | Nilai benar |
+|---|---|
+| `APP_ENV` / `APP_DEBUG` | `production` / `false` — kalau `true`, jejak galat lengkap tampil ke pengunjung |
+| `APP_KEY` | terisi (`php artisan key:generate`) |
+| `APP_URL`, `FRONTEND_URLS` | alamat publik sungguhan; `FRONTEND_URLS` salah berarti portal ditolak CORS |
+| `SITUS_REVALIDATE_SECRET` = `REVALIDATE_SECRET` | nilai acak yang sama di kedua repo, **bukan** nilai dari `compose.yaml` |
+| `SITE_URL` | `https://jhic2026.rezasidin.my.id` (bawaan) — ikut ke sitemap, robots, dan OpenGraph |
+| `SESSION_SECURE_COOKIE` | `true`, dan situs disajikan lewat HTTPS |
+
+Kedua container hanya mendengarkan di `127.0.0.1`, jadi harus ada reverse
+proxy (Caddy atau Nginx) yang mengurus TLS dan meneruskan
+`jhic2026.rezasidin.my.id` → port 3000 serta alamat backend → port 8000.
+`php artisan serve` dan `next start` tidak dimaksudkan menghadap internet
+langsung.
+
+Yang harus ikut dicadangkan: `backend/database/database.sqlite` (seluruh data)
+dan `backend/storage/app/public` (gambar CMS, bukti foto, berkas RDM dan PPDB).
+
 ### Kredensial (data seed)
 
 | Peran | Masuk dengan | Kata sandi |
