@@ -104,6 +104,7 @@ export function PortalLoginForm() {
           />
           <p className="mt-1.5 text-xs text-muted">
             Siswa memakai NISN. Guru memakai NIP atau email; staf memakai email madrasah.
+            Lupa kata sandi? Admin madrasah dapat menerbitkan sandi sementara.
           </p>
         </div>
 
@@ -112,7 +113,11 @@ export function PortalLoginForm() {
             <label htmlFor="portal-pass" className="text-sm font-medium text-ink">
               Kata Sandi
             </label>
-            <Link href="/kontak" className="text-xs font-semibold text-blue hover:underline">
+            <Link
+              href="/kontak"
+              title="Kata sandi disetel ulang oleh admin madrasah"
+              className="text-xs font-semibold text-blue hover:underline"
+            >
               Lupa Kata Sandi?
             </Link>
           </div>

@@ -538,6 +538,37 @@ berkas. Sekarang:
 - Guard kelima (`ppdb`) dengan cookie peran `ppdb`; `/ppdb` dan `/ppdb/login`
   tetap terbuka untuk umum, hanya `/ppdb/dokumen` yang dijaga.
 
+### Perapian menjelang lomba
+
+- **Domain lomba `jhic2026.rezasidin.my.id`.** `lib/seo.ts` memakai itu sebagai
+  alamat kanonik — ikut ke `metadataBase`, JSON-LD, `robots.txt`, `sitemap.xml`,
+  dan gambar OpenGraph. Domain resmi madrasah sengaja tidak dipakai selama
+  penjurian; timpa lewat env `SITE_URL` bila nanti pindah.
+- **Empat error lint lama beres.** `site-header.tsx` dulu memanggil `useEffect`
+  setelah early return — urutan hook berubah antar-render, dilarang React;
+  pemeriksaan halaman masuk dipindah ke bawah semua hook. Satu `<a>` ke rute
+  internal di `achievements.tsx` jadi `<Link>`.
+- **Palet frontend disamakan dengan panel admin**: `--canvas` `#f1efe8`,
+  `--ink` `#2c2c2a`, `--blue` `#185fa5`. Kontras diperiksa ulang — ink 12,2:1;
+  biru 6,5:1 di putih dan 5,7:1 di krem; muted 4,7:1. Komentar palet di kepala
+  `globals.css` kini cocok dengan nilainya.
+- **Teks Arab didukung.** Amiri dipasang lewat `next/font` sebagai *cadangan*
+  di tumpukan font: huruf Latin tetap memakai font utama, huruf Arab jatuh ke
+  Amiri. Untuk ayat atau doa utuh ada kelas `.arabic` (rata kanan-ke-kiri,
+  ukuran naik).
+- **Setel ulang kata sandi dari panel.** Aksi "Setel Ulang Sandi" di Siswa,
+  Guru, Akun Alumni, dan Pendaftar PPDB menerbitkan sandi acak yang tampil
+  sekali, lalu mencabut semua sesi lama. Ini pengganti alur "lupa kata sandi"
+  selama madrasah belum punya server surel.
+- **Pesan 422 sepenuhnya berbahasa Indonesia** — "(and 1 more error)"
+  diterjemahkan lewat `lang/id.json`.
+- **Data contoh diselaraskan**: guru pengampu Fiqih di jadwal dan di kursus kini
+  orang yang sama.
+- **Tes frontend ada 33** (Vitest + Testing Library, `npm test`): logika
+  tanggal, `pickNextClass`, penjaga rute `proxy.ts`, kedua formulir masuk,
+  unggah berkas PPDB, dan pemetaan galat. Yang diuji lebih dulu justru jenis
+  bug yang dulu lolos — tombol yang tidak mengirim apa pun.
+
 ### Daily streak dan lonceng notifikasi dihapus
 
 Keduanya dinilai tidak perlu, jadi dibuang sampai ke akarnya — bukan
@@ -584,97 +615,66 @@ tahu dari mana datanya datang.
 
 ## 8. Utang teknis
 
-1. **4 error lint di frontend, sudah ada sejak sebelum semua pekerjaan ini.**
-   Tiga `react-hooks/rules-of-hooks` di `app/components/site-header.tsx`
-   (useEffect setelah early return) dan satu `no-html-link-for-pages` di
-   `app/components/achievements.tsx`. Dikonfirmasi ada di commit `850e287`.
-   Sengaja tidak disentuh agar diff tetap fokus.
+1. **SQLite hanya melayani satu penulis dalam satu waktu.** Cukup untuk lomba;
+   akan terasa kalau banyak guru input nilai bersamaan. Pindah ke
+   MySQL/PostgreSQL tinggal ganti konfigurasi dan tambah satu service di
+   Compose.
 
-2. **Komentar palet di `app/globals.css` tidak cocok dengan nilainya** — komentarnya
-   menulis `#185FA5`, nilainya `#1f5faf`.
-
-3. **Frontend dan admin memakai nilai palet yang sedikit berbeda.** Admin sudah
-   memakai palet spesifikasi (`#F1EFE8`, `#2C2C2A`, `#185FA5`), frontend masih
-   (`#f3f1e9`, `#201f1d`, `#1f5faf`). Selisihnya tipis tapi ada.
-
-4. **Tidak ada teks Arab yang didukung.** Konten penuh istilah keagamaan
-   (Quran Hadist, Tahfidz, Akidah Akhlak). Kalau nanti ada aksara Arab, browser
-   jatuh ke font sistem. Amiri direkomendasikan tapi belum dipasang.
-
-5. **SQLite hanya melayani satu penulis dalam satu waktu.** Cukup untuk lomba;
-   akan terasa kalau banyak guru input nilai bersamaan. Pindah ke MySQL/PostgreSQL
-   tinggal ganti konfigurasi dan tambah satu service di Compose.
-
-6. **Repo frontend publik.** Tidak ada kredensial yang pernah ter-commit
+2. **Repo frontend publik.** Tidak ada kredensial yang pernah ter-commit
    (`.env` diabaikan di kedua repo), tapi perlu dijaga.
 
-7. **Token GitHub lama pernah tertulis polos** di URL remote `.git/config`.
+3. **Token GitHub lama pernah tertulis polos** di URL remote `.git/config`.
    Sudah dibersihkan dari remote. Pastikan token itu sudah dicabut di
    https://github.com/settings/tokens.
 
-8. **Angka di beberapa kartu forum kecil karena data contohnya kecil.**
-   "Active Members", "Total Topics", dan jumlah thread per kategori dihitung
-   dari isi basis data, bukan angka hiasan seperti sebelumnya (`1.000`,
-   `12k+`). Akan terlihat wajar begitu data asli masuk.
+4. **Angka di beberapa kartu forum kecil karena data contohnya kecil.**
+   Dihitung dari isi basis data, bukan angka hiasan. Akan terlihat wajar
+   begitu data asli masuk.
 
-9. **Build tanpa backend mencetak puluhan peringatan `[site]`** — satu per
-    halaman yang dibangun. Tidak berbahaya, tapi bising di log CI.
+5. **Build tanpa backend mencetak puluhan peringatan `[site]`** — satu per
+   halaman yang dibangun. Tidak berbahaya, tapi bising di log CI.
 
----
-
-10. **Rahasia webhook revalidasi di `compose.yaml` hanya untuk pengembangan.**
+6. **Rahasia webhook revalidasi di `compose.yaml` hanya untuk pengembangan.**
    Kedua repo publik, jadi nilainya bisa dibaca siapa saja. Di server
    sungguhan ganti `SITUS_REVALIDATE_SECRET` (backend) dan `REVALIDATE_SECRET`
    (frontend) dengan nilai yang sama dan rahasia.
 
-11. **Catatan konseling rahasia tidak terlihat oleh Admin Utama.** Disengaja:
+7. **Catatan konseling rahasia tidak terlihat oleh Admin Utama.** Disengaja:
    hanya peran Guru BK yang memuatnya. Admin Utama yang perlu membukanya harus
    memberi dirinya peran BK lewat menu Pengguna Panel.
 
-12. **Progres kursus lama bergeser beberapa poin** setelah dikonversi jadi modul
+8. **Progres kursus lama bergeser beberapa poin** setelah dikonversi jadi modul
    selesai: 72% dari 12 modul bukan bilangan bulat, jadi menjadi 9/12 = 75%.
 
-13. **Isi portal guru belum mengikuti dokumen resmi** — dokumennya menyusul.
-   Menu saat ini pilihan bawaan yang memakai tabel yang sudah ada.
-
-14. **Data contoh jadwal dan kursus tidak konsisten**: jadwal Fiqih diampu
-   Ust. H. Abdurrahman, kursus Fiqih diampu Ani Nur Aisyah. Portal guru
-   menampilkannya apa adanya — masing-masing melihat kelasnya di menu berbeda.
-
-15. **Pesan 422 Laravel masih berakhiran "(and 1 more error)"** dalam bahasa
-   Inggris. Formulir portal menampilkan galat per kolom, jadi jarang terlihat.
-
-16. **Portal guru punya 11 menu, dokumennya 10.** "Kelas & Materi" (materi
+9. **Portal guru punya 11 menu, dokumennya 10.** "Kelas & Materi" (materi
    kursus yang dilihat siswa) dipertahankan di samping "Modul Pembelajaran"
    (perangkat ajar guru) karena keduanya hal yang berbeda. "Daftar Nilai" di
    dokumen memakai daftar kelas lebih dulu; di sini kelas dipilih lewat chip
    di halaman Penilaian.
 
-17. **Alumni belum bisa mendaftar sendiri.** Akunnya dibuat admin, sama seperti
-   guru. Kalau nanti perlu pendaftaran mandiri, butuh verifikasi data lulusan
-   supaya orang luar tidak bisa mengaku alumni.
+10. **Alumni dan pendaftar PPDB belum bisa mendaftar sendiri.** Akunnya dibuat
+   admin atau panitia, sama seperti guru. Swa-daftar butuh verifikasi identitas
+   supaya orang luar tidak membuat akun asal-asalan.
 
-18. **Rekap sebaran disimpan sebagai agregat per tahun**, bukan per orang.
-   Cukup untuk diagram dan tabel, tapi tidak bisa menjawab "alumni A sekarang
-   di mana".
+11. **Rekap sebaran alumni disimpan sebagai agregat per tahun**, bukan per
+   orang. Cukup untuk diagram dan tabel, tapi tidak bisa menjawab "alumni A
+   sekarang di mana".
 
-19. **Batas memori pengujian dinaikkan ke 512M** di `phpunit.xml`. Tes render
+12. **Batas memori pengujian dinaikkan ke 512M** di `phpunit.xml`. Tes render
    PDF rapor memakai dompdf yang rakus memori; dengan 128M bawaan PHP, suite
    penuh berhenti di tengah jalan.
 
-20. **Belum ada satu pun tes di frontend.** Backend 316 tes, frontend nol.
-   Justru bug seperti tombol PPDB yang tidak mengirim apa pun tidak akan
-   ketahuan sendiri tanpa tes.
-
-21. **Pendaftar PPDB tidak bisa mendaftar sendiri.** Akunnya dibuat panitia,
-   sama seperti guru dan alumni. Swa-daftar butuh verifikasi identitas supaya
-   orang luar tidak membuat akun asal-asalan.
-
-22. **Nama menu di peta situs dokumen berbeda dengan aplikasi** di sembilan
+13. **Nama menu di peta situs dokumen berbeda dengan aplikasi** di sembilan
    tempat (mis. "Kelola Situs" vs "My Website"). Disengaja agar peta situs
    enak dibaca juri; kalau mau seragam, ganti label menunya di panel.
 
----
+14. **Belum ada alur "lupa kata sandi" mandiri.** Madrasah belum punya server
+   surel, jadi penyetelan ulang dilakukan admin (lihat §7). Begitu SMTP
+   tersedia, alur lewat tautan surel bisa menyusul.
+
+15. **Tes frontend baru menutup bagian yang paling rawan** — logika tanggal,
+   penjaga rute, dua formulir masuk, unggah berkas PPDB, dan pemetaan galat.
+   Halaman portal lain belum punya tes.
 
 ## 9. Berkas rujukan
 
