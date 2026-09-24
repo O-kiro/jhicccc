@@ -42,7 +42,6 @@ export type ApiStudent = {
   name: string;
   kelas: string | null;
   academic_year: string | null;
-  streak_days: number;
 };
 
 export type ApiScheduleItem = {
@@ -69,7 +68,6 @@ export type ApiOverview = {
   summary: {
     average_score: number | null;
     attendance_percentage: number | null;
-    streak_days: number;
   };
   today_schedule: ApiScheduleItem[];
   announcements: ApiAnnouncement[];

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -8,7 +8,6 @@ import { AnimatePresence, motion } from "motion/react";
 import { Icon } from "@/app/components/icons";
 import { ThemeToggle } from "@/app/components/theme-toggle";
 import { cn } from "@/lib/styles";
-import { formatDate } from "@/lib/format";
 import { school } from "@/lib/content";
 import { portals, type PortalConfig } from "@/lib/portal-nav";
 import type { PortalRole } from "@/lib/api";
@@ -75,129 +74,11 @@ export type NextClass = {
   joinLabel: string;
 };
 
-/** Pengumuman yang tampil di lonceng topbar. */
-export type PortalAnnouncement = {
-  id: number;
-  title: string;
-  body: string;
-  published_at: string | null;
-};
-
-/** Berapa hari sebuah pengumuman dianggap masih baru (titik merah di lonceng). */
-const HARI_BARU = 3;
-
-function adaYangBaru(announcements: PortalAnnouncement[]): boolean {
-  const batas = Date.now() - HARI_BARU * 24 * 60 * 60 * 1000;
-
-  return announcements.some((a) => {
-    if (!a.published_at) return false;
-    const waktu = Date.parse(a.published_at);
-    return Number.isFinite(waktu) && waktu >= batas;
-  });
-}
-
-/**
- * Lonceng pengumuman. Isinya pengumuman yang sama dengan halaman Overview —
- * sudah ikut terkirim bersama data portal, jadi membukanya tidak memicu
- * permintaan jaringan baru.
- */
-function BellMenu({
-  announcements,
-  home,
-}: {
-  announcements: PortalAnnouncement[];
-  home: string;
-}) {
-  const [open, setOpen] = useState(false);
-  const bungkus = useRef<HTMLDivElement>(null);
-  const baru = adaYangBaru(announcements);
-
-  useEffect(() => {
-    if (!open) return;
-
-    const diLuar = (e: MouseEvent) => {
-      if (!bungkus.current?.contains(e.target as Node)) setOpen(false);
-    };
-    const escape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-
-    document.addEventListener("mousedown", diLuar);
-    document.addEventListener("keydown", escape);
-    return () => {
-      document.removeEventListener("mousedown", diLuar);
-      document.removeEventListener("keydown", escape);
-    };
-  }, [open]);
-
-  return (
-    <div ref={bungkus} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-label={`Pengumuman${baru ? " — ada yang baru" : ""}`}
-        aria-expanded={open}
-        aria-haspopup="true"
-        className="press relative grid h-10 w-10 place-items-center rounded-full border border-line text-ink transition-[background-color,transform] duration-200 ease-snap hover:bg-surface-2"
-      >
-        <Icon name="bell" className="h-[18px] w-[18px]" />
-        {/* Titik hanya muncul kalau memang ada pengumuman baru. */}
-        {baru && <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-gold ring-2 ring-canvas" />}
-      </button>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.18, ease: EASE_SNAP }}
-            role="dialog"
-            aria-label="Pengumuman terbaru"
-            className="absolute right-0 top-12 z-50 w-80 overflow-hidden rounded-card border border-line bg-surface shadow-overlay"
-          >
-            <p className="border-b border-line px-4 py-3 font-display text-sm font-extrabold text-ink">
-              Pengumuman
-            </p>
-            {announcements.length === 0 ? (
-              <p className="px-4 py-5 text-sm text-muted">Belum ada pengumuman.</p>
-            ) : (
-              <ul className="max-h-80 divide-y divide-line overflow-y-auto">
-                {announcements.map((a) => (
-                  <li key={a.id} className="px-4 py-3">
-                    <time
-                      dateTime={a.published_at ?? undefined}
-                      className="text-[11px] font-semibold uppercase tracking-[0.06em] text-gold-strong"
-                    >
-                      {a.published_at ? formatDate(a.published_at) : "Tanpa tanggal"}
-                    </time>
-                    <p className="mt-1 text-sm font-semibold leading-snug text-ink">{a.title}</p>
-                    <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted">{a.body}</p>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <Link
-              href={`${home}#pengumuman`}
-              onClick={() => setOpen(false)}
-              className="block border-t border-line px-4 py-3 text-center text-xs font-semibold text-teal transition-colors hover:bg-surface-2"
-            >
-              Lihat semua pengumuman
-            </Link>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
 /** Identitas di chip profil topbar. */
 export type PortalUser = {
   name: string;
   /** Baris kedua chip, mis. "Kelas X-B" atau "NIP 1985…". */
   subtitle: string;
-  /** Hanya siswa yang punya daily streak. */
-  streakDays?: number;
 };
 
 /** Kartu "Kelas Selanjutnya" — muncul di bawah menu pada tiap halaman portal. */
@@ -296,13 +177,11 @@ export function PortalShell({
   portal,
   user,
   nextClass,
-  announcements = [],
   children,
 }: {
   portal: PortalRole;
   user: PortalUser;
   nextClass: NextClass | null;
-  announcements?: PortalAnnouncement[];
   children: React.ReactNode;
 }) {
   const config = portals[portal];
@@ -394,14 +273,7 @@ export function PortalShell({
             </button>
 
             <div className="ml-auto flex items-center gap-2">
-              {user.streakDays !== undefined && (
-                <span className="mr-1 hidden items-center gap-1.5 rounded-full bg-gold-soft px-3 py-1.5 text-xs font-semibold text-gold-strong sm:inline-flex">
-                  <Icon name="flame" className="h-3.5 w-3.5" />
-                  {user.streakDays} Hari
-                </span>
-              )}
               <ThemeToggle />
-              <BellMenu announcements={announcements} home={config.home} />
               {/* Chip profil menuju halaman Akun (ganti kata sandi). */}
               <Link
                 href={config.account}

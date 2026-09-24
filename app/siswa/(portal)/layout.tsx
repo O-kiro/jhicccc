@@ -16,7 +16,7 @@ export default async function PortalLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   // getOverview di-cache per render, jadi halaman Overview memakai ulang
   // respons yang sama tanpa permintaan HTTP kedua.
-  const { student, today_schedule, announcements } = await getOverview();
+  const { student, today_schedule } = await getOverview();
 
   return (
     <PortalShell
@@ -24,10 +24,8 @@ export default async function PortalLayout({
       user={{
         name: student.name,
         subtitle: `Kelas ${student.kelas ?? "—"}`,
-        streakDays: student.streak_days,
       }}
       nextClass={pickNextClass(today_schedule, { joinLabel: "Ikuti Kelas Live" })}
-      announcements={announcements}
     >
       {children}
     </PortalShell>

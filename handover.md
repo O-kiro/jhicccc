@@ -538,12 +538,19 @@ berkas. Sekarang:
 - Guard kelima (`ppdb`) dengan cookie peran `ppdb`; `/ppdb` dan `/ppdb/login`
   tetap terbuka untuk umum, hanya `/ppdb/dokumen` yang dijaga.
 
-### Lonceng pengumuman berfungsi
+### Daily streak dan lonceng notifikasi dihapus
 
-Tombol lonceng di topbar ketiga portal dulu hiasan tanpa aksi, lengkap dengan
-titik merah palsu. Sekarang membuka daftar pengumuman (data yang sudah ikut
-terkirim bersama data portal, jadi tanpa permintaan jaringan baru), dan titik
-merahnya hanya muncul bila ada pengumuman terbit dalam 3 hari terakhir.
+Keduanya dinilai tidak perlu, jadi dibuang sampai ke akarnya — bukan
+disembunyikan:
+
+- **Daily streak**: hilang dari chip topbar, sapaan, dan kartu ringkasan;
+  kolom `students.streak_days` ikut di-drop lewat migrasi. Angkanya memang
+  tidak pernah diperbarui apa pun, jadi selama ini hiasan belaka.
+- **Lonceng notifikasi**: tombolnya dibuang dari topbar ketiga portal. Panel
+  **Pengumuman** di halaman Overview tetap ada — itu isinya, bukan loncengnya.
+
+Kalau kelak streak dibutuhkan lagi, migrasinya punya `down()`, tapi nilainya
+tidak bisa dipulihkan.
 
 ### Situs publik kini dikelola lewat CMS
 
