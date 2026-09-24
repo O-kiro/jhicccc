@@ -581,6 +581,13 @@ berkas. Sekarang:
   alamat kanonik — ikut ke `metadataBase`, JSON-LD, `robots.txt`, `sitemap.xml`,
   dan gambar OpenGraph. Domain resmi madrasah sengaja tidak dipakai selama
   penjurian; timpa lewat env `SITE_URL` bila nanti pindah.
+- **Tombol PPDB menuju alur sendiri, bukan `ppdb.mankotabatu.sch.id`.** Selain
+  soal domain, tautan lama tidak lagi menggambarkan alurnya: nomor pendaftaran
+  diterbitkan panitia, jadi tombolnya kini "Minta Nomor Pendaftaran" ke halaman
+  kontak, lalu "Masuk & Unggah Berkas" ke `/login`. Tautannya ada di dua
+  tempat — `app/(public)/ppdb/page.tsx` dan benih `situs.json` di backend
+  (kartu layanan di beranda membacanya lewat `/public/site`, bukan dari
+  `lib/content.ts`).
 - **Empat error lint lama beres.** `site-header.tsx` dulu memanggil `useEffect`
   setelah early return — urutan hook berubah antar-render, dilarang React;
   pemeriksaan halaman masuk dipindah ke bawah semua hook. Satu `<a>` ke rute
