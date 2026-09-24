@@ -3,7 +3,7 @@
 import { Icon } from "./icons";
 import { Container, SectionHeading } from "./ui";
 import { StaggerGroup, StaggerItem } from "./reveal";
-import { extracurriculars } from "@/lib/content";
+import type { Site } from "@/lib/site";
 
 const tones = ["teal", "blue", "gold"] as const;
 const iconTone: Record<string, string> = {
@@ -12,7 +12,8 @@ const iconTone: Record<string, string> = {
   gold: "bg-gold-soft text-gold-strong",
 };
 
-export function Extracurriculars() {
+/** Isinya dari CMS lewat getSite(); lihat lib/site.ts. */
+export function Extracurriculars({ extracurriculars }: { extracurriculars: Site["extracurriculars"] }) {
   return (
     <section id="ekskul" className="scroll-mt-24 py-24 sm:py-32">
       <Container>

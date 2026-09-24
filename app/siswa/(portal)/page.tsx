@@ -38,18 +38,11 @@ export default async function OverviewPage() {
       icon: "attendance" as const,
       tone: "teal" as const,
     },
-    {
-      label: "Daily Streak",
-      value: String(summary.streak_days),
-      note: "hari berturut-turut",
-      icon: "flame" as const,
-      tone: "gold" as const,
-    },
   ];
 
   return (
     <div className="mx-auto max-w-6xl">
-      {/* Sapaan + streak */}
+      {/* Sapaan */}
       <Reveal>
         <section className="bg-teal-gradient relative overflow-hidden rounded-panel p-7 text-on-dark sm:p-10">
           <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-white/5" />
@@ -74,10 +67,6 @@ export default async function OverviewPage() {
             )}
 
             <div className="mt-7 flex flex-wrap items-center gap-3">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-4 py-2 text-sm font-semibold">
-                <Icon name="flame" className="h-4 w-4 text-gold" />
-                Daily Streak: {summary.streak_days} Hari
-              </span>
               <Link
                 href="/siswa/kursus"
                 className="btn-sheen group inline-flex items-center gap-2 rounded-full bg-surface px-5 py-2.5 text-sm font-semibold text-teal transition-transform hover:-translate-y-0.5"
@@ -98,7 +87,7 @@ export default async function OverviewPage() {
       </Reveal>
 
       {/* Ringkasan */}
-      <StaggerGroup className="mt-6 grid gap-4 sm:grid-cols-3">
+      <StaggerGroup className="mt-6 grid gap-4 sm:grid-cols-2">
         {overviewStats.map((s) => (
           <StaggerItem key={s.label}>
             <StatCard {...s} />

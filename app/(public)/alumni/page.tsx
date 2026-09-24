@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { PageHero } from "@/app/components/page-hero";
 import { Container } from "@/app/components/ui";
 import { StaggerGroup, StaggerItem } from "@/app/components/reveal";
 import { Icon } from "@/app/components/icons";
-import { alumni } from "@/lib/content";
+import { getSite } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Alumni Berprestasi",
@@ -17,7 +18,8 @@ const avatarTone: Record<string, string> = {
   gold: "bg-gold-soft text-gold-strong",
 };
 
-export default function AlumniPage() {
+export default async function AlumniPage() {
+  const { alumni } = await getSite();
   return (
     <main className="pb-24">
       <PageHero
@@ -26,6 +28,32 @@ export default function AlumniPage() {
         title="Alumni Berprestasi"
         desc="Para lulusan MAKOBA yang melanjutkan kiprah dan memberi manfaat di berbagai bidang."
       />
+
+      {/* Pintu masuk ke Portal Alumni. Halaman ini tetap terbuka untuk umum;
+          portalnya butuh akun yang dibuat humas madrasah. */}
+      <Container className="mt-8">
+        <div className="bg-teal-gradient relative overflow-hidden rounded-card p-7 text-on-dark sm:p-9">
+          <div className="pointer-events-none absolute -right-12 -top-16 h-48 w-48 rounded-full bg-white/5" />
+          <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="max-w-xl">
+              <h2 className="font-display text-xl font-extrabold leading-tight sm:text-2xl">
+                Portal Alumni &amp; Jejaring Karir
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-on-dark/80">
+                Info beasiswa lanjutan, sebaran kelulusan tiap angkatan, dan forum jejaring karir —
+                khusus alumni MAN Kota Batu.
+              </p>
+            </div>
+            <Link
+              href="/masuk?next=%2Falumni%2Fportal"
+              className="btn-sheen press inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-surface px-6 py-3 text-sm font-semibold text-teal transition-transform hover:-translate-y-0.5"
+            >
+              <Icon name="users" className="h-4 w-4" />
+              Masuk Portal Alumni
+            </Link>
+          </div>
+        </div>
+      </Container>
 
       <Container className="mt-12">
         <StaggerGroup className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

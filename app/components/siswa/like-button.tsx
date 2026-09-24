@@ -6,7 +6,8 @@ import { Icon } from "@/app/components/icons";
 import { cn } from "@/lib/styles";
 
 /**
- * Sakelar suka untuk satu topik.
+ * Sakelar suka untuk satu topik. Dipakai forum siswa dan forum alumni —
+ * `base` menentukan jalur API-nya.
  *
  * Tampilannya berubah lebih dulu, baru dikirim ke server — menyukai sesuatu
  * harus terasa seketika. Kalau permintaannya gagal, keadaannya dikembalikan.
@@ -16,11 +17,13 @@ export function LikeButton({
   likes,
   liked,
   className,
+  base = "/api/forum",
 }: {
   threadId: number;
   likes: number;
   liked: boolean;
   className?: string;
+  base?: string;
 }) {
   const [state, setState] = useState({ likes, liked });
   const [busy, setBusy] = useState(false);
@@ -43,12 +46,12 @@ export function LikeButton({
     setBusy(true);
 
     try {
-      const res = await fetch(`/api/forum/topik/${threadId}/suka`, { method: "POST" });
+      const res = await fetch(`${base}/topik/${threadId}/suka`, { method: "POST" });
       const data = await res.json().catch(() => null);
 
       if (!res.ok) throw new Error();
 
-      // Angka dari server yang berlaku: siswa lain bisa ikut menyukai
+      // Angka dari server yang berlaku: orang lain bisa ikut menyukai
       // di sela-sela permintaan ini.
       setState({ liked: Boolean(data.liked), likes: Number(data.likes) });
       router.refresh();

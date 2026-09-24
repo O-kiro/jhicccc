@@ -6,7 +6,7 @@ import { Icon } from "./icons";
 import { Container, SectionHeading } from "./ui";
 import { Reveal, StaggerGroup, StaggerItem } from "./reveal";
 import { SpotlightCard } from "./spotlight-card";
-import { digitalServices } from "@/lib/content";
+import type { Site } from "@/lib/site";
 
 const iconTone: Record<string, string> = {
   teal: "bg-teal-soft text-teal",
@@ -46,7 +46,8 @@ function TileLink({
   );
 }
 
-export function DigitalServices() {
+/** Isinya dari CMS lewat getSite(); lihat lib/site.ts. */
+export function DigitalServices({ digitalServices }: { digitalServices: Site["digitalServices"] }) {
   return (
     <section id="layanan" className="scroll-mt-24 bg-surface-2 py-24 sm:py-32">
       <Container>

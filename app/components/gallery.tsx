@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { Icon } from "./icons";
 import { Badge, Container, SectionHeading } from "./ui";
 import { StaggerGroup, staggerItem } from "./reveal";
-import { galleryItems } from "@/lib/content";
+import type { Site } from "@/lib/site";
 import { formatDate } from "@/lib/format";
 
 const tone: Record<string, string> = {
@@ -50,7 +50,8 @@ function Media({
   );
 }
 
-export function Gallery() {
+/** Isinya dari CMS lewat getSite(); lihat lib/site.ts. */
+export function Gallery({ galleryItems }: { galleryItems: Site["galleryItems"] }) {
   const [selected, setSelected] = useState<number | null>(null);
   const triggerRef = useRef<HTMLElement | null>(null); // tile that opened the lightbox
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -77,7 +78,9 @@ export function Gallery() {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
     };
-  }, [selected]);
+  // Jumlah foto kini datang dari CMS lewat props, bukan konstanta modul —
+  // tanpa dependensi ini navigasi panah membaca panjang yang basi.
+  }, [selected, galleryItems.length]);
 
   const item = selected === null ? null : galleryItems[selected];
 

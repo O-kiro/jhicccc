@@ -1,18 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { Icon } from "@/app/components/icons";
 import { cn, toneSoft } from "@/lib/styles";
 import { Panel, Progress } from "./ui";
 import type { ApiCourses } from "@/lib/api";
 
-/**
- * Daftar mata pelajaran beserta filternya. Data datang dari /courses lewat
- * halaman induk; komponen ini hanya mengurus interaksi filter.
- */
 type Course = ApiCourses["courses"][number];
 
+/**
+ * Daftar mata pelajaran, filternya, dan modal daftar modul. Data datang dari
+ * /courses lewat halaman induk; di sini hanya interaksinya — filter, membuka
+ * modul, dan menandai modul selesai.
+ */
 export function CourseGrid({ filters, courses }: Pick<ApiCourses, "filters" | "courses">) {
   // Filter pertama dari server dianggap "tanpa saringan".
   const all = filters[0] ?? "All";
@@ -22,6 +24,40 @@ export function CourseGrid({ filters, courses }: Pick<ApiCourses, "filters" | "c
   // Modul dikirim bersama daftar kursus, jadi membuka daftarnya tidak
   // memerlukan permintaan jaringan baru.
   const [opened, setOpened] = useState<Course | null>(null);
+
+  // Penanda selesai diubah seketika di layar, lalu dikirim ke server.
+  // Nilai dari server tetap sumbernya: timpaan ini hanya berlaku sampai
+  // router.refresh() membawa data baru.
+  const [selesai, setSelesai] = useState<Record<number, boolean>>({});
+  const [progres, setProgres] = useState<Record<number, number>>({});
+  const [sibuk, setSibuk] = useState<number | null>(null);
+  const [galat, setGalat] = useState<string | null>(null);
+  const router = useRouter();
+
+  const isDone = (m: Course["module_list"][number]) => selesai[m.id] ?? m.completed;
+  const progressOf = (c: Course) => progres[c.id] ?? c.progress;
+
+  async function toggle(course: Course, modul: Course["module_list"][number]) {
+    const sebelum = isDone(modul);
+    setSelesai((x) => ({ ...x, [modul.id]: !sebelum }));
+    setSibuk(modul.id);
+    setGalat(null);
+
+    try {
+      const res = await fetch(`/api/kursus/modul/${modul.id}`, { method: "POST" });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(data?.message ?? "Gagal menyimpan.");
+
+      setSelesai((x) => ({ ...x, [modul.id]: Boolean(data.completed) }));
+      setProgres((x) => ({ ...x, [course.id]: Number(data.progress) }));
+      router.refresh();
+    } catch (e) {
+      setSelesai((x) => ({ ...x, [modul.id]: sebelum }));
+      setGalat(e instanceof Error ? e.message : "Gagal menyimpan.");
+    } finally {
+      setSibuk(null);
+    }
+  }
 
   return (
     <>
@@ -76,9 +112,9 @@ export function CourseGrid({ filters, courses }: Pick<ApiCourses, "filters" | "c
                 <div className="mt-5">
                   <div className="mb-1.5 flex items-center justify-between text-[11px] font-semibold">
                     <span className="text-muted">{c.modules} modul</span>
-                    <span className="tabular-nums text-ink">{c.progress}%</span>
+                    <span className="tabular-nums text-ink">{progressOf(c)}%</span>
                   </div>
-                  <Progress value={c.progress} tone={c.tone} label={`Progres ${c.name}`} />
+                  <Progress value={progressOf(c)} tone={c.tone} label={`Progres ${c.name}`} />
                 </div>
 
                 <button
@@ -127,7 +163,8 @@ export function CourseGrid({ filters, courses }: Pick<ApiCourses, "filters" | "c
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-teal">
-                    {opened.module_list.length} modul
+                    {opened.module_list.filter(isDone).length} dari {opened.module_list.length} modul selesai
+                    &middot; {progressOf(opened)}%
                   </p>
                   <h2
                     id="judul-daftar-modul"
@@ -149,44 +186,65 @@ export function CourseGrid({ filters, courses }: Pick<ApiCourses, "filters" | "c
                 </button>
               </div>
 
+              {galat && (
+                <p role="alert" className="mt-4 text-sm font-semibold text-gold-strong">
+                  {galat}
+                </p>
+              )}
+
               <ul className="mt-6 max-h-[55vh] space-y-2.5 overflow-y-auto pr-1">
                 {opened.module_list.map((m) => {
+                  const done = isDone(m);
                   // Modul tanpa tautan tetap ditampilkan — daftarnya jadi
                   // rencana pembelajaran, bukan sekadar kumpulan berkas.
-                  const Wrapper = m.url ? "a" : "div";
                   return (
-                    <li key={m.id}>
-                      <Wrapper
-                        {...(m.url
-                          ? { href: m.url, target: "_blank", rel: "noopener noreferrer" }
-                          : {})}
+                    <li
+                      key={m.id}
+                      className={cn(
+                        "flex items-start gap-3.5 rounded-xl border p-4 transition-colors",
+                        done ? "border-teal/30 bg-teal-soft/30" : "border-line bg-surface-2",
+                      )}
+                    >
+                      {/* Tombol terpisah dari tautan: elemen interaktif di
+                          dalam <a> tidak sah dan membingungkan pembaca layar. */}
+                      <button
+                        type="button"
+                        role="checkbox"
+                        aria-checked={done}
+                        // Status dibacakan lewat aria-checked; labelnya cukup nama modulnya.
+                        aria-label={`Modul ${m.number} selesai`}
+                        disabled={sibuk === m.id}
+                        onClick={() => toggle(opened, m)}
                         className={cn(
-                          "flex items-start gap-3.5 rounded-xl border border-line bg-surface-2 p-4",
-                          m.url && "press transition-colors hover:border-ink/20",
+                          "press grid h-8 w-8 shrink-0 place-items-center rounded-lg font-display text-xs font-extrabold tabular-nums transition-colors",
+                          done ? "bg-teal text-white" : "bg-surface text-muted hover:text-teal",
                         )}
                       >
-                        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-surface font-display text-xs font-extrabold tabular-nums text-muted">
-                          {m.number}
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block text-sm font-semibold leading-snug text-ink">
+                        {done ? <Icon name="check" className="h-4 w-4" /> : m.number}
+                      </button>
+                      <span className="min-w-0 flex-1">
+                        {m.url ? (
+                          <a
+                            href={m.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-start gap-1.5 text-sm font-semibold leading-snug text-ink transition-colors hover:text-teal"
+                          >
                             {m.title}
-                          </span>
-                          {m.description && (
-                            <span className="mt-1 block text-xs leading-relaxed text-muted">
-                              {m.description}
-                            </span>
-                          )}
-                          {!m.url && (
-                            <span className="mt-1.5 inline-block text-[11px] font-semibold text-gold-strong">
-                              Materi belum tersedia
-                            </span>
-                          )}
-                        </span>
-                        {m.url && (
-                          <Icon name="external" className="mt-0.5 h-4 w-4 shrink-0 text-teal" />
+                            <Icon name="external" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-teal" />
+                          </a>
+                        ) : (
+                          <span className="block text-sm font-semibold leading-snug text-ink">{m.title}</span>
                         )}
-                      </Wrapper>
+                        {m.description && (
+                          <span className="mt-1 block text-xs leading-relaxed text-muted">{m.description}</span>
+                        )}
+                        {!m.url && (
+                          <span className="mt-1.5 inline-block text-[11px] font-semibold text-gold-strong">
+                            Materi belum tersedia
+                          </span>
+                        )}
+                      </span>
                     </li>
                   );
                 })}

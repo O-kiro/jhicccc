@@ -4,10 +4,11 @@ import Link from "next/link";
 import { Icon } from "./icons";
 import { Badge, Button, Container, PhotoTile, SectionHeading } from "./ui";
 import { Reveal } from "./reveal";
-import { news } from "@/lib/content";
+import type { Site } from "@/lib/site";
 import { formatDate } from "@/lib/format";
 
-export function News() {
+/** Isinya dari CMS lewat getSite(); lihat lib/site.ts. */
+export function News({ news }: { news: Site["news"] }) {
   const [featured, ...rest] = news;
 
   return (

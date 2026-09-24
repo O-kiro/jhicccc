@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Icon } from "./icons";
 import { Container, SectionHeading } from "./ui";
-import { testimonials } from "@/lib/content";
+import type { Site } from "@/lib/site";
 
 const variants = {
   enter: (d: number) => ({ x: d > 0 ? 64 : -64, opacity: 0 }),
@@ -12,7 +12,8 @@ const variants = {
   exit: (d: number) => ({ x: d > 0 ? -64 : 64, opacity: 0 }),
 };
 
-export function Testimonials() {
+/** Isinya dari CMS lewat getSite(); lihat lib/site.ts. */
+export function Testimonials({ testimonials }: { testimonials: Site["testimonials"] }) {
   const [[index, dir], setState] = useState<[number, number]>([0, 0]);
   const [engaged, setEngaged] = useState(false); // hovering or focused inside
   const n = testimonials.length;

@@ -26,7 +26,7 @@ export function PortalLoginForm() {
     e.preventDefault();
 
     if (!identifier.trim() || !password.trim()) {
-      setError("NISN/Email dan Kata Sandi wajib diisi.");
+      setError("NISN/NIP/Email dan Kata Sandi wajib diisi.");
       return;
     }
 
@@ -46,7 +46,7 @@ export function PortalLoginForm() {
         setError(
           res.status === 429
             ? "Terlalu banyak percobaan. Coba lagi sebentar lagi."
-            : (data?.message ?? "NISN/Email atau kata sandi salah."),
+            : (data?.message ?? "NISN/NIP/Email atau kata sandi salah."),
         );
         setSubmitting(false);
         return;
@@ -60,9 +60,16 @@ export function PortalLoginForm() {
         return;
       }
 
-      // Siswa: cookie sudah dipasang route handler; refresh agar server
-      // component membaca sesi baru sebelum berpindah halaman.
-      const next = params.get("next") ?? "/siswa";
+      // Siswa & guru: cookie sudah dipasang route handler; refresh agar
+      // server component membaca sesi baru sebelum berpindah halaman.
+      //
+      // `next` hanya dipakai bila menuju portal miliknya sendiri. Selain
+      // mencegah siswa terlempar ke portal lain, ini juga menutup pengalihan
+      // ke situs luar lewat ?next=//situs-lain.
+      const PORTAL = ["/siswa", "/guru", "/alumni/portal"];
+      const home: string = PORTAL.includes(data?.home) ? data.home : "/siswa";
+      const minta = params.get("next") ?? "";
+      const next = minta === home || minta.startsWith(`${home}/`) ? minta : home;
       startTransition(() => {
         router.replace(next);
         router.refresh();
@@ -83,20 +90,20 @@ export function PortalLoginForm() {
       <form onSubmit={handleSubmit} noValidate className="mt-8 space-y-4">
         <div>
           <label htmlFor="portal-identifier" className="mb-1.5 block text-sm font-medium text-ink">
-            NISN atau Email
+            NISN, NIP, atau Email
           </label>
           <input
             id="portal-identifier"
             type="text"
             value={identifier}
             onChange={(e) => setIdentifier(e.target.value)}
-            placeholder="NISN siswa, atau email untuk guru & staf"
+            placeholder="NISN siswa, NIP guru, atau email"
             autoComplete="username"
             disabled={busy}
             className={inputBase}
           />
           <p className="mt-1.5 text-xs text-muted">
-            Siswa memakai NISN. Guru dan staf memakai email madrasah.
+            Siswa memakai NISN. Guru memakai NIP atau email; staf memakai email madrasah.
           </p>
         </div>
 

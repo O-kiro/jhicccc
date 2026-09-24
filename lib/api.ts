@@ -1,5 +1,6 @@
 /**
- * Klien API portal siswa.
+ * Klien API portal siswa (dan bagian yang dipakai bersama portal guru —
+ * perpustakaan dan ganti sandi). Endpoint khusus guru ada di lib/api-guru.ts.
  *
  * Semua pemanggilan berjalan di server: token disimpan dalam cookie httpOnly
  * sehingga tidak pernah terbaca JavaScript browser, dan base URL API tidak
@@ -12,6 +13,15 @@ import { redirect } from "next/navigation";
 import type { IconName } from "@/lib/content";
 
 export const TOKEN_COOKIE = "makoba-token";
+
+/**
+ * Portal milik token di atas: "siswa", "guru", atau "alumni". Dipakai proxy.ts
+ * untuk mengarahkan ke portal yang benar — bukan batas keamanan. Laravel
+ * tetap menolak token siswa di endpoint guru dan sebaliknya.
+ */
+export const ROLE_COOKIE = "makoba-peran";
+
+export type PortalRole = "siswa" | "guru" | "alumni";
 
 const API_URL = process.env.API_URL ?? "http://localhost:8000/api/v1";
 
@@ -32,7 +42,6 @@ export type ApiStudent = {
   name: string;
   kelas: string | null;
   academic_year: string | null;
-  streak_days: number;
 };
 
 export type ApiScheduleItem = {
@@ -59,7 +68,6 @@ export type ApiOverview = {
   summary: {
     average_score: number | null;
     attendance_percentage: number | null;
-    streak_days: number;
   };
   today_schedule: ApiScheduleItem[];
   announcements: ApiAnnouncement[];
@@ -87,6 +95,8 @@ export type ApiCourses = {
       description: string | null;
       /** Null berarti materinya belum ditautkan guru. */
       url: string | null;
+      /** Sudah ditandai selesai oleh siswa ini; menentukan progres kursus. */
+      completed: boolean;
     }[];
   }[];
 };
@@ -134,6 +144,7 @@ export type ApiExamSession = {
 
 type ApiLoan = {
   id: number;
+  book_id: number;
   title: string;
   author: string | null;
   description: string | null;
@@ -160,7 +171,17 @@ export type ApiLibrary = {
   }[];
   loans: ApiLoan[];
   loan_quota: number;
+  loan_durations: number[];
   continue_reading: ApiLoan | null;
+};
+
+export type ApiCatalogue = {
+  books: (ApiLibrary["new_arrivals"][number] & { borrowed_by_me: boolean })[];
+  categories: string[];
+  active_loans: number;
+  loan_quota: number;
+  /** Pilihan lama pinjam dalam hari, sama dengan meja sirkulasi. */
+  durations: number[];
 };
 
 export type ApiThread = {
@@ -176,15 +197,22 @@ export type ApiThread = {
   liked_by_me: boolean | null;
 };
 
+export type ApiReply = {
+  id: number;
+  parent_id: number | null;
+  /** Dihapus penulisnya; tampil sebagai penanda hanya bila masih ada anak. */
+  is_deleted: boolean;
+  author: string | null;
+  body: string | null;
+  when: string | null;
+  is_mine: boolean;
+  /** Satu tingkat sarang saja; anak tidak punya anak. */
+  children: ApiReply[];
+};
+
 export type ApiForumThread = {
   thread: ApiThread;
-  replies: {
-    id: number;
-    author: string;
-    body: string;
-    when: string | null;
-    is_mine: boolean;
-  }[];
+  replies: ApiReply[];
 };
 
 export type ApiForum = {
@@ -254,7 +282,7 @@ export async function apiPost<T>(path: string, body: unknown): Promise<T> {
  * GET terautentikasi. Token 401/419 berarti sesi habis — pengguna dikembalikan
  * ke halaman masuk alih-alih melihat halaman rusak.
  */
-async function authedGet<T>(path: string): Promise<T> {
+export async function authedGet<T>(path: string): Promise<T> {
   const token = (await cookies()).get(TOKEN_COOKIE)?.value;
 
   if (!token) {
@@ -267,7 +295,8 @@ async function authedGet<T>(path: string): Promise<T> {
   });
 
   if (res.status === 401 || res.status === 419) {
-    redirect("/masuk?expired=1");
+    // Sesi PPDB berakhir di halaman masuknya sendiri, bukan gerbang portal.
+    redirect(path.startsWith("/ppdb/") ? "/ppdb/login?expired=1" : "/masuk?expired=1");
   }
 
   if (!res.ok) {
@@ -306,6 +335,16 @@ export const getLibrary = cache((): Promise<ApiLibrary> => authedGet<ApiLibrary>
 /** Melempar ApiError 404 bila topiknya sudah dihapus. */
 export const getForumThread = cache(
   (id: number): Promise<ApiForumThread> => authedGet<ApiForumThread>(`/forum/threads/${id}`),
+);
+
+export const getLibraryCatalogue = cache(
+  (q?: string, kategori?: string): Promise<ApiCatalogue> => {
+    const p = new URLSearchParams();
+    if (q) p.set("q", q);
+    if (kategori) p.set("kategori", kategori);
+    const qs = p.toString();
+    return authedGet<ApiCatalogue>(`/library/books${qs ? `?${qs}` : ""}`);
+  },
 );
 
 export const getForum = cache(

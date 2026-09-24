@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { Icon } from "./icons";
 import { Badge, Container, SectionHeading } from "./ui";
 import { Reveal } from "./reveal";
-import { agenda } from "@/lib/content";
+import type { Site } from "@/lib/site";
 import { dateParts, formatDate } from "@/lib/format";
 
 const CATS = ["Semua", "Ujian", "Ekstrakurikuler", "Keagamaan", "Umum"] as const;
@@ -18,7 +18,8 @@ const catTone: Record<string, "teal" | "blue" | "gold" | "muted"> = {
   Umum: "muted",
 };
 
-export function Agenda() {
+/** Isinya dari CMS lewat getSite(); lihat lib/site.ts. */
+export function Agenda({ agenda }: { agenda: Site["agenda"] }) {
   const [cat, setCat] = useState<Cat>("Semua");
   const list = cat === "Semua" ? agenda : agenda.filter((a) => a.category === cat);
 

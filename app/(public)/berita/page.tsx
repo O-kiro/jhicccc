@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Container, SectionHeading } from "@/app/components/ui";
 import { NewsCard } from "@/app/components/news-card";
-import { news } from "@/lib/content";
+import { getSite } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Berita & Informasi",
@@ -10,7 +10,8 @@ export const metadata: Metadata = {
     "Kabar terbaru, pengumuman, prestasi, dan informasi kegiatan MAN Kota Batu (MAKOBA).",
 };
 
-export default function BeritaPage() {
+export default async function BeritaPage() {
+  const { news } = await getSite();
   return (
     <main className="scroll-mt-24 pb-24 pt-32 sm:pt-40">
       <Container>

@@ -11,6 +11,7 @@ import { SearchModal } from "./search-modal";
 import { Button } from "./ui";
 import { cn } from "@/lib/styles";
 import { navItems, school } from "@/lib/content";
+import type { SearchItem } from "@/lib/site";
 
 // Highlights the top-level nav item for the section currently in view (on the
 // homepage) or the active route. Keys match navItems labels.
@@ -71,7 +72,7 @@ function Logo() {
   );
 }
 
-export function SiteHeader() {
+export function SiteHeader({ searchIndex }: { searchIndex: SearchItem[] }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -260,7 +261,7 @@ export function SiteHeader() {
         </AnimatePresence>
       </header>
 
-      <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} index={searchIndex} />
     </>
   );
 }

@@ -1,16 +1,16 @@
 import type { MetadataRoute } from "next";
-
-const BASE = "https://mankotabatu.sch.id";
+import { SITE_URL } from "@/lib/seo";
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
       allow: "/",
-      // Portal siswa adalah area akun — jangan diindeks.
-      disallow: "/siswa",
+      // Portal siswa dan guru adalah area akun — jangan diindeks.
+      // Tambahkan portal berikutnya (mis. alumni) di sini saat dibuat.
+      disallow: ["/siswa", "/guru"],
     },
-    sitemap: `${BASE}/sitemap.xml`,
-    host: BASE,
+    sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_URL,
   };
 }

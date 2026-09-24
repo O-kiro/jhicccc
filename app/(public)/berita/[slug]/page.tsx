@@ -4,18 +4,18 @@ import { notFound } from "next/navigation";
 import { Badge, Container, PhotoTile } from "@/app/components/ui";
 import { NewsCard } from "@/app/components/news-card";
 import { Icon } from "@/app/components/icons";
-import { getNewsBySlug, news } from "@/lib/content";
+import { getNewsArticle, getSite } from "@/lib/site";
 import { formatDate } from "@/lib/format";
 
 type Params = { params: Promise<{ slug: string }> };
 
-export function generateStaticParams() {
-  return news.map((n) => ({ slug: n.slug }));
+export async function generateStaticParams() {
+  return (await getSite()).news.map((n) => ({ slug: n.slug }));
 }
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
-  const article = getNewsBySlug(slug);
+  const article = await getNewsArticle(slug);
   if (!article) return { title: "Berita tidak ditemukan" };
   return {
     title: article.title,
@@ -26,10 +26,10 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 export default async function ArticlePage({ params }: Params) {
   const { slug } = await params;
-  const article = getNewsBySlug(slug);
+  const article = await getNewsArticle(slug);
   if (!article) notFound();
 
-  const related = news.filter((n) => n.slug !== slug).slice(0, 3);
+  const related = (await getSite()).news.filter((n) => n.slug !== slug).slice(0, 3);
 
   return (
     <main className="pb-24 pt-32 sm:pt-40">

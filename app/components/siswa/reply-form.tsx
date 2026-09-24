@@ -1,14 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/app/components/icons";
 
 /** Batas ini sama dengan aturan validasi di Laravel. */
 const ISI_MIN = 2;
 
-export function ReplyForm({ threadId }: { threadId: number }) {
-  const [body, setBody] = useState("");
+/**
+ * Formulir balasan. Tanpa parentId membalas topiknya; dengan parentId
+ * membalas balasan tertentu dan tampil ringkas di bawahnya.
+ */
+export function ReplyForm({
+  threadId,
+  parentId,
+  base = "/api/forum",
+  mention,
+  onDone,
+}: {
+  threadId: number;
+  parentId?: number;
+  /** Awalan jalur API: forum siswa atau forum alumni. */
+  base?: string;
+  /** Nama yang dibalas; diawali ke isi supaya jelas siapa yang ditanggapi. */
+  mention?: string;
+  onDone?: () => void;
+}) {
+  const [body, setBody] = useState(mention ? `@${mention.replace(/^@/, "")} ` : "");
+  const ringkas = parentId !== undefined;
+  const areaRef = useRef<HTMLTextAreaElement>(null);
+  // Unik per formulir: formulir utama dan bersarang bisa tampil bersamaan.
+  const areaId = useId();
+
+  // Formulir balasan-bersarang dibuka karena diklik, jadi langsung siap diketik.
+  useEffect(() => {
+    if (!ringkas) return;
+    const el = areaRef.current;
+    el?.focus();
+    el?.setSelectionRange(el.value.length, el.value.length);
+  }, [ringkas]);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -24,10 +54,10 @@ export function ReplyForm({ threadId }: { threadId: number }) {
     setError(null);
 
     try {
-      const res = await fetch(`/api/forum/topik/${threadId}/balas`, {
+      const res = await fetch(`${base}/topik/${threadId}/balas`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ body: body.trim() }),
+        body: JSON.stringify({ body: body.trim(), parent_id: parentId }),
       });
 
       const data = await res.json().catch(() => null);
@@ -39,6 +69,7 @@ export function ReplyForm({ threadId }: { threadId: number }) {
       }
 
       setBody("");
+      onDone?.();
       // Halaman dirender server, jadi balasan baru ikut terbawa saat disegarkan.
       router.refresh();
     } catch (err) {
@@ -49,18 +80,19 @@ export function ReplyForm({ threadId }: { threadId: number }) {
   }
 
   return (
-    <form onSubmit={submit} className="mt-6">
-      <label htmlFor="balasan" className="sr-only">
-        Tulis balasan
+    <form onSubmit={submit} className={ringkas ? "mt-3" : "mt-6"}>
+      <label htmlFor={areaId} className="sr-only">
+        {ringkas ? `Balas ${mention ?? "balasan ini"}` : "Tulis balasan"}
       </label>
       <textarea
-        id="balasan"
+        id={areaId}
+        ref={areaRef}
         value={body}
         onChange={(e) => setBody(e.target.value)}
         maxLength={5000}
-        rows={4}
-        placeholder="Tulis balasanmu…"
-        className="w-full resize-y rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm leading-relaxed text-ink outline-none placeholder:text-muted/70 focus:border-blue"
+        rows={ringkas ? 2 : 4}
+        placeholder={ringkas ? "Tulis tanggapan…" : "Tulis balasanmu…"}
+        className="w-full resize-y rounded-xl border border-line bg-surface px-4 py-3 text-sm leading-relaxed text-ink outline-none placeholder:text-muted/70 focus:border-blue"
       />
 
       {error && (
@@ -70,14 +102,28 @@ export function ReplyForm({ threadId }: { threadId: number }) {
       )}
 
       <div className="mt-3 flex items-center justify-between gap-4">
-        <p className="text-[11px] text-muted">Balasan tampil dengan namamu.</p>
+        {ringkas ? (
+          <button
+            type="button"
+            onClick={onDone}
+            disabled={sending}
+            className="press text-xs font-semibold text-muted transition-colors hover:text-ink disabled:opacity-40"
+          >
+            Batal
+          </button>
+        ) : (
+          <p className="text-[11px] text-muted">Balasan tampil dengan namamu.</p>
+        )}
         <button
           type="submit"
           disabled={!valid || sending}
-          className="btn-sheen bg-blue-gradient press inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white disabled:pointer-events-none disabled:opacity-50"
+          className={
+            "btn-sheen bg-blue-gradient press inline-flex items-center gap-2 rounded-full font-semibold text-white disabled:pointer-events-none disabled:opacity-50 " +
+            (ringkas ? "px-4 py-2 text-xs" : "px-5 py-2.5 text-sm")
+          }
         >
-          {sending ? "Mengirim…" : "Kirim Balasan"}
-          {!sending && <Icon name="arrow" className="h-4 w-4" />}
+          {sending ? "Mengirim…" : ringkas ? "Balas" : "Kirim Balasan"}
+          {!sending && <Icon name="arrow" className={ringkas ? "h-3.5 w-3.5" : "h-4 w-4"} />}
         </button>
       </div>
     </form>

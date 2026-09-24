@@ -66,6 +66,14 @@ admin tampil tanpa gaya sama sekali. Ini jebakan yang paling sering terulang.
 |---|---|---|
 | Admin | `admin@mankotabatu.sch.id` | `password` |
 | Siswa | NISN `009283741` | `password` |
+| Guru | `rini@mankotabatu.sch.id` atau NIP `198503152010012007` | `password` |
+| Alumni | `aldian@alumni.mankotabatu.sch.id` | `password` |
+| Pendaftar PPDB | Nomor `PPDB26-0001` (di `/ppdb/login`) | `password` |
+
+Hanya satu guru contoh yang punya akses portal. Guru lain belum diberi sandi —
+isi lewat **Data Master → Guru** di panel admin. Akun alumni dibuat lewat
+**Alumni → Akun Alumni**; seeder mengisi enam akun contoh, semuanya bersandi
+`password`.
 
 > Di mesin pemilik proyek, NISN siswa sudah diubah lewat panel admin jadi `696969`
 > dengan kata sandi yang tidak tercatat. Berkas SQLite tidak masuk Git, jadi hasil
@@ -112,15 +120,56 @@ sendiri. **URL tidak berubah** — route group tidak ikut ke path.
   tanpa sidebar
 - `proxy.ts` menjaga `/siswa/*` (lihat jebakan #1)
 
+### Portal guru
+
+- `app/guru/(portal)/` — Overview, Jadwal Mengajar, Jurnal Mengajar,
+  Kelas & Materi, Penilaian, Perpustakaan, Akun
+- **Kerangkanya satu dengan portal siswa**: `PortalShell` menerima
+  `portal="siswa" | "guru"`, lalu menu, label, dan chip profil diambil dari
+  `lib/portal-nav.ts`. Mengubah tampilan shell berarti mengubah keduanya.
+- **Perpustakaan identik**: isi halamannya ada di
+  `app/components/portal/library-view.tsx` dan `catalogue-view.tsx`; halaman
+  siswa dan guru hanya membungkusnya dengan `base` berbeda. Endpoint Laravel-nya
+  pun satu (`/library`, `auth:student,teacher`).
+- Endpoint khusus guru: `/api/v1/guru/*` (guard `teacher`), klien di
+  `lib/api-guru.ts`
+- Cookie `makoba-peran` (`siswa`/`guru`) hanya penunjuk arah untuk `proxy.ts`.
+  Bukan batas keamanan: Laravel menolak token siswa di endpoint guru dan
+  sebaliknya, karena provider kedua guard berbeda.
+
+### Portal alumni
+
+- `app/alumni/portal/` — Overview, Portal Beasiswa, Statistik & Sebaran,
+  Forum Alumni, Akun. Kerangkanya `PortalShell` yang sama.
+- **Alamatnya `/alumni/portal`, bukan `/alumni`**: halaman publik `/alumni`
+  (etalase profil alumni) tetap ada dan terbuka untuk umum. `proxy.ts` hanya
+  menjaga `/alumni/portal*`.
+- **Forum alumni memakai tabel sendiri** (`alumni_forum_*`), terpisah penuh
+  dari forum siswa — keputusan sadar: diskusi alumni dan siswa tidak boleh
+  tercampur. Bentuk JSON-nya sengaja dibuat sama, sehingga komponen
+  `NewThread`, `LikeButton`, `ReplyForm`, dan `ReplyList` dipakai dua portal
+  lewat prop `base` (awalan jalur API).
+- **Perpustakaan tidak diberikan ke alumni** — rutenya tetap `auth:student,teacher`.
+- Angka di portal dihitung dari data: sebaran kelulusan (`alumni_outcomes`),
+  katalog beasiswa (`scholarships`), dan isi forum. Tidak ada angka hiasan.
+
 ### Login tunggal
 
-Satu form di `/masuk`. Laravel menentukan peran dari bentuk identitasnya
-(mengandung `@` → admin, selain itu → NISN siswa):
+Satu form di `/masuk`. Laravel menentukan peran dari identitasnya:
+
+- surel → akun admin lebih dulu, lalu guru, lalu alumni
+- selain surel → NISN siswa lebih dulu, lalu NIP guru (NIP boleh berspasi)
 
 ```
-Siswa → token Sanctum → cookie httpOnly → /siswa
-Admin → tautan handoff sekali pakai → sesi Filament → /admin
+Siswa  → token Sanctum (guard student) → cookie httpOnly → /siswa
+Guru   → token Sanctum (guard teacher) → cookie httpOnly → /guru
+Alumni → token Sanctum (guard alumni)  → cookie httpOnly → /alumni/portal
+Admin  → tautan handoff sekali pakai   → sesi Filament   → /admin
 ```
+
+Orang yang punya lebih dari satu akun dengan surel serta sandi yang sama selalu
+masuk sebagai yang paling awal (admin → guru → alumni). Beri sandi berbeda bila
+perlu keduanya.
 
 Admin tidak bisa memakai token karena Filament berjalan di atas sesi, dan cookie
 sesi tidak bisa dipasang lintas origin. Jembatannya: token acak 64 karakter,
@@ -198,6 +247,31 @@ Semua ini sudah menghabiskan waktu sekali. Jangan mengulanginya.
     `host.docker.internal` — nama yang tidak bisa dibuka browser pengguna. Tautan
     handoff dibangun dari jalur relatif + `APP_URL`.
 
+### Basis data
+
+**`php artisan migrate:fresh` menghapus seluruh isi basis data.** Berkas
+SQLite-nya di-bind-mount dan diabaikan Git, jadi tidak ada riwayat yang bisa
+dipulihkan — data yang diubah lewat panel admin (NISN, kata sandi, topik forum
+yang ditulis siswa) hilang permanen. Cadangkan dulu sebelum menjalankannya:
+
+```bash
+cp database/database.sqlite "database/database.sqlite.bak-$(date +%F-%H%M)"
+```
+
+Untuk sekadar menguji seeder, pakai basis data uji: `php artisan test` memakai
+SQLite di memori dan tidak menyentuh berkas ini.
+
+**Kolom tanggal tersimpan `Y-m-d 00:00:00`**, bukan `Y-m-d`. Cari dengan
+`whereDate()`. `updateOrCreate(['date' => '2026-09-22'])` tidak pernah menemukan
+barisnya — lalu mencoba membuat baris baru dan menabrak indeks unik.
+
+**Zona waktu aplikasi `Asia/Jakarta`** (`config/app.php`, bisa ditimpa
+`APP_TIMEZONE`). Sampai 22 September 2026 nilainya `UTC`: "LIVE NOW" dan sesi CBT
+menyala tujuh jam terlambat, dan "hari ini" masih kemarin sampai pukul 07.00 WIB.
+Stempel `created_at` lama tertulis dalam UTC, jadi tampil tujuh jam lebih awal.
+Di frontend, jam dibaca lewat `jamWib()` (`lib/format.ts`) karena Node di Docker
+berjalan dalam UTC.
+
 ### Docker
 
 15. **Volume bernama membuat `node_modules` ada tapi kosong**, sehingga
@@ -248,12 +322,12 @@ Semua ini sudah menghabiskan waktu sekali. Jangan mengulanginya.
   `forum`, `forum/threads` (POST), `forum/threads/{id}`,
   `forum/threads/{id}/replies` (POST), `forum/threads/{id}/like` (POST)
 - Login tunggal siswa + admin, termasuk handoff
-- Panel admin: 9 resource CRUD + 17 halaman rangka modul
+- Panel admin: semua menu berfungsi — tidak ada lagi halaman rangka
 - Dasbor admin dengan susunan sama seperti portal siswa
 - Sistem token desain, tipografi, dan kontras terverifikasi (termasuk mode gelap)
 - Docker untuk kedua repo, diuji dari kondisi clone baru
 
-**Tes backend: 78/78 lolos.** Pint bersih.
+**Tes backend: 316/316 lolos.** Pint bersih.
 
 ### Seluruh portal siswa kini memakai API
 
@@ -291,22 +365,220 @@ Materi modul dan berkas buku disimpan sebagai **tautan** (`course_modules.url`,
 `books.url`), bukan berkas yang diunggah — itu keputusan sadar, bukan
 kekurangan. Keduanya boleh kosong; portal menampilkan "Materi belum tersedia".
 
-### Belum punya CRUD di panel admin
+### Panel admin lengkap
 
-Tabel modul baru belum punya Resource Filament, jadi isinya hanya bisa diubah
-lewat seeder atau tinker: `courses`, `course_modules`, `enrollments`, `exams`,
-`exam_questions`, `exam_question_options`, `exam_answers`, `exam_results`,
-`books`, `book_loans`, `forum_*`, `quotes`.
+Semua tabel punya pengelola di panel, dan ke-17 menu yang dulu rangka kini
+berfungsi:
 
-Yang paling terasa: **guru belum bisa membuat soal ujian lewat panel**,
-padahal teks soal hasil seed sendiri berbunyi "diisi guru lewat panel admin".
+| Grup | Menu |
+|---|---|
+| Akademik | Kursus (+ modul, peserta), Ujian (+ soal & kunci), Hasil Ujian |
+| Kesiswaan | Klasemen Poin, Buku Tatib, Catatan Kedisiplinan |
+| Absensi | Rekap Bulanan (matriks buku induk), Kehadiran Harian, Guru Piket, Jurnal KBM, Live Monitoring |
+| Humas | Buku Tamu, Katalog Layanan, PTSP |
+| Keuangan | Master Pembayaran, Tagihan & Kasir, Keuangan Komite |
+| Sarana & Prasarana | Master Ruang, Buku Induk Barang, Peminjaman & Booking |
+| E-Library | Buku, Pinjaman Buku, Meja Sirkulasi |
+| My Website | Pop-up, Layanan Cepat, Berita, Agenda, Program, Prestasi, Ekskul, Fasilitas, Galeri, QnA, Testimoni, Alumni |
+| Lainnya | Persuratan, Konseling, Kelola ZI, Sync Data |
 
-### Rangka, belum berisi
+Tiga yang bentuknya perlu diketahui:
 
-15 dari 19 modul di `dashboard-admin-tour.md` masih halaman placeholder yang
-menjelaskan rencana isinya: Kesiswaan, Absensi (4), Humas, Keuangan (2),
-Sarpras, E-Library, My Website, Kelola ZI, Persuratan, PTSP, Buku Tatib,
-Konseling, Sync Data.
+- **Meja Sirkulasi** memakai kolom teks biasa untuk NISN dan kode buku.
+  Pembaca RFID/barcode umumnya berperilaku seperti keyboard, jadi alat
+  sungguhan langsung bekerja tanpa integrasi khusus. Aturannya ada di
+  `app/Services/Sirkulasi.php`.
+- **Sync Data bukan sinkronisasi langsung.** Tidak ada sistem pusat (EMIS,
+  dll.) yang bisa dihubungi. Isinya impor siswa dari CSV, dua tahap: periksa
+  lalu terapkan. Siswa baru diberi sandi acak yang **hanya bisa diunduh sekali**
+  — bukan NISN, karena portal belum punya fitur ganti sandi.
+- **My Website** menggerakkan situs publik. Lihat bagian berikut.
+
+### Peran panel admin
+
+Tujuh peran, didefinisikan di satu tempat — `backend/app/Support/Peran.php`:
+
+| Peran | Menu yang bisa dibuka |
+|---|---|
+| Admin Utama | Semua, termasuk **Pengaturan → Pengguna Panel** |
+| Wakasek Kurikulum | Data Master, Akademik |
+| Wakasek Kesiswaan | Data Master, Kesiswaan, Absensi |
+| Guru BK | Kesiswaan, Konseling (termasuk catatan rahasia) |
+| Tata Usaha | Data Master, Keuangan, Sarpras, Persuratan, Kelola ZI, Sync Data |
+| Humas | Humas, Konten, My Website |
+| Pustakawan | E-Library |
+
+URL yang diketik langsung pun dibalas 403, bukan hanya menunya yang hilang.
+Akun lama otomatis menjadi Admin Utama. Akun tanpa peran tidak bisa masuk.
+Admin Utama terakhir tidak bisa diturunkan atau dihapus.
+
+Akun per peran belum ada di data seed — buat lewat **Pengguna Panel**.
+
+### Fitur siswa yang ditambahkan terakhir
+
+- **Forum**: balas ke balasan (satu tingkat), hapus balasan sendiri
+- **Akun** (`/siswa/akun`, lewat chip profil): ganti kata sandi; sesi lain dicabut
+- **Katalog buku** (`/siswa/perpustakaan/katalog`): pinjam dan kembalikan sendiri
+- **Kursus**: tandai modul selesai; progres dihitung dari situ
+
+### Portal guru
+
+Dibangun dengan isi bawaan sambil menunggu dokumen fitur guru. Menu dan isinya
+bisa diubah tanpa menyentuh kerangka — lihat §5 "Portal guru".
+
+| Menu | Isi |
+|---|---|
+| Overview | Sapaan, kelas diampu, sesi hari ini, jurnal tertunda, pengumuman |
+| Jadwal Mengajar | Jadwal sepekan per hari, tautan kelas live |
+| Jurnal Mengajar | Sesi yang sudah mulai tapi belum dicatat (7 hari ke belakang), catat materi + jumlah hadir, riwayat, ubah, hapus. Tercatat di tabel yang sama dengan modul Jurnal KBM admin |
+| Kelas & Materi | Kursus yang diampu, progres rata-rata siswa terdaftar, tambah/ubah/hapus modul (tautan wajib http/https) — langsung tampil di Kursus siswa |
+| Penilaian | Lembar nilai per kelas; judul + tanggal yang sama berarti menyunting. Langsung masuk Rapor Digital siswa |
+| Perpustakaan | Sama persis dengan milik siswa; kuota 5 buku berlaku juga |
+| Akun | Identitas + ganti kata sandi (sesi lain dicabut) |
+
+Pendukungnya:
+
+- `teachers` punya `password` (boleh kosong = belum diberi akses) dan
+  `is_active`. Admin mengisinya di Data Master → Guru; kolom "Portal Guru"
+  menunjukkan statusnya.
+- `book_loans.teacher_id` baru; peminjam tepat satu dari siswa atau guru
+  (dijaga model). Meja sirkulasi menerima NISN **atau NIP**; form Peminjaman
+  punya pilihan peminjam guru.
+- "Kelas diampu" = gabungan pasangan mapel–kelas dari jadwal **dan** kursus
+  (`App\Support\Pengampuan`), karena keduanya tidak selalu diisi bersamaan.
+- Menonaktifkan siswa atau guru kini ikut mencabut semua tokennya.
+- Batas laju endpoint bersama memakai limiter bernama (`portal-sandi`,
+  `portal-tulis`): `throttle:5,1` biasa mengunci pada ID saja, sehingga siswa #1
+  dan guru #1 akan berbagi jatah.
+- Sekalian diperbaiki: token yang dicabut (mis. setelah ganti sandi di perangkat
+  lain) dulu membuat `/siswa` ↔ `/masuk` memantul tanpa henti. Kini
+  `/masuk?expired=1` membuang cookie-nya.
+
+### SEO: sitemap.xml dan robots.txt
+
+`app/sitemap.ts` dibangun dari isi CMS, jadi berita, program, dan layanan baru
+masuk sendiri (disegarkan 60 detik seperti `getSite()`). Diverifikasi: 22 URL,
+XML sah, semuanya balas 200.
+
+- **Portal tidak pernah masuk sitemap** — `/siswa`, `/guru`, dan nanti alumni
+  ada di balik login, halamannya `noindex`, dan `robots.txt` melarangnya.
+  Tambahkan portal baru ke `disallow` di `app/robots.ts` saat dibuat.
+- **Halaman masuk sengaja dikeluarkan** (`/masuk`, `/login`, `/ppdb/login`):
+  tidak berguna di hasil pencarian.
+- **`lastModified` hanya diisi kalau tanggalnya diketahui** (berita, beranda,
+  indeks berita). Mengisi semuanya dengan "sekarang" membuat Google berhenti
+  memercayai nilainya.
+- **Alamat kanonik satu sumber**: `lib/seo.ts` → `SITE_URL`, dipakai
+  `metadataBase`, JSON-LD, `robots.txt`, dan `sitemap.xml`. Bisa ditimpa env
+  `SITE_URL` untuk domain lain.
+
+### Portal alumni (Career Center)
+
+Dibangun mengikuti `~/Documents/jhic26/alumni.md` (4 layar Figma).
+
+| Menu | Isi |
+|---|---|
+| Overview | Sapaan, 4 kartu ringkasan, 3 kartu modul, pemberitahuan madrasah |
+| Portal Beasiswa | Ringkasan (program aktif, kuota, pendaftar, penyerapan) + katalog dengan penyaring kategori dan badge status |
+| Statistik & Sebaran | Diagram donat + tabel rincian per kategori, penyaring tahun kelulusan |
+| Forum Alumni | 3 kategori, urut terbaru/populer, pencarian, balasan bersarang satu tingkat, suka, hapus balasan sendiri |
+| Akun | Identitas + ganti kata sandi |
+
+Tabel baru: `alumni_accounts`, `scholarships`, `alumni_outcomes`, dan empat
+tabel `alumni_forum_*`. Semuanya punya menu di panel admin (grup **Alumni**,
+dapat diakses Admin Utama dan Humas).
+
+Catatan angka: dokumen menyebut "8 program beasiswa" tapi katalognya memuat 6 —
+yang diseed 6, dan ringkasannya menghitung sendiri. Jumlah balasan juga
+dihitung dari tabel, bukan angka contoh di desain (24/48/12).
+
+### Portal guru dilengkapi sesuai dokumennya
+
+Menyusul `man-kota-batu-dashboard-guru.md` yang baru ditemukan setelah portal
+guru dibangun. Sebelas menu sekarang:
+
+| Menu | Catatan |
+|---|---|
+| Overview, Jadwal Mengajar, Jurnal Mengajar, Kelas & Materi, Penilaian, Perpustakaan, Akun | sudah ada sejak awal |
+| **Modul Pembelajaran** | modul ajar sendiri / rekan sejawat / arsip, tautan berkas wajib http(s) |
+| **Bahan Ajar & LKPD** | koleksi pribadi, isinya ditautkan dari Drive |
+| **Jurnal Harian** | kegiatan di luar jam mengajar, boleh dilampiri bukti foto |
+| **RDM** | unggah berkas rapor per kelas + catatan guru untuk siswa |
+| **Lapor Tatib** | laporan poin kedisiplinan, masuk ke tabel modul Kesiswaan |
+
+- **Catatan di RDM memakai tabel `teacher_feedback`** yang sama dengan
+  "Catatan Guru" di Rapor Digital siswa — yang ditulis guru langsung terbaca
+  siswa.
+- **Poin tatib disalin saat dilaporkan**, bukan dibaca ulang dari aturannya:
+  mengubah bobot aturan kelak tidak menulis ulang riwayat.
+- **Buku tatib kini ikut diseed** (9 aturan). Tanpa itu menu Lapor Tatib tidak
+  punya apa pun untuk dipilih — basis data lama memang kosong.
+- **Batas unggahan PHP dinaikkan ke 20 MB** lewat `Dockerfile`. Bawaan 2 MB
+  membuat unggahan gagal tanpa pesan yang jelas: PHP membuang berkasnya
+  sebelum Laravel sempat memvalidasi. **Perlu `docker compose up --build`.**
+
+### Unggah berkas PPDB kini sungguhan
+
+Sebelumnya `/login` dan `/ppdb/dokumen` hanya tiruan: login menerima nama dan
+sandi apa pun, dan tombol kirim hanya mengganti tampilan tanpa menyimpan
+berkas. Sekarang:
+
+- **Akun dibuat panitia** di **PPDB → Pendaftar PPDB** (nomor pendaftaran +
+  kata sandi). Nomor berikutnya diusulkan otomatis (`PPDB26-0007`).
+- Calon siswa masuk di `/ppdb/login`, mengunggah PDF per jenis berkas
+  (maks 5 MB), dan melihat statusnya: menunggu, diterima, atau perlu diganti
+  beserta alasan dari panitia.
+- **Satu jenis berkas satu baris**: mengunggah ulang mengganti berkas lama,
+  menghapus berkas lamanya dari penyimpanan, dan mengembalikan status ke
+  "menunggu".
+- Berkas wajib mengikuti jalur: Sertifikat Prestasi hanya wajib untuk jalur
+  Prestasi.
+- Panitia memverifikasi lewat relation manager di panel; alasan penolakan
+  langsung terbaca calon siswa.
+- Guard kelima (`ppdb`) dengan cookie peran `ppdb`; `/ppdb` dan `/ppdb/login`
+  tetap terbuka untuk umum, hanya `/ppdb/dokumen` yang dijaga.
+
+### Daily streak dan lonceng notifikasi dihapus
+
+Keduanya dinilai tidak perlu, jadi dibuang sampai ke akarnya — bukan
+disembunyikan:
+
+- **Daily streak**: hilang dari chip topbar, sapaan, dan kartu ringkasan;
+  kolom `students.streak_days` ikut di-drop lewat migrasi. Angkanya memang
+  tidak pernah diperbarui apa pun, jadi selama ini hiasan belaka.
+- **Lonceng notifikasi**: tombolnya dibuang dari topbar ketiga portal. Panel
+  **Pengumuman** di halaman Overview tetap ada — itu isinya, bukan loncengnya.
+
+Kalau kelak streak dibutuhkan lagi, migrasinya punya `down()`, tapi nilainya
+tidak bisa dipulihkan.
+
+### Situs publik kini dikelola lewat CMS
+
+Sebelas daftar di `lib/content.ts` pindah ke basis data dan dibaca lewat
+`lib/site.ts` → `GET /api/v1/public/site` (tanpa token). Bentuk responsnya
+sengaja sama persis dengan ekspor `lib/content.ts`, jadi komponen situs tidak
+tahu dari mana datanya datang.
+
+- **Perubahan di admin tampil seketika**: Laravel memanggil webhook
+  `POST /api/revalidate` setiap konten disimpan atau dihapus. Diukur 0,4 detik.
+  Kalau webhook gagal atau belum dikonfigurasi, situs tetap menyusul sendiri
+  dalam ≤ 60 detik.
+- **Gambar bisa diunggah** di Berita dan Galeri. Unggahan disajikan sebagai
+  `/storage/...`, yang diteruskan Next.js ke backend (`next.config.ts`).
+- **Kalau API mati, situs tetap hidup** dengan isi bawaan `lib/content.ts`, dan
+  log server mencetak `[site] CMS tidak bisa dibaca …`. `next build` juga tetap
+  berhasil tanpa backend.
+- **Mengedit daftar-daftar itu di `lib/content.ts` tidak mengubah situs** selama
+  API berjalan. Berkas itu kini cadangan dan sumber isi awal saja. Identitas
+  sekolah, statistik, sambutan kepala, navigasi, profil, dan info PPDB masih
+  dibaca langsung dari sana.
+- Isi awal CMS diekspor langsung dari `lib/content.ts` ke
+  `backend/database/seeders/data/situs.json` — tidak diketik ulang. Ada tes yang
+  membuktikan API mengembalikan isi yang identik.
+- Satu perbedaan yang disengaja: **berita diurutkan berdasarkan tanggal**, jadi
+  berita baru otomatis jadi berita utama. Dulu urutannya manual; dua berita
+  terakhir kini bertukar tempat. Galeri dan prestasi tetap mengikuti urutan
+  manual (bisa diseret di panel).
 
 ---
 
@@ -340,19 +612,67 @@ Konseling, Sync Data.
    Sudah dibersihkan dari remote. Pastikan token itu sudah dicabut di
    https://github.com/settings/tokens.
 
-8. **Meminjam buku belum bisa dilakukan siswa.** Pinjaman hanya bisa dibuat
-   lewat seeder; tidak ada endpoint pinjam/kembalikan, dan `current_page`
-   tidak pernah berubah karena buku dibaca di luar portal.
-
-9. **Progres kursus belum terhubung ke modul.** `enrollments.progress_percentage`
-   masih angka yang disetel manual, bukan hasil hitungan modul yang selesai —
-   menandai modul selesai belum ada. Perlu tabel penyelesaian modul kalau mau
-   angkanya jujur.
-
-10. **Angka di beberapa kartu forum kecil karena data contohnya kecil.**
+8. **Angka di beberapa kartu forum kecil karena data contohnya kecil.**
    "Active Members", "Total Topics", dan jumlah thread per kategori dihitung
    dari isi basis data, bukan angka hiasan seperti sebelumnya (`1.000`,
    `12k+`). Akan terlihat wajar begitu data asli masuk.
+
+9. **Build tanpa backend mencetak puluhan peringatan `[site]`** — satu per
+    halaman yang dibangun. Tidak berbahaya, tapi bising di log CI.
+
+---
+
+10. **Rahasia webhook revalidasi di `compose.yaml` hanya untuk pengembangan.**
+   Kedua repo publik, jadi nilainya bisa dibaca siapa saja. Di server
+   sungguhan ganti `SITUS_REVALIDATE_SECRET` (backend) dan `REVALIDATE_SECRET`
+   (frontend) dengan nilai yang sama dan rahasia.
+
+11. **Catatan konseling rahasia tidak terlihat oleh Admin Utama.** Disengaja:
+   hanya peran Guru BK yang memuatnya. Admin Utama yang perlu membukanya harus
+   memberi dirinya peran BK lewat menu Pengguna Panel.
+
+12. **Progres kursus lama bergeser beberapa poin** setelah dikonversi jadi modul
+   selesai: 72% dari 12 modul bukan bilangan bulat, jadi menjadi 9/12 = 75%.
+
+13. **Isi portal guru belum mengikuti dokumen resmi** — dokumennya menyusul.
+   Menu saat ini pilihan bawaan yang memakai tabel yang sudah ada.
+
+14. **Data contoh jadwal dan kursus tidak konsisten**: jadwal Fiqih diampu
+   Ust. H. Abdurrahman, kursus Fiqih diampu Ani Nur Aisyah. Portal guru
+   menampilkannya apa adanya — masing-masing melihat kelasnya di menu berbeda.
+
+15. **Pesan 422 Laravel masih berakhiran "(and 1 more error)"** dalam bahasa
+   Inggris. Formulir portal menampilkan galat per kolom, jadi jarang terlihat.
+
+16. **Portal guru punya 11 menu, dokumennya 10.** "Kelas & Materi" (materi
+   kursus yang dilihat siswa) dipertahankan di samping "Modul Pembelajaran"
+   (perangkat ajar guru) karena keduanya hal yang berbeda. "Daftar Nilai" di
+   dokumen memakai daftar kelas lebih dulu; di sini kelas dipilih lewat chip
+   di halaman Penilaian.
+
+17. **Alumni belum bisa mendaftar sendiri.** Akunnya dibuat admin, sama seperti
+   guru. Kalau nanti perlu pendaftaran mandiri, butuh verifikasi data lulusan
+   supaya orang luar tidak bisa mengaku alumni.
+
+18. **Rekap sebaran disimpan sebagai agregat per tahun**, bukan per orang.
+   Cukup untuk diagram dan tabel, tapi tidak bisa menjawab "alumni A sekarang
+   di mana".
+
+19. **Batas memori pengujian dinaikkan ke 512M** di `phpunit.xml`. Tes render
+   PDF rapor memakai dompdf yang rakus memori; dengan 128M bawaan PHP, suite
+   penuh berhenti di tengah jalan.
+
+20. **Belum ada satu pun tes di frontend.** Backend 316 tes, frontend nol.
+   Justru bug seperti tombol PPDB yang tidak mengirim apa pun tidak akan
+   ketahuan sendiri tanpa tes.
+
+21. **Pendaftar PPDB tidak bisa mendaftar sendiri.** Akunnya dibuat panitia,
+   sama seperti guru dan alumni. Swa-daftar butuh verifikasi identitas supaya
+   orang luar tidak membuat akun asal-asalan.
+
+22. **Nama menu di peta situs dokumen berbeda dengan aplikasi** di sembilan
+   tempat (mis. "Kelola Situs" vs "My Website"). Disengaja agar peta situs
+   enak dibaca juri; kalau mau seragam, ganti label menunya di panel.
 
 ---
 
@@ -365,6 +685,8 @@ Konseling, Sync Data.
 | `jhicccc/figma.md` | Prototipe Figma situs publik |
 | `jhicccc/metamask.io-DESIGN.md` | Acuan sistem desain situs publik |
 | `~/Downloads/dashboard-admin-tour.md` | 19 modul panel admin MAKOBADIG |
+| `~/Documents/jhic26/man-kota-batu-dashboard-guru.md` | 10 layar Portal Guru (Figma) — belum diikuti penuh |
+| `~/Documents/jhic26/alumni.md` | 4 layar Portal Alumni (Figma) — sudah diikuti |
 | `backend/AGENTS.md` | Panduan Laravel Boost — **wajib dibaca sebelum ubah backend** |
 | `jhicccc/AGENTS.md` | Peringatan breaking change Next.js |
 
