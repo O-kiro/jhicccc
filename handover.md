@@ -68,6 +68,7 @@ admin tampil tanpa gaya sama sekali. Ini jebakan yang paling sering terulang.
 | Siswa | NISN `009283741` | `password` |
 | Guru | `rini@mankotabatu.sch.id` atau NIP `198503152010012007` | `password` |
 | Alumni | `aldian@alumni.mankotabatu.sch.id` | `password` |
+| Pendaftar PPDB | Nomor `PPDB26-0001` (di `/ppdb/login`) | `password` |
 
 Hanya satu guru contoh yang punya akses portal. Guru lain belum diberi sandi —
 isi lewat **Data Master → Guru** di panel admin. Akun alumni dibuat lewat
@@ -326,7 +327,7 @@ berjalan dalam UTC.
 - Sistem token desain, tipografi, dan kontras terverifikasi (termasuk mode gelap)
 - Docker untuk kedua repo, diuji dari kondisi clone baru
 
-**Tes backend: 290/290 lolos.** Pint bersih.
+**Tes backend: 316/316 lolos.** Pint bersih.
 
 ### Seluruh portal siswa kini memakai API
 
@@ -491,6 +492,59 @@ Catatan angka: dokumen menyebut "8 program beasiswa" tapi katalognya memuat 6 �
 yang diseed 6, dan ringkasannya menghitung sendiri. Jumlah balasan juga
 dihitung dari tabel, bukan angka contoh di desain (24/48/12).
 
+### Portal guru dilengkapi sesuai dokumennya
+
+Menyusul `man-kota-batu-dashboard-guru.md` yang baru ditemukan setelah portal
+guru dibangun. Sebelas menu sekarang:
+
+| Menu | Catatan |
+|---|---|
+| Overview, Jadwal Mengajar, Jurnal Mengajar, Kelas & Materi, Penilaian, Perpustakaan, Akun | sudah ada sejak awal |
+| **Modul Pembelajaran** | modul ajar sendiri / rekan sejawat / arsip, tautan berkas wajib http(s) |
+| **Bahan Ajar & LKPD** | koleksi pribadi, isinya ditautkan dari Drive |
+| **Jurnal Harian** | kegiatan di luar jam mengajar, boleh dilampiri bukti foto |
+| **RDM** | unggah berkas rapor per kelas + catatan guru untuk siswa |
+| **Lapor Tatib** | laporan poin kedisiplinan, masuk ke tabel modul Kesiswaan |
+
+- **Catatan di RDM memakai tabel `teacher_feedback`** yang sama dengan
+  "Catatan Guru" di Rapor Digital siswa — yang ditulis guru langsung terbaca
+  siswa.
+- **Poin tatib disalin saat dilaporkan**, bukan dibaca ulang dari aturannya:
+  mengubah bobot aturan kelak tidak menulis ulang riwayat.
+- **Buku tatib kini ikut diseed** (9 aturan). Tanpa itu menu Lapor Tatib tidak
+  punya apa pun untuk dipilih — basis data lama memang kosong.
+- **Batas unggahan PHP dinaikkan ke 20 MB** lewat `Dockerfile`. Bawaan 2 MB
+  membuat unggahan gagal tanpa pesan yang jelas: PHP membuang berkasnya
+  sebelum Laravel sempat memvalidasi. **Perlu `docker compose up --build`.**
+
+### Unggah berkas PPDB kini sungguhan
+
+Sebelumnya `/login` dan `/ppdb/dokumen` hanya tiruan: login menerima nama dan
+sandi apa pun, dan tombol kirim hanya mengganti tampilan tanpa menyimpan
+berkas. Sekarang:
+
+- **Akun dibuat panitia** di **PPDB → Pendaftar PPDB** (nomor pendaftaran +
+  kata sandi). Nomor berikutnya diusulkan otomatis (`PPDB26-0007`).
+- Calon siswa masuk di `/ppdb/login`, mengunggah PDF per jenis berkas
+  (maks 5 MB), dan melihat statusnya: menunggu, diterima, atau perlu diganti
+  beserta alasan dari panitia.
+- **Satu jenis berkas satu baris**: mengunggah ulang mengganti berkas lama,
+  menghapus berkas lamanya dari penyimpanan, dan mengembalikan status ke
+  "menunggu".
+- Berkas wajib mengikuti jalur: Sertifikat Prestasi hanya wajib untuk jalur
+  Prestasi.
+- Panitia memverifikasi lewat relation manager di panel; alasan penolakan
+  langsung terbaca calon siswa.
+- Guard kelima (`ppdb`) dengan cookie peran `ppdb`; `/ppdb` dan `/ppdb/login`
+  tetap terbuka untuk umum, hanya `/ppdb/dokumen` yang dijaga.
+
+### Lonceng pengumuman berfungsi
+
+Tombol lonceng di topbar ketiga portal dulu hiasan tanpa aksi, lengkap dengan
+titik merah palsu. Sekarang membuka daftar pengumuman (data yang sudah ikut
+terkirim bersama data portal, jadi tanpa permintaan jaringan baru), dan titik
+merahnya hanya muncul bila ada pengumuman terbit dalam 3 hari terakhir.
+
 ### Situs publik kini dikelola lewat CMS
 
 Sebelas daftar di `lib/content.ts` pindah ke basis data dan dibaca lewat
@@ -583,11 +637,11 @@ tahu dari mana datanya datang.
 15. **Pesan 422 Laravel masih berakhiran "(and 1 more error)"** dalam bahasa
    Inggris. Formulir portal menampilkan galat per kolom, jadi jarang terlihat.
 
-16. **Portal guru belum mengikuti dokumennya.** `man-kota-batu-dashboard-guru.md`
-   baru ditemukan setelah portal guru dibangun. Dokumen menyebut 10 menu; yang
-   ada 6, dan "Kelas & Materi" beda konsep dengan "Modul Pembelajaran" di
-   dokumen. Belum ada: RDM, Jurnal Harian, Bahan Ajar & LKPD, Lapor Tatib.
-   Disepakati dikerjakan setelah portal alumni.
+16. **Portal guru punya 11 menu, dokumennya 10.** "Kelas & Materi" (materi
+   kursus yang dilihat siswa) dipertahankan di samping "Modul Pembelajaran"
+   (perangkat ajar guru) karena keduanya hal yang berbeda. "Daftar Nilai" di
+   dokumen memakai daftar kelas lebih dulu; di sini kelas dipilih lewat chip
+   di halaman Penilaian.
 
 17. **Alumni belum bisa mendaftar sendiri.** Akunnya dibuat admin, sama seperti
    guru. Kalau nanti perlu pendaftaran mandiri, butuh verifikasi data lulusan
@@ -600,6 +654,18 @@ tahu dari mana datanya datang.
 19. **Batas memori pengujian dinaikkan ke 512M** di `phpunit.xml`. Tes render
    PDF rapor memakai dompdf yang rakus memori; dengan 128M bawaan PHP, suite
    penuh berhenti di tengah jalan.
+
+20. **Belum ada satu pun tes di frontend.** Backend 316 tes, frontend nol.
+   Justru bug seperti tombol PPDB yang tidak mengirim apa pun tidak akan
+   ketahuan sendiri tanpa tes.
+
+21. **Pendaftar PPDB tidak bisa mendaftar sendiri.** Akunnya dibuat panitia,
+   sama seperti guru dan alumni. Swa-daftar butuh verifikasi identitas supaya
+   orang luar tidak membuat akun asal-asalan.
+
+22. **Nama menu di peta situs dokumen berbeda dengan aplikasi** di sembilan
+   tempat (mis. "Kelola Situs" vs "My Website"). Disengaja agar peta situs
+   enak dibaca juri; kalau mau seragam, ganti label menunya di panel.
 
 ---
 

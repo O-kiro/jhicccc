@@ -7,14 +7,20 @@ const TOKEN_COOKIE = "makoba-token";
 const ROLE_COOKIE = "makoba-peran";
 const LOGIN_PATH = "/masuk";
 
-const HOME = { siswa: "/siswa", guru: "/guru", alumni: "/alumni/portal" } as const;
+const HOME = {
+  siswa: "/siswa",
+  guru: "/guru",
+  alumni: "/alumni/portal",
+  // Calon siswa PPDB: bukan portal warga madrasah, tapi tetap butuh sesi.
+  ppdb: "/ppdb/dokumen",
+} as const;
 type Role = keyof typeof HOME;
 
 /** Sesi lama (sebelum ada portal guru) tidak punya cookie peran: itu siswa. */
 function roleOf(request: NextRequest): Role {
   const nilai = request.cookies.get(ROLE_COOKIE)?.value;
 
-  return nilai === "guru" || nilai === "alumni" ? nilai : "siswa";
+  return nilai === "guru" || nilai === "alumni" || nilai === "ppdb" ? nilai : "siswa";
 }
 
 /**
@@ -30,11 +36,16 @@ function areaOf(pathname: string): Role {
     return "alumni";
   }
 
+  if (pathname === "/ppdb/dokumen") {
+    return "ppdb";
+  }
+
   return "siswa";
 }
 
 /**
- * Menjaga portal siswa, guru, dan alumni. Di Next.js 16 berkas ini
+ * Menjaga portal siswa, guru, alumni, dan halaman berkas PPDB. Di Next.js 16
+ * berkas ini
  * bernama `proxy.ts` — konvensi `middleware.ts` sudah tidak dipakai lagi.
  *
  * Ini hanya memeriksa keberadaan cookie, bukan keabsahannya; verifikasi
@@ -46,6 +57,22 @@ export function proxy(request: NextRequest) {
   const { pathname, search, searchParams } = request.nextUrl;
   const hasToken = request.cookies.has(TOKEN_COOKIE);
   const role = roleOf(request);
+
+  // Halaman masuk PPDB berperilaku sama dengan /masuk: yang sudah punya sesi
+  // langsung diantar ke halaman berkasnya.
+  if (pathname === "/ppdb/login" || pathname === "/login") {
+    // Token dicabut atau kedaluwarsa: buang cookienya, jangan memantul balik.
+    if (searchParams.has("expired")) {
+      const res = NextResponse.next();
+      res.cookies.delete(TOKEN_COOKIE);
+      res.cookies.delete(ROLE_COOKIE);
+      return res;
+    }
+
+    return hasToken && role === "ppdb"
+      ? NextResponse.redirect(new URL(HOME.ppdb, request.url))
+      : NextResponse.next();
+  }
 
   if (pathname === LOGIN_PATH || pathname === "/siswa/login") {
     // Laravel menolak tokennya (dicabut, kedaluwarsa, atau sandi diganti di
@@ -63,7 +90,15 @@ export function proxy(request: NextRequest) {
     return hasToken ? NextResponse.redirect(new URL(HOME[role], request.url)) : NextResponse.next();
   }
 
+  const area = areaOf(pathname);
+
   if (!hasToken) {
+    // PPDB punya halaman masuk sendiri; jangan dilempar ke gerbang portal
+    // warga madrasah.
+    if (area === "ppdb") {
+      return NextResponse.redirect(new URL("/ppdb/login", request.url));
+    }
+
     const login = new URL(LOGIN_PATH, request.url);
     login.searchParams.set("next", pathname + search);
 
@@ -71,7 +106,7 @@ export function proxy(request: NextRequest) {
   }
 
   // Siswa yang membuka /guru (atau sebaliknya) diantar ke portalnya sendiri.
-  if (areaOf(pathname) !== role) {
+  if (area !== role) {
     return NextResponse.redirect(new URL(HOME[role], request.url));
   }
 
@@ -88,5 +123,8 @@ export const config = {
     "/guru/:path*",
     "/alumni/portal",
     "/alumni/portal/:path*",
+    "/ppdb/dokumen",
+    "/ppdb/login",
+    "/login",
   ],
 };
