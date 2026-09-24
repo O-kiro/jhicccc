@@ -169,6 +169,7 @@ export default async function OverviewPage() {
         {/* Pengumuman */}
         <Reveal delay={0.05}>
           <Panel as="section" className="h-full">
+            <div id="pengumuman" className="scroll-mt-24" />
             <PanelTitle icon="bell">Pengumuman</PanelTitle>
             <ul className="space-y-1">
               {announcements.map((n, i) => (

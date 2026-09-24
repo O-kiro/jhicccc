@@ -172,6 +172,7 @@ export default async function GuruOverviewPage() {
         {/* Pengumuman */}
         <Reveal delay={0.05}>
           <Panel as="section" className="h-full">
+            <div id="pengumuman" className="scroll-mt-24" />
             <PanelTitle icon="bell">Pengumuman</PanelTitle>
             {announcements.length === 0 && (
               <p className="rounded-xl border border-line bg-surface-2 p-5 text-sm text-muted">

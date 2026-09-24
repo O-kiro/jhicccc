@@ -164,6 +164,7 @@ export default async function AlumniOverviewPage() {
 
       <Reveal delay={0.05}>
         <Panel as="section" className="mt-6">
+          <div id="pengumuman" className="scroll-mt-24" />
           <PanelTitle icon="bell">Pemberitahuan &amp; Agenda Madrasah</PanelTitle>
           {announcements.length === 0 ? (
             <p className="rounded-xl border border-line bg-surface-2 p-5 text-sm text-muted">

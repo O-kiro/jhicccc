@@ -123,6 +123,103 @@ export type ApiNilai = {
   today: string;
 };
 
+export type ApiModulAjar = {
+  tab: "saya" | "rekan" | "arsip";
+  filters: { subject_id: number | null; classroom_id: number | null };
+  counts: { saya: number; rekan: number; arsip: number };
+  plans: {
+    id: number;
+    title: string;
+    subject: string | null;
+    classroom: string | null;
+    time_range: string | null;
+    url: string | null;
+    note: string | null;
+    status: "aktif" | "arsip";
+    teacher: string;
+    is_mine: boolean;
+  }[];
+  subjects: { id: number; name: string }[];
+  classrooms: { id: number; name: string }[];
+};
+
+export type ApiBahanAjar = {
+  selected: string | null;
+  types: Record<string, string>;
+  counts: Record<string, number>;
+  materials: {
+    id: number;
+    type: string;
+    type_label: string;
+    title: string;
+    subject: string | null;
+    level: string | null;
+    url: string | null;
+    description: string | null;
+  }[];
+  subjects: { id: number; name: string }[];
+};
+
+export type ApiJurnalHarian = {
+  filters: { dari: string | null; sampai: string | null };
+  counts: { tahun_ini: number; arsip: number };
+  activities: {
+    id: number;
+    date: string;
+    classroom: string | null;
+    activity: string;
+    /** Alamat bukti foto; null bila tidak ada. */
+    photo_url: string | null;
+  }[];
+  classrooms: { id: number; name: string }[];
+  today: string;
+  max_photo_kb: number;
+};
+
+export type ApiRdm = {
+  classrooms: { id: number; name: string; academic_year: string }[];
+  students: { id: number; name: string; classroom: string | null }[];
+  uploads: {
+    id: number;
+    classroom: string | null;
+    academic_year: string;
+    semester: string;
+    file_url: string;
+    original_name: string;
+    size_kb: number;
+    note: string | null;
+    uploaded_on: string | null;
+  }[];
+  feedback: {
+    id: number;
+    student: string;
+    student_id: number;
+    role: string;
+    body: string;
+    created_on: string | null;
+  }[];
+  max_file_kb: number;
+  semesters: string[];
+};
+
+export type ApiTatib = {
+  students: { id: number; name: string; nisn: string; classroom_id: number | null; classroom: string | null }[];
+  classrooms: { id: number; name: string }[];
+  rules: { id: number; code: string; title: string; kind: string; points: number; category: string | null }[];
+  reports: {
+    id: number;
+    student: string;
+    classroom: string | null;
+    rule: string;
+    kind: string;
+    points: number;
+    occurred_on: string;
+    note: string | null;
+  }[];
+  today: string;
+  earliest: string;
+};
+
 /** Di-cache per render: layout (sidebar) dan beranda berbagi satu permintaan. */
 export const getGuruOverview = cache(
   (): Promise<ApiGuruOverview> => authedGet<ApiGuruOverview>("/guru/overview"),
@@ -140,3 +237,31 @@ export const getNilai = cache(
   (kelas?: string): Promise<ApiNilai> =>
     authedGet<ApiNilai>(kelas ? `/guru/nilai?kelas=${encodeURIComponent(kelas)}` : "/guru/nilai"),
 );
+
+export const getModulAjar = cache(
+  (opsi: { tab?: string; subject_id?: string; classroom_id?: string } = {}): Promise<ApiModulAjar> => {
+    const p = new URLSearchParams();
+    if (opsi.tab) p.set("tab", opsi.tab);
+    if (opsi.subject_id) p.set("subject_id", opsi.subject_id);
+    if (opsi.classroom_id) p.set("classroom_id", opsi.classroom_id);
+    const qs = p.toString();
+    return authedGet<ApiModulAjar>(`/guru/modul-ajar${qs ? `?${qs}` : ""}`);
+  },
+);
+
+export const getBahanAjar = cache(
+  (jenis?: string): Promise<ApiBahanAjar> =>
+    authedGet<ApiBahanAjar>(`/guru/bahan-ajar${jenis ? `?jenis=${encodeURIComponent(jenis)}` : ""}`),
+);
+
+export const getJurnalHarian = cache((dari?: string, sampai?: string): Promise<ApiJurnalHarian> => {
+  const p = new URLSearchParams();
+  if (dari) p.set("dari", dari);
+  if (sampai) p.set("sampai", sampai);
+  const qs = p.toString();
+  return authedGet<ApiJurnalHarian>(`/guru/jurnal-harian${qs ? `?${qs}` : ""}`);
+});
+
+export const getRdm = cache((): Promise<ApiRdm> => authedGet<ApiRdm>("/guru/rdm"));
+
+export const getTatib = cache((): Promise<ApiTatib> => authedGet<ApiTatib>("/guru/tatib"));

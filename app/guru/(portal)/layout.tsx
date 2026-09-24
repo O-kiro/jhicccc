@@ -14,7 +14,7 @@ export default async function GuruPortalLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   // Di-cache per render: beranda memakai ulang respons yang sama.
-  const { teacher, today_schedule } = await getGuruOverview();
+  const { teacher, today_schedule, announcements } = await getGuruOverview();
 
   return (
     <PortalShell
@@ -31,6 +31,7 @@ export default async function GuruPortalLayout({
         joinLabel: "Buka Kelas Live",
         suffix: (s) => s.classroom,
       })}
+      announcements={announcements}
     >
       {children}
     </PortalShell>

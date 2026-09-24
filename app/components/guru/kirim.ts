@@ -7,6 +7,39 @@ export type Hasil<T> =
   | { ok: true; data: T }
   | { ok: false; pesan: string; galat: Record<string, string> };
 
+/**
+ * Unggahan berkas. Sengaja tidak menyetel Content-Type: browser yang
+ * menuliskannya lengkap dengan boundary multipart.
+ */
+export async function kirimBerkas<T = unknown>(url: string, data: FormData): Promise<Hasil<T>> {
+  try {
+    const res = await fetch(url, { method: "POST", body: data });
+    const isi = await res.json().catch(() => null);
+
+    if (res.ok) {
+      return { ok: true, data: isi as T };
+    }
+
+    const galat = Object.fromEntries(
+      Object.entries((isi?.errors ?? {}) as Record<string, unknown>).map(([k, v]) => [
+        k,
+        Array.isArray(v) ? String(v[0]) : String(v),
+      ]),
+    );
+
+    return {
+      ok: false,
+      pesan:
+        res.status === 413
+          ? "Berkas terlalu besar untuk diunggah."
+          : (isi?.message ?? "Gagal mengunggah."),
+      galat,
+    };
+  } catch {
+    return { ok: false, pesan: "Server tidak dapat dihubungi.", galat: {} };
+  }
+}
+
 export async function kirim<T = unknown>(
   url: string,
   method: "POST" | "PUT" | "DELETE",

@@ -15,13 +15,14 @@ export const metadata: Metadata = {
 export default async function AlumniPortalLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const { alumni } = await getAlumniOverview();
+  const { alumni, announcements } = await getAlumniOverview();
 
   return (
     <PortalShell
       portal="alumni"
       user={{ name: alumni.name, subtitle: alumni.angkatan }}
       nextClass={null}
+      announcements={announcements}
     >
       {children}
     </PortalShell>
