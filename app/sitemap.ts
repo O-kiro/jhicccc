@@ -9,8 +9,9 @@ import { SITE_URL } from "@/lib/seo";
  *
  * Dua hal yang sengaja TIDAK ada di sini:
  *
- * 1. Portal siswa dan guru. Isinya di balik login, halamannya sudah `noindex`,
- *    dan `robots.txt` melarangnya. Portal alumni nanti juga tidak masuk.
+ * 1. Portal siswa, guru, alumni, dan halaman berkas PPDB (`/ppdb/dokumen`).
+ *    Isinya di balik login, halamannya sudah `noindex`, dan `robots.txt`
+ *    melarangnya.
  * 2. Halaman masuk (`/masuk`, `/login`, `/ppdb/login`). Tidak ada isi yang
  *    berguna di hasil pencarian, dan mengundang perayap ke formulir login
  *    hanya menambah lalu lintas sia-sia.
@@ -31,7 +32,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/`, lastModified: beritaTerbaru, changeFrequency: "weekly", priority: 1 },
     { url: `${SITE_URL}/profil`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE_URL}/ppdb`, changeFrequency: "weekly", priority: 0.9 },
-    { url: `${SITE_URL}/ppdb/dokumen`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${SITE_URL}/berita`, lastModified: beritaTerbaru, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/layanan`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${SITE_URL}/alumni`, changeFrequency: "monthly", priority: 0.6 },
