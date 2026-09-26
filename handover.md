@@ -66,17 +66,30 @@ admin tampil tanpa gaya sama sekali. Ini jebakan yang paling sering terulang.
 `php artisan serve` / `next dev`. Untuk server ada `compose.prod.yaml`:
 
 ```bash
-cd backend && APP_URL=https://admin.domain-anda docker compose -f compose.prod.yaml up -d --build
-cd jhicccc && docker compose -f compose.prod.yaml up -d --build
+# Backend: setelan dibaca dari .env
+cd backend && cp .env.production.example .env    # lalu isi yang bertanda ISI
+docker compose -f compose.prod.yaml up -d --build
+
+# Frontend: API_URL wajib alamat publik backend
+cd jhicccc && API_URL=https://api.domain-anda/api/v1 docker compose -f compose.prod.yaml up -d --build
 ```
 
-- Backend memakai FrankenPHP, APP_DEBUG mati, dan container **menolak jalan**
-  bila APP_DEBUG dinyalakan. APP_KEY, SQLite, dan unggahan disimpan di volume.
+- Backend memakai FrankenPHP dengan kode dibakukan ke image, APP_DEBUG mati,
+  dan container **menolak jalan** bila APP_DEBUG dinyalakan. Portnya hanya
+  terbuka untuk 127.0.0.1 (reverse proxy); SQLite dan unggahan disimpan di
+  volume. Memperbarui versi: `git pull` lalu `up -d --build` lagi — `restart`
+  saja tidak cukup.
+- **Server yang sudah berjalan dengan versi lama** (kode di-mount, SQLite di
+  `database/`) menyalin datanya sekali sebelum `up` pertama; perintahnya ada di
+  kepala `compose.prod.yaml` backend. Akun contoh di basis data lama tetap
+  bersandi `password` — **ganti semuanya**, perbaikan seeder hanya berlaku
+  untuk basis data baru.
 - Frontend dibangun sekali lalu dijalankan `next start` (NODE_ENV=production).
 - **Wajib di belakang HTTPS** (Caddy, Nginx, atau Cloudflare): cookie login
   bertanda Secure dan tidak disimpan browser lewat `http://` biasa, kecuali di
-  localhost. Di belakang proxy, isi `TRUSTED_PROXIES` di backend.
-- Variabel lain dijelaskan di kepala masing-masing `compose.prod.yaml`.
+  localhost. Isi `TRUSTED_PROXIES` di .env backend.
+- Variabel lain dijelaskan di kepala masing-masing `compose.prod.yaml` dan di
+  `.env.production.example` backend.
 
 ### Kredensial (data seed)
 
