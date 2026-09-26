@@ -1,5 +1,7 @@
 # Jalankan:  docker compose up
 #
+# KHUSUS PENGEMBANGAN (`next dev`). Untuk server ada compose.prod.yaml.
+#
 # Backend berjalan dari repo terpisah (jhicccc-backend), jadi keduanya tidak
 # berbagi jaringan Docker. Penghubungnya adalah host: backend mempublikasikan
 # port 8000, dan container ini memanggilnya lewat host.docker.internal.
@@ -8,7 +10,11 @@
 # bukan hanya Docker Desktop di macOS/Windows.
 services:
   web:
-    build: .
+    build:
+      context: .
+      # Wajib ditulis: tanpa target, Docker membangun tahap terakhir
+      # Dockerfile, yaitu produksi.
+      target: dev
     ports:
       - "3000:3000"
     volumes:
