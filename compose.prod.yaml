@@ -1,0 +1,39 @@
+# Jalankan:  docker compose -f compose.prod.yaml up -d --build
+#
+# Untuk server. Berbeda dengan compose.yaml: situs dibangun sekali
+# (`next build`) lalu dijalankan dengan `next start` sebagai NODE_ENV=production.
+#
+# Variabel di bawah diisi lewat shell atau berkas .env di folder ini — Compose
+# membacanya, tapi berkas itu tidak ikut masuk ke image.
+#
+# API_URL wajib alamat publik backend (mis. https://api.domain-anda/api/v1):
+# compose.prod.yaml backend hanya membuka port 8000 untuk 127.0.0.1, jadi di
+# server Linux container ini tidak bisa menjangkaunya lewat host.docker.internal.
+# SITE_URL diisi bila domain situs bukan mankotabatu.sch.id.
+#
+# Pasang di belakang HTTPS (reverse proxy seperti Caddy, Nginx, atau
+# Cloudflare): di produksi cookie login bertanda Secure, jadi browser tidak
+# menyimpannya lewat http:// biasa — kecuali di localhost, untuk mencoba.
+services:
+  web:
+    build:
+      context: .
+      target: produksi
+      # Dipakai juga saat build (lihat Dockerfile), jadi harus sama dengan
+      # nilai saat berjalan di bawah.
+      args:
+        API_URL: ${API_URL:?isi API_URL dengan alamat publik backend, mis. https://api.domain-anda/api/v1}
+        SITE_URL: ${SITE_URL:-https://mankotabatu.sch.id}
+      extra_hosts:
+        - "host.docker.internal:host-gateway"
+    ports:
+      - "3000:3000"
+    environment:
+      API_URL: ${API_URL:?isi API_URL dengan alamat publik backend, mis. https://api.domain-anda/api/v1}
+      SITE_URL: ${SITE_URL:-https://mankotabatu.sch.id}
+      # Harus sama dengan SITUS_REVALIDATE_SECRET backend. Kosong = webhook
+      # ditolak; situs tetap menyusul sendiri paling lama 60 detik.
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

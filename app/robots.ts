@@ -6,9 +6,11 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      // Portal siswa dan guru adalah area akun — jangan diindeks.
-      // Tambahkan portal berikutnya (mis. alumni) di sini saat dibuat.
-      disallow: ["/siswa", "/guru"],
+      // Portal siswa, guru, alumni, dan halaman berkas PPDB adalah area akun —
+      // jangan diindeks. Aturannya mencocokkan awalan jalur, jadi yang ditulis
+      // `/alumni/portal` dan `/ppdb/dokumen`, bukan `/alumni` atau `/ppdb`:
+      // keduanya halaman publik. Tambahkan portal berikutnya di sini saat dibuat.
+      disallow: ["/siswa", "/guru", "/alumni/portal", "/ppdb/dokumen"],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,
     host: SITE_URL,

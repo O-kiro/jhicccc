@@ -60,6 +60,37 @@ cd jhicccc && npm run dev
 **`npm run build` di backend wajib.** Tanpa itu tema Filament tidak ada dan panel
 admin tampil tanpa gaya sama sekali. Ini jebakan yang paling sering terulang.
 
+### Produksi (server)
+
+`compose.yaml` di kedua repo **khusus laptop**: APP_DEBUG menyala dan servernya
+`php artisan serve` / `next dev`. Untuk server ada `compose.prod.yaml`:
+
+```bash
+# Backend: setelan dibaca dari .env
+cd backend && cp .env.production.example .env    # lalu isi yang bertanda ISI
+docker compose -f compose.prod.yaml up -d --build
+
+# Frontend: API_URL wajib alamat publik backend
+cd jhicccc && API_URL=https://api.domain-anda/api/v1 docker compose -f compose.prod.yaml up -d --build
+```
+
+- Backend memakai FrankenPHP dengan kode dibakukan ke image, APP_DEBUG mati,
+  dan container **menolak jalan** bila APP_DEBUG dinyalakan. Portnya hanya
+  terbuka untuk 127.0.0.1 (reverse proxy); SQLite dan unggahan disimpan di
+  volume. Memperbarui versi: `git pull` lalu `up -d --build` lagi — `restart`
+  saja tidak cukup.
+- **Server yang sudah berjalan dengan versi lama** (kode di-mount, SQLite di
+  `database/`) menyalin datanya sekali sebelum `up` pertama; perintahnya ada di
+  kepala `compose.prod.yaml` backend. Akun contoh di basis data lama tetap
+  bersandi `password` — **ganti semuanya**, perbaikan seeder hanya berlaku
+  untuk basis data baru.
+- Frontend dibangun sekali lalu dijalankan `next start` (NODE_ENV=production).
+- **Wajib di belakang HTTPS** (Caddy, Nginx, atau Cloudflare): cookie login
+  bertanda Secure dan tidak disimpan browser lewat `http://` biasa, kecuali di
+  localhost. Isi `TRUSTED_PROXIES` di .env backend.
+- Variabel lain dijelaskan di kepala masing-masing `compose.prod.yaml` dan di
+  `.env.production.example` backend.
+
 ### Kredensial (data seed)
 
 | Peran | Masuk dengan | Kata sandi |
@@ -78,6 +109,11 @@ isi lewat **Data Master → Guru** di panel admin. Akun alumni dibuat lewat
 > Di mesin pemilik proyek, NISN siswa sudah diubah lewat panel admin jadi `696969`
 > dengan kata sandi yang tidak tercatat. Berkas SQLite tidak masuk Git, jadi hasil
 > clone baru selalu memakai data seed di atas.
+
+**Sandi `password` hanya berlaku di lokal dan pengujian** (`APP_ENV=local`/`testing`).
+Repo ini publik, jadi di lingkungan lain seeder memberi tiap jenis akun sandi
+acak dan mencetaknya **sekali** di akhir `db:seed`. Di produksi lihat lewat
+`docker compose -f compose.prod.yaml logs app` saat pertama kali jalan.
 
 ---
 
@@ -170,6 +206,12 @@ Admin  → tautan handoff sekali pakai   → sesi Filament   → /admin
 Orang yang punya lebih dari satu akun dengan surel serta sandi yang sama selalu
 masuk sebagai yang paling awal (admin → guru → alumni). Beri sandi berbeda bila
 perlu keduanya.
+
+**Batas laju masuk dihitung per akun yang dicoba** (NISN, NIP, surel, atau nomor
+PPDB), enam percobaan per menit. Bukan per IP: semua permintaan masuk datang
+dari server Next.js, jadi di mata Laravel IP-nya sama untuk seluruh madrasah.
+Dulu `throttle:6,1` biasa membuat enam percobaan per menit berlaku untuk semua
+orang sekaligus.
 
 Admin tidak bisa memakai token karena Filament berjalan di atas sesi, dan cookie
 sesi tidak bisa dipasang lintas origin. Jembatannya: token acak 64 karakter,
@@ -537,6 +579,12 @@ berkas. Sekarang:
   langsung terbaca calon siswa.
 - Guard kelima (`ppdb`) dengan cookie peran `ppdb`; `/ppdb` dan `/ppdb/login`
   tetap terbuka untuk umum, hanya `/ppdb/dokumen` yang dijaga.
+- **Berkas PPDB dan RDM disimpan di disk privat** (`storage/app/private`), bukan
+  `public`. Isinya data pribadi (KK, akta, nilai satu kelas), jadi tidak boleh
+  terbuka bagi siapa pun yang memegang tautannya. Dibuka lewat tautan
+  bertanda tangan yang berlaku 30 menit (`/storage/...?signature=`, trait
+  `BerkasPribadi`); lewat dari itu, muat ulang halamannya. Berkas lama
+  dipindahkan otomatis oleh migrasi.
 
 ### Daily streak dan lonceng notifikasi dihapus
 
