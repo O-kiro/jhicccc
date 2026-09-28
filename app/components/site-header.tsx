@@ -79,9 +79,6 @@ export function SiteHeader({ searchIndex }: { searchIndex: SearchItem[] }) {
   const pathname = usePathname();
   const activeSection = useActiveSection(SECTION_IDS);
 
-  // Figma: Login page has no header/footer
-  if (pathname === "/login" || pathname.startsWith("/login/") || pathname === "/ppdb/login" || pathname.startsWith("/ppdb/login/")) return null;
-
   const isActive = (label: string) => {
     const m = ACTIVE_MAP[label];
     if (!m) return false;
@@ -114,6 +111,19 @@ export function SiteHeader({ searchIndex }: { searchIndex: SearchItem[] }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
+
+
+  // Halaman masuk tidak punya header/footer (Figma). Pemeriksaannya di sini,
+  // bukan di atas: keluar lebih awal membuat useEffect di atasnya terlewat,
+  // sehingga urutan hook berubah antar-render — dilarang React.
+  if (
+    pathname === "/login" ||
+    pathname.startsWith("/login/") ||
+    pathname === "/ppdb/login" ||
+    pathname.startsWith("/ppdb/login/")
+  ) {
+    return null;
+  }
 
   return (
     <>

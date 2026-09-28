@@ -37,6 +37,9 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# Kecuali contohnya: tidak berisi nilai rahasia, dan panduan pemasangan
+# di handover.md menyuruh menyalinnya.
+!.env.production.example
 
 # vercel
 .vercel

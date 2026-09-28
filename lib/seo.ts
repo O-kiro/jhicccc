@@ -5,8 +5,10 @@
  * harus menyebut alamat yang sama. Kalau berbeda, mesin pencari menganggap satu
  * halaman yang sama ada di dua alamat.
  *
- * Bisa ditimpa lewat env `SITE_URL` saat dipasang di domain lain (pratinjau,
- * staging). Garis miring di ujung dibuang supaya penyambungan jalur tidak
- * menghasilkan `//profil`.
+ * Bawaannya domain lomba JHIC 2026. Domain resmi madrasah
+ * (mankotabatu.sch.id) sengaja tidak dipakai selama penjurian.
+ *
+ * Bisa ditimpa lewat env `SITE_URL` saat dipasang di domain lain. Garis miring
+ * di ujung dibuang supaya penyambungan jalur tidak menghasilkan `//profil`.
  */
-export const SITE_URL = (process.env.SITE_URL ?? "https://mankotabatu.sch.id").replace(/\/+$/, "");
+export const SITE_URL = (process.env.SITE_URL ?? "https://jhic26.rezasidin.my.id").replace(/\/+$/, "");

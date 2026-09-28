@@ -7,6 +7,19 @@ import type { NextConfig } from "next";
 const BACKEND = new URL(process.env.API_URL ?? "http://localhost:8000/api/v1").origin;
 
 const nextConfig: NextConfig = {
+  // Menghasilkan `.next/standalone/server.js` — server minimal buatan Next
+  // yang bisa dijalankan `node server.js` tanpa `npm install` di server.
+  // Dipakai panel hosting (Webuzo/cPanel/Plesk) yang meminta "application
+  // startup file" dan tidak bisa menjalankan `next start`.
+  //
+  // Sengaja BUKAN server.js tulisan tangan: server bawaan ini tetap
+  // menjalankan proxy.ts, sedangkan server kustom berisiko melewatinya —
+  // dan proxy.ts itu penjaga portal siswa/guru/alumni/PPDB.
+  output: "standalone",
+  // Alasannya sama dengan `turbopack.root` di bawah: ada package-lock.json
+  // nyasar di folder home, dan tanpa ini Next menebak akar ruang kerja ke
+  // sana lalu menaruh server.js di `.next/standalone/<jalur-panjang>/`.
+  outputFileTracingRoot: __dirname,
   // Gambar unggahan CMS disimpan Laravel di /storage/..., dan API
   // mengembalikannya sebagai jalur situs. Diteruskan ke backend di sini
   // supaya gambar selalu satu asal dengan situs, dan pengoptimal gambar

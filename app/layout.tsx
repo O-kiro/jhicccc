@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Lora, Plus_Jakarta_Sans } from "next/font/google";
+import { Amiri, Inter, Lora, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./components/providers";
 import { school, socials } from "@/lib/content";
@@ -21,6 +21,19 @@ const sans  = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
+});
+
+/**
+ * Aksara Arab. Dipasang sebagai cadangan di tumpukan font, bukan pengganti:
+ * huruf Latin tetap memakai font utama, sedangkan huruf Arab — yang tidak ada
+ * di Inter maupun Jakarta — jatuh ke Amiri, bukan ke font sistem yang
+ * tampilannya berbeda-beda antarperangkat.
+ */
+const arabic = Amiri({
+  subsets: ["arabic"],
+  weight: ["400", "700"],
+  display: "swap",
+  variable: "--font-amiri",
 });
 
 const serif = Lora({
@@ -106,7 +119,7 @@ export default function RootLayout({
     <html
       lang="id"
       suppressHydrationWarning
-      className={`${display.variable} ${sans.variable} ${serif.variable}`}
+      className={`${display.variable} ${sans.variable} ${serif.variable} ${arabic.variable}`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />

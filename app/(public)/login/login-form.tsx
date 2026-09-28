@@ -89,7 +89,8 @@ export default function LoginForm() {
             className="w-full rounded-xl border border-line bg-surface px-4 py-3 text-ink outline-none placeholder:text-muted focus:border-blue disabled:opacity-60"
           />
           <p className="mt-1.5 text-xs text-muted">
-            Tertera pada bukti pendaftaran dari panitia PPDB.
+            Tertera pada bukti pendaftaran dari panitia PPDB. Lupa kata sandi? Panitia dapat
+            menerbitkan sandi sementara.
           </p>
         </div>
 
@@ -98,7 +99,11 @@ export default function LoginForm() {
             <label htmlFor="login-pass" className="text-sm font-medium text-ink">
               Kata Sandi
             </label>
-            <Link href="/kontak" className="text-xs font-semibold text-blue hover:underline">
+            <Link
+              href="/kontak"
+              title="Kata sandi disetel ulang oleh panitia PPDB"
+              className="text-xs font-semibold text-blue hover:underline"
+            >
               Lupa Kata Sandi?
             </Link>
           </div>

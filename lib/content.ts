@@ -61,7 +61,8 @@ export type DigitalService = {
    * Halaman LOGIN sistem — semua tombol yang membuka sistem harus menuju ke sini;
    * jangan pernah menautkan/menampilkan isi sistem tanpa login.
    * RDM, CBT, E-Learning, dan Perpustakaan Digital memakai satu gerbang yang sama
-   * di /siswa/login (design-siswa.md §1). PPDB tetap ke sistem PPDB eksternal.
+   * di /siswa/login (design-siswa.md §1). PPDB punya gerbangnya sendiri di /login
+   * karena pendaftar belum punya akun siswa.
    */
   login?: { href: string; label: string };
   /** Detail-page content; absent for services with their own dedicated page (PPDB). */
@@ -85,7 +86,7 @@ export const digitalServices: DigitalService[] = [
     href: "/ppdb",
     icon: "ppdb",
     tone: "teal",
-    login: { href: "https://ppdb.mankotabatu.sch.id/", label: "Masuk PPDB Online" },
+    login: { href: "/login", label: "Masuk PPDB Online" },
   },
   {
     name: "RDM",
