@@ -18,14 +18,14 @@ services:
       # nilai saat berjalan di bawah.
       args:
         API_URL: ${API_URL:-http://host.docker.internal:8000/api/v1}
-        SITE_URL: ${SITE_URL:-https://mankotabatu.sch.id}
+        SITE_URL: ${SITE_URL:-https://jhic2026.rezasidin.my.id}
       extra_hosts:
         - "host.docker.internal:host-gateway"
     ports:
       - "3000:3000"
     environment:
       API_URL: ${API_URL:-http://host.docker.internal:8000/api/v1}
-      SITE_URL: ${SITE_URL:-https://mankotabatu.sch.id}
+      SITE_URL: ${SITE_URL:-https://jhic2026.rezasidin.my.id}
       # Harus sama dengan SITUS_REVALIDATE_SECRET backend. Kosong = webhook
       # ditolak; situs tetap menyusul sendiri paling lama 60 detik.
       REVALIDATE_SECRET: ${REVALIDATE_SECRET:-}

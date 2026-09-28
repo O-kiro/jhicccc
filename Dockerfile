@@ -57,7 +57,7 @@ COPY . .
 # ke routes manifest) dan SITE_URL untuk robots.txt serta sitemap.xml. Harus
 # sama dengan nilai saat berjalan — compose.prod.yaml mengisi keduanya.
 ARG API_URL=http://host.docker.internal:8000/api/v1
-ARG SITE_URL=https://mankotabatu.sch.id
+ARG SITE_URL=https://jhic2026.rezasidin.my.id
 ENV API_URL=$API_URL \
     SITE_URL=$SITE_URL \
     NEXT_TELEMETRY_DISABLED=1

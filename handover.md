@@ -78,6 +78,45 @@ cd jhicccc && docker compose -f compose.prod.yaml up -d --build
   localhost. Di belakang proxy, isi `TRUSTED_PROXIES` di backend.
 - Variabel lain dijelaskan di kepala masing-masing `compose.prod.yaml`.
 
+### Tanpa Docker: panel hosting (Webuzo, cPanel, Plesk)
+
+Panel-panel ini menjalankan aplikasi Node lewat **satu berkas `.js`**, bukan
+lewat `npm run start` — kolomnya biasanya bernama *Application startup file*.
+`next start` itu perintah, bukan berkas, jadi Next disuruh membuatkan
+berkasnya: `output: "standalone"` di `next.config.ts` menghasilkan
+`.next/standalone/server.js`.
+
+Jangan menulis `server.js` sendiri. Server bawaan ini tetap menjalankan
+`proxy.ts` — penjaga rute portal siswa/guru/alumni/PPDB. Server kustom
+berisiko melewatinya dan membuka semua portal.
+
+```bash
+cd ~/jhicccc
+cp .env.production.example .env        # lalu isi SITE_URL, API_URL, rahasia
+npm ci
+set -a; . ./.env; set +a               # env dibaca saat build, bukan cuma saat jalan
+npm run build
+cp -r public .next/standalone/
+cp -r .next/static .next/standalone/.next/
+```
+
+Lalu di panel:
+
+| Kolom | Isi |
+|---|---|
+| Application startup file | `.next/standalone/server.js` |
+| Application root | folder repo (`~/jhicccc`) |
+| Port | samakan dengan `PORT` di `.env`; server membacanya dari env |
+
+- **Dua `cp` itu wajib.** Server standalone tidak menyalin `public/` dan
+  `.next/static` sendiri — tanpanya situs terbuka tapi tanpa gambar dan CSS.
+  Keduanya harus diulang **setiap kali build**.
+- **`SITE_URL` dibaca saat build.** Nilainya tercetak permanen ke
+  `sitemap.xml`, `robots.txt`, tag kanonik, dan gambar OpenGraph; salah isi
+  berarti build ulang, bukan restart.
+- Backend Laravel tetap perlu jalan terpisah di VPS yang sama (port 8000),
+  dan `API_URL` menunjuk ke situ lewat `127.0.0.1` — tidak perlu dibuka publik.
+
 ### Kredensial (data seed)
 
 | Peran | Masuk dengan | Kata sandi |
