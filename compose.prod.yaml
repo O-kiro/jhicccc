@@ -11,9 +11,10 @@
 # server Linux container ini tidak bisa menjangkaunya lewat host.docker.internal.
 # SITE_URL diisi bila domain situs bukan mankotabatu.sch.id.
 #
-# Pasang di belakang HTTPS (reverse proxy seperti Caddy, Nginx, atau
-# Cloudflare): di produksi cookie login bertanda Secure, jadi browser tidak
-# menyimpannya lewat http:// biasa — kecuali di localhost, untuk mencoba.
+# Pasang di belakang HTTPS (reverse proxy seperti OpenLiteSpeed bawaan Webuzo,
+# Caddy, atau Nginx — lihat DEPLOY.md): di produksi cookie login bertanda
+# Secure, jadi browser tidak menyimpannya lewat http:// biasa — kecuali di
+# localhost, untuk mencoba.
 services:
   web:
     build:
@@ -27,7 +28,10 @@ services:
       extra_hosts:
         - "host.docker.internal:host-gateway"
     ports:
-      - "3000:3000"
+      # Hanya reverse proxy di server yang boleh menjangkau. Port yang dibuka
+      # Docker menembus firewall seperti UFW, jadi "3000:3000" biasa membuat
+      # situs terbuka lewat http://IP:3000 tanpa HTTPS.
+      - "127.0.0.1:3000:3000"
     environment:
       API_URL: ${API_URL:?isi API_URL dengan alamat publik backend, mis. https://api.domain-anda/api/v1}
       SITE_URL: ${SITE_URL:-https://mankotabatu.sch.id}

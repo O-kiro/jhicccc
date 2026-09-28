@@ -85,9 +85,11 @@ cd jhicccc && API_URL=https://api.domain-anda/api/v1 docker compose -f compose.p
   bersandi `password` — **ganti semuanya**, perbaikan seeder hanya berlaku
   untuk basis data baru.
 - Frontend dibangun sekali lalu dijalankan `next start` (NODE_ENV=production).
-- **Wajib di belakang HTTPS** (Caddy, Nginx, atau Cloudflare): cookie login
-  bertanda Secure dan tidak disimpan browser lewat `http://` biasa, kecuali di
-  localhost. Isi `TRUSTED_PROXIES` di .env backend.
+- **Wajib di belakang HTTPS** (OpenLiteSpeed bawaan Webuzo, Caddy, atau Nginx):
+  cookie login bertanda Secure dan tidak disimpan browser lewat `http://` biasa,
+  kecuali di localhost. Isi `TRUSTED_PROXIES` di .env backend.
+- **Langkah lengkap untuk VPS Jagoan Hosting + Webuzo ada di `DEPLOY.md`**:
+  DNS, Docker, domain dan SSL di Webuzo, serta proxy OpenLiteSpeed.
 - Variabel lain dijelaskan di kepala masing-masing `compose.prod.yaml` dan di
   `.env.production.example` backend.
 
@@ -125,7 +127,7 @@ acak dan mencetaknya **sekali** di akhir `db:seed`. Di produksi lihat lewat
 Sanctum 4.3 · Blade · Pint · PHPUnit 12.5
 Aset: Vite 8.3 + Tailwind 4.3 (khusus tema admin)
 
-**Frontend:** Next.js 16.2.9 (App Router) · React 19.2.4 · Motion 12.41 ·
+**Frontend:** Next.js 16.3.6 (App Router) · React 19.2.4 · Motion 12.41 ·
 Tailwind 4.3 · TypeScript 5.9
 
 **Database:** SQLite, berkas tunggal `database/database.sqlite`, 21 tabel.
