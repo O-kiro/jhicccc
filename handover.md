@@ -103,7 +103,7 @@ Yang wajib diperiksa sebelum dibuka ke publik:
 | `APP_KEY` | terisi (`php artisan key:generate`) |
 | `APP_URL`, `FRONTEND_URLS` | alamat publik sungguhan; `FRONTEND_URLS` salah berarti portal ditolak CORS |
 | `SITUS_REVALIDATE_SECRET` = `REVALIDATE_SECRET` | nilai acak yang sama di kedua repo, **bukan** nilai dari `compose.yaml` |
-| `SITE_URL` | `https://jhic2026.rezasidin.my.id` (bawaan) — ikut ke sitemap, robots, dan OpenGraph |
+| `SITE_URL` | `https://jhic26.rezasidin.my.id` (bawaan) — ikut ke sitemap, robots, dan OpenGraph |
 | `SESSION_SECURE_COOKIE` | `true`, dan situs disajikan lewat HTTPS |
 
 Yang harus ikut dicadangkan: `backend/database/database.sqlite` (seluruh data)
@@ -647,7 +647,7 @@ berkas. Sekarang:
 
 ### Perapian menjelang lomba
 
-- **Domain lomba `jhic2026.rezasidin.my.id`.** `lib/seo.ts` memakai itu sebagai
+- **Domain lomba `jhic26.rezasidin.my.id`.** `lib/seo.ts` memakai itu sebagai
   alamat kanonik — ikut ke `metadataBase`, JSON-LD, `robots.txt`, `sitemap.xml`,
   dan gambar OpenGraph. Domain resmi madrasah sengaja tidak dipakai selama
   penjurian; timpa lewat env `SITE_URL` bila nanti pindah.

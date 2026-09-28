@@ -6,8 +6,8 @@ pintu depan yang memegang domain dan sertifikat HTTPS.
 
 ```
 Internet ──https──► OpenLiteSpeed (Webuzo, port 80/443, Let's Encrypt)
-                      ├─ jhic2026.rezasidin.my.id     ──► 127.0.0.1:3000  container frontend (next start)
-                      └─ api.jhic2026.rezasidin.my.id ──► 127.0.0.1:8000  container backend (FrankenPHP)
+                      ├─ jhic26.rezasidin.my.id     ──► 127.0.0.1:3000  container frontend (next start)
+                      └─ api.jhic26.rezasidin.my.id ──► 127.0.0.1:8000  container backend (FrankenPHP)
 ```
 
 Frontend memanggil backend lewat alamat publiknya (`https://api.jhic2026...`),
@@ -49,8 +49,8 @@ Kalau nameserver domain diarahkan ke VPS, tambahkan record yang sama di editor
 DNS Webuzo. Tunggu sampai keduanya menjawab IP VPS:
 
 ```bash
-nslookup jhic2026.rezasidin.my.id
-nslookup api.jhic2026.rezasidin.my.id
+nslookup jhic26.rezasidin.my.id
+nslookup api.jhic26.rezasidin.my.id
 ```
 
 ## 2. Siapkan VPS
@@ -120,8 +120,8 @@ git clone https://github.com/O-kiro/jhicccc.git frontend
 cd frontend
 
 cat > .env <<'EOF'
-API_URL=https://api.jhic2026.rezasidin.my.id/api/v1
-SITE_URL=https://jhic2026.rezasidin.my.id
+API_URL=https://api.jhic26.rezasidin.my.id/api/v1
+SITE_URL=https://jhic26.rezasidin.my.id
 REVALIDATE_SECRET=isi-sama-dengan-SITUS_REVALIDATE_SECRET-backend
 EOF
 
@@ -137,7 +137,7 @@ dijangkau.
 
 Di panel pengguna Webuzo (biasanya `https://IP-VPS:2003`):
 
-1. **Tambah domain** `jhic2026.rezasidin.my.id` dan `api.jhic2026.rezasidin.my.id`
+1. **Tambah domain** `jhic26.rezasidin.my.id` dan `api.jhic26.rezasidin.my.id`
    (sebagai subdomain dari `rezasidin.my.id` atau addon domain; nama menunya
    bisa sedikit berbeda).
 2. **Pasang sertifikat Let's Encrypt** untuk keduanya. DNS di langkah 1 harus
@@ -156,7 +156,7 @@ membangun ulang konfigurasi.
 mkdir -p /var/webuzo-data/openlitespeed/custom/domains
 cd /var/webuzo-data/openlitespeed/custom/domains
 
-cat > jhic2026.rezasidin.my.id.conf <<'EOF'
+cat > jhic26.rezasidin.my.id.conf <<'EOF'
 extprocessor makoba_frontend {
   type                    proxy
   address                 127.0.0.1:3000
@@ -180,7 +180,7 @@ context / {
 EOF
 
 sed -e 's/makoba_frontend/makoba_backend/g' -e 's/127.0.0.1:3000/127.0.0.1:8000/' \
-  jhic2026.rezasidin.my.id.conf > api.jhic2026.rezasidin.my.id.conf
+  jhic26.rezasidin.my.id.conf > api.jhic26.rezasidin.my.id.conf
 ```
 
 Mulai ulang OpenLiteSpeed dari panel admin Webuzo (Services), atau lewat SSH:
@@ -193,10 +193,10 @@ systemctl restart lsws
 ## 7. Periksa
 
 ```bash
-curl -sI http://jhic2026.rezasidin.my.id | head -1                              # 301
-curl -s -o /dev/null -w "%{http_code}\n" https://jhic2026.rezasidin.my.id/      # 200
-curl -s -o /dev/null -w "%{http_code}\n" https://api.jhic2026.rezasidin.my.id/up  # 200
-curl -sI https://jhic2026.rezasidin.my.id/siswa | grep -i location              # /masuk?next=%2Fsiswa
+curl -sI http://jhic26.rezasidin.my.id | head -1                              # 301
+curl -s -o /dev/null -w "%{http_code}\n" https://jhic26.rezasidin.my.id/      # 200
+curl -s -o /dev/null -w "%{http_code}\n" https://api.jhic26.rezasidin.my.id/up  # 200
+curl -sI https://jhic26.rezasidin.my.id/siswa | grep -i location              # /masuk?next=%2Fsiswa
 ```
 
 Dari laptop, `http://IP-VPS:3000` dan `http://IP-VPS:8000` harus **tidak** bisa
@@ -204,9 +204,9 @@ dibuka.
 
 Lalu di browser:
 
-1. Buka `https://api.jhic2026.rezasidin.my.id/admin`, masuk sebagai Admin Utama
+1. Buka `https://api.jhic26.rezasidin.my.id/admin`, masuk sebagai Admin Utama
    dengan sandi dari langkah 3, dan **ganti sandinya**.
-2. Buka `https://jhic2026.rezasidin.my.id/masuk` dan coba akun siswa, guru, dan
+2. Buka `https://jhic26.rezasidin.my.id/masuk` dan coba akun siswa, guru, dan
    alumni. Ganti sandi akun contoh lewat panel (Setel Ulang Sandi) bila akan
    dipakai juri.
 

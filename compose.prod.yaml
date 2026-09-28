@@ -26,7 +26,7 @@ services:
       # nilai saat berjalan di bawah.
       args:
         API_URL: ${API_URL:?isi API_URL dengan alamat publik backend, mis. https://api.domain-anda/api/v1}
-        SITE_URL: ${SITE_URL:-https://jhic2026.rezasidin.my.id}
+        SITE_URL: ${SITE_URL:-https://jhic26.rezasidin.my.id}
       extra_hosts:
         - "host.docker.internal:host-gateway"
     # Diikat ke localhost saja: di VPS, "3000:3000" membuka server Next
@@ -38,7 +38,7 @@ services:
       - "127.0.0.1:3000:3000"
     environment:
       API_URL: ${API_URL:?isi API_URL dengan alamat publik backend, mis. https://api.domain-anda/api/v1}
-      SITE_URL: ${SITE_URL:-https://jhic2026.rezasidin.my.id}
+      SITE_URL: ${SITE_URL:-https://jhic26.rezasidin.my.id}
       # Harus sama dengan SITUS_REVALIDATE_SECRET backend. Kosong = webhook
       # ditolak; situs tetap menyusul sendiri paling lama 60 detik.
       REVALIDATE_SECRET: ${REVALIDATE_SECRET:-}

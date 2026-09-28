@@ -11,4 +11,4 @@
  * Bisa ditimpa lewat env `SITE_URL` saat dipasang di domain lain. Garis miring
  * di ujung dibuang supaya penyambungan jalur tidak menghasilkan `//profil`.
  */
-export const SITE_URL = (process.env.SITE_URL ?? "https://jhic2026.rezasidin.my.id").replace(/\/+$/, "");
+export const SITE_URL = (process.env.SITE_URL ?? "https://jhic26.rezasidin.my.id").replace(/\/+$/, "");
