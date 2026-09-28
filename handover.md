@@ -68,20 +68,32 @@ halaman dibangun dulu (`next build`) alih-alih dikompilasi tiap permintaan,
 setelan dibaca dari `.env`, dan container hidup ulang sendiri setelah reboot.
 
 ```bash
-# Backend
-cp .env.production.example .env          # lalu isi yang bertanda ISI
-docker compose -f compose.prod.yaml run --rm app php artisan key:generate
+# Backend: setelan dibaca dari .env
+cd backend && cp .env.production.example .env    # lalu isi yang bertanda ISI
 docker compose -f compose.prod.yaml up -d --build
 
-# Frontend
-cp .env.production.example .env          # SITE_URL, API_URL, REVALIDATE_SECRET
-docker compose -f compose.prod.yaml up -d --build
+# Frontend: API_URL wajib alamat publik backend
+cd jhicccc && API_URL=https://api.domain-anda/api/v1 docker compose -f compose.prod.yaml up -d --build
 ```
 
-- Backend memakai FrankenPHP, APP_DEBUG mati, dan container **menolak jalan**
-  bila APP_DEBUG dinyalakan. APP_KEY, SQLite, dan unggahan disimpan di volume.
-- Frontend dibangun sekali di dalam image (`target: produksi`) lalu dijalankan
-  `next start` sebagai NODE_ENV=production.
+- Backend memakai FrankenPHP dengan kode dibakukan ke image, APP_DEBUG mati,
+  dan container **menolak jalan** bila APP_DEBUG dinyalakan. Portnya hanya
+  terbuka untuk 127.0.0.1 (reverse proxy); SQLite dan unggahan disimpan di
+  volume. Memperbarui versi: `git pull` lalu `up -d --build` lagi — `restart`
+  saja tidak cukup.
+- **Server yang sudah berjalan dengan versi lama** (kode di-mount, SQLite di
+  `database/`) menyalin datanya sekali sebelum `up` pertama; perintahnya ada di
+  kepala `compose.prod.yaml` backend. Akun contoh di basis data lama tetap
+  bersandi `password` — **ganti semuanya**, perbaikan seeder hanya berlaku
+  untuk basis data baru.
+- Frontend dibangun sekali lalu dijalankan `next start` (NODE_ENV=production).
+- **Wajib di belakang HTTPS** (OpenLiteSpeed bawaan Webuzo, Caddy, atau Nginx):
+  cookie login bertanda Secure dan tidak disimpan browser lewat `http://` biasa,
+  kecuali di localhost. Isi `TRUSTED_PROXIES` di .env backend.
+- **Langkah lengkap untuk VPS Jagoan Hosting + Webuzo ada di `DEPLOY.md`**:
+  DNS, Docker, domain dan SSL di Webuzo, serta proxy OpenLiteSpeed.
+- Variabel lain dijelaskan di kepala masing-masing `compose.prod.yaml` dan di
+  `.env.production.example` backend.
 
 Yang wajib diperiksa sebelum dibuka ke publik:
 
@@ -93,12 +105,6 @@ Yang wajib diperiksa sebelum dibuka ke publik:
 | `SITUS_REVALIDATE_SECRET` = `REVALIDATE_SECRET` | nilai acak yang sama di kedua repo, **bukan** nilai dari `compose.yaml` |
 | `SITE_URL` | `https://jhic2026.rezasidin.my.id` (bawaan) — ikut ke sitemap, robots, dan OpenGraph |
 | `SESSION_SECURE_COOKIE` | `true`, dan situs disajikan lewat HTTPS |
-
-Kedua container hanya mendengarkan di `127.0.0.1`, jadi harus ada reverse
-proxy (Caddy atau Nginx) yang mengurus TLS dan meneruskan
-`jhic2026.rezasidin.my.id` → port 3000 serta alamat backend → port 8000.
-`php artisan serve` dan `next start` tidak dimaksudkan menghadap internet
-langsung. Di belakang proxy, isi `TRUSTED_PROXIES` di backend.
 
 Yang harus ikut dicadangkan: `backend/database/database.sqlite` (seluruh data)
 dan `backend/storage/app/public` (gambar CMS, bukti foto, berkas RDM dan PPDB).
@@ -178,7 +184,7 @@ acak dan mencetaknya **sekali** di akhir `db:seed`. Di produksi lihat lewat
 Sanctum 4.3 · Blade · Pint · PHPUnit 12.5
 Aset: Vite 8.3 + Tailwind 4.3 (khusus tema admin)
 
-**Frontend:** Next.js 16.2.9 (App Router) · React 19.2.4 · Motion 12.41 ·
+**Frontend:** Next.js 16.3.6 (App Router) · React 19.2.4 · Motion 12.41 ·
 Tailwind 4.3 · TypeScript 5.9
 
 **Database:** SQLite, berkas tunggal `database/database.sqlite`, 21 tabel.
