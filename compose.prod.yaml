@@ -21,8 +21,10 @@ services:
         SITE_URL: ${SITE_URL:-https://jhic2026.rezasidin.my.id}
       extra_hosts:
         - "host.docker.internal:host-gateway"
+    # Diikat ke localhost saja: di VPS, "3000:3000" membuka server Next
+    # langsung ke internet dan melewati reverse proxy beserta TLS-nya.
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     environment:
       API_URL: ${API_URL:-http://host.docker.internal:8000/api/v1}
       SITE_URL: ${SITE_URL:-https://jhic2026.rezasidin.my.id}

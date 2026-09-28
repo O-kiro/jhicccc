@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView, useReducedMotion } from "motion/react";
+import Link from "next/link";
 import { Icon } from "./icons";
 import { Badge, Container, SectionHeading } from "./ui";
 import { Reveal } from "./reveal";
@@ -206,10 +207,10 @@ export function Achievements({ achievements }: { achievements: Site["achievement
               <h3 className="font-display text-xl font-bold text-on-dark">Prestasi MAN Kota Batu</h3>
               <p className="mt-1 text-sm text-on-dark/70">Prestasi membanggakan dari para siswa dan siswi.</p>
             </div>
-            <a href="/#prestasi" className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-surface px-6 py-3 text-sm font-semibold text-blue shadow-card transition-all hover:-translate-y-0.5">
+            <Link href="/#prestasi" className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-surface px-6 py-3 text-sm font-semibold text-blue shadow-card transition-all hover:-translate-y-0.5">
               Lihat Semua Prestasi
               <Icon name="arrow" className="h-4 w-4" />
-            </a>
+            </Link>
           </div>
         </Reveal>
       </Container>

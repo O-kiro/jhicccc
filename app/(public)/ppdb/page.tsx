@@ -38,18 +38,16 @@ export default function PpdbPage() {
                 Segera daftar sebelum pendaftaran ditutup
               </h2>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <Button href="https://ppdb.mankotabatu.sch.id/" external variant="light">
-                  Daftar Sekarang
+                <Button href="/login" variant="light" icon={false}>
+                  Masuk & Unggah Berkas
                 </Button>
-                <Button href="/login" variant="outlineDark" icon={false}>Masuk Penyerahan</Button>
-              </div>
-              <div className="mt-3 flex flex-col gap-3 sm:flex-row">
-                <Button href="/ppdb/dokumen" variant="outlineDark" icon={false}>Lihat Dokumen</Button>
-                <Button href="/kontak" variant="outlineDark" icon={false}>Tanya Panitia</Button>
+                <Button href="/kontak" variant="outlineDark" icon={false}>
+                  Minta Nomor Pendaftaran
+                </Button>
               </div>
               <p className="mt-4 flex items-center gap-2 text-sm text-on-dark/70">
                 <Icon name="shield" className="h-4 w-4 shrink-0 text-gold" />
-                Pendaftaran dilakukan melalui portal PPDB resmi madrasah.
+                Nomor pendaftaran dan kata sandi diterbitkan panitia PPDB madrasah.
               </p>
             </div>
             <Countdown deadlineISO={ppdbInfo.deadlineISO} />
@@ -123,14 +121,11 @@ export default function PpdbPage() {
                     ))}
                   </ul>
                   <div className="mt-8 grid gap-3">
-                    <Button href="https://ppdb.mankotabatu.sch.id/" external className="w-full">
-                      Daftar via PPDB Online
-                    </Button>
-                    <Button href="/login" variant="outline" className="w-full" icon={false}>
+                    <Button href="/login" className="w-full" icon={false}>
                       Masuk ke Penyerahan Dokumen
                     </Button>
                     <Button href="/kontak" variant="outline" className="w-full" icon={false}>
-                      Hubungi Panitia
+                      Minta Nomor Pendaftaran
                     </Button>
                   </div>
                 </div>

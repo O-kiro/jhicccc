@@ -67,7 +67,7 @@ export default function Image() {
         {/* Footer row */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ fontSize: 26, color: "#201f1d" }}>Maju, Bermutu, dan Mendunia</div>
-          <div style={{ display: "flex", fontSize: 22, color: "#6c6a61" }}>mankotabatu.sch.id</div>
+          <div style={{ display: "flex", fontSize: 22, color: "#6c6a61" }}>jhic2026.rezasidin.my.id</div>
         </div>
       </div>
     ),
