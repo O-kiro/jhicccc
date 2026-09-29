@@ -38,6 +38,13 @@ const nextConfig: NextConfig = {
   },
   // Allow the dev server to be reached from this LAN address (phone/tablet testing).
   allowedDevOrigins: ["172.16.5.116"],
+  // Hanya berlaku bila NEXT_BUILD_CPUS diisi (Dockerfile mengisinya saat
+  // membangun di server). Dibiarkan kosong di laptop supaya build lokal tetap
+  // memakai semua inti. Bawaan Next adalah jumlah CPU dikurangi satu, yang di
+  // VPS kecil menghabiskan memori sebelum build selesai.
+  ...(process.env.NEXT_BUILD_CPUS
+    ? { experimental: { cpus: Number(process.env.NEXT_BUILD_CPUS) } }
+    : {}),
 };
 
 export default nextConfig;

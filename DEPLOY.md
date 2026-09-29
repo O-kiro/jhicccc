@@ -10,7 +10,7 @@ Internet ──https──► OpenLiteSpeed (Webuzo, port 80/443, Let's Encrypt)
                       └─ api.jhic26.rezasidin.my.id ──► 127.0.0.1:8000  container backend (FrankenPHP)
 ```
 
-Frontend memanggil backend lewat alamat publiknya (`https://api.jhic2026...`),
+Frontend memanggil backend lewat alamat publiknya (`https://api.jhic26...`),
 dan backend memanggil webhook frontend lewat alamat publik juga. Kedua port
 aplikasi hanya terbuka untuk 127.0.0.1, jadi tidak bisa dibuka langsung dari
 luar tanpa HTTPS.
@@ -42,8 +42,8 @@ dua record (bukan *domain forwarding*):
 
 | Tipe | Nama | Nilai |
 |---|---|---|
-| A | `jhic2026` | IP VPS |
-| A | `api.jhic2026` | IP VPS |
+| A | `jhic26` | IP VPS |
+| A | `api.jhic26` | IP VPS |
 
 Kalau nameserver domain diarahkan ke VPS, tambahkan record yang sama di editor
 DNS Webuzo. Tunggu sampai keduanya menjawab IP VPS:
@@ -53,9 +53,26 @@ nslookup jhic26.rezasidin.my.id
 nslookup api.jhic26.rezasidin.my.id
 ```
 
+**Record DNS saja belum cukup kalau VPS berada di belakang NAT penyedia.** Pada
+paket Jagoan Hosting yang memakai IP bersama, ada tabel *Domain Forwarding*
+terpisah, dan **tiap hostname beserta portnya harus didaftarkan di situ** —
+kalau tidak, domain menjawab DNS dengan benar tapi tidak pernah sampai ke VPS:
+
+| Hostname | Source port | Destination port | Protocol |
+|---|---|---|---|
+| `jhic26.rezasidin.my.id` | 80 | 80 | HTTP |
+| `jhic26.rezasidin.my.id` | 443 | 443 | HTTPS |
+| `api.jhic26.rezasidin.my.id` | 80 | 80 | HTTP |
+| `api.jhic26.rezasidin.my.id` | 443 | 443 | HTTPS |
+
+Tabel yang sama biasanya memperlihatkan **port SSH sebenarnya** — sering bukan
+22, melainkan port tinggi yang diteruskan ke 22. Periksa di situ sebelum
+menyimpulkan SSH-nya mati.
+
 ## 2. Siapkan VPS
 
-Masuk lewat `ssh root@IP-VPS`, lalu:
+Masuk lewat SSH (sesuaikan portnya dengan tabel forwarding di langkah 1 —
+`ssh -p <port> root@IP-VPS`), lalu:
 
 ```bash
 # Port 3000 dan 8000 harus kosong.
@@ -105,11 +122,21 @@ nano .env                     # isi yang bertanda ISI; APP_KEY boleh kosong
 docker compose -f compose.prod.yaml up -d --build
 ```
 
-Saat pertama jalan, sandi acak akun contoh dicetak **sekali**. Catat sekarang:
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8000/up    # 200
+```
+
+> **Seluruh akun contoh bersandi `password`.** Seeder menulisnya apa adanya,
+> tanpa memeriksa `APP_ENV` — jadi di server pun nilainya sama, untuk admin,
+> siswa, guru, alumni, dan pendaftar PPDB. **Ganti sandi Admin Utama sebelum
+> domain dibuka ke publik**, lalu sandi akun lain lewat aksi "Setel Ulang
+> Sandi" di panel.
+
+Pastikan `APP_KEY` benar-benar terisi — tanpa itu panel admin tidak bisa
+login, dan galatnya baru muncul saat mencoba masuk:
 
 ```bash
-docker compose -f compose.prod.yaml logs app | grep -A9 "Sandi akun contoh"
-curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8000/up    # 200
+docker compose -f compose.prod.yaml exec app php -r '$k=getenv("APP_KEY"); echo strlen(base64_decode(substr($k,7))), PHP_EOL;'   # harus 32
 ```
 
 ## 4. Frontend
@@ -233,9 +260,14 @@ docker compose -f compose.prod.yaml cp app:/app/storage/app ./cadangan-unggahan-
 |---|---|
 | Domain menjawab 502/503 | Container belum jalan: `docker compose -f compose.prod.yaml ps` lalu `logs`. |
 | Container backend langsung berhenti, log menyebut APP_DEBUG | `APP_DEBUG` di `.env` backend harus `false`. |
-| Panel admin tanpa gaya, browser memblokir *mixed content* | `TRUSTED_PROXIES=*` belum ada di `.env` backend. Isi, lalu `up -d`. |
+| Panel admin tanpa gaya, browser memblokir *mixed content* | Laravel tidak memercayai reverse proxy, jadi aset ditautkan dengan `http://`. Perlu `trustProxies` di `bootstrap/app.php` backend — mengisi `TRUSTED_PROXIES` di `.env` **tidak berpengaruh**, tidak ada kode yang membacanya. |
 | Login berhasil tapi langsung keluar lagi | Situs dibuka lewat `http://`. Nyalakan paksa HTTPS (langkah 5). |
+| Panel admin menolak login, atau galat menyebut *encryption key* | `APP_KEY` kosong atau salah panjang. Lihat pemeriksaan di langkah 3. |
+| Mengubah `.env` tidak berpengaruh | `docker compose restart` **tidak** membaca ulang `env_file`. Pakai `up -d` supaya container dibuat ulang. |
+| Nilai `.env` terbaca berikut komentarnya | `env_file` Compose menelan `# komentar` di belakang nilai sebagai bagian dari nilai. Taruh komentar di baris sendiri. |
 | Build berhenti dengan `Killed` | RAM habis. Tambah swap. |
+| Build panic `OS can't spawn worker thread` (os error 11) | Terlalu banyak worker untuk RAM yang ada — bukan batas jumlah proses. Turunkan `NEXT_BUILD_CPUS` (bawaan 2) saat membangun frontend. |
 | Build gagal mengunduh paket | Firewall CSF memotong jaringan Docker (lihat langkah 2). |
 | Isi situs baru berubah setelah ±1 menit | `REVALIDATE_SECRET` frontend tidak sama dengan `SITUS_REVALIDATE_SECRET` backend. |
 | Sertifikat gagal diperbarui | Blok `/.well-known/acme-challenge/` di berkas langkah 6 hilang. |
+| Domain tidak bisa dibuka walau DNS sudah benar | VPS di belakang NAT/port forwarding penyedia. Tiap hostname dan port harus didaftarkan di panel penyedia — lihat langkah 1. |

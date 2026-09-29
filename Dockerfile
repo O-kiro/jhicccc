@@ -57,9 +57,27 @@ COPY . .
 # ke routes manifest) dan SITE_URL untuk robots.txt serta sitemap.xml. Harus
 # sama dengan nilai saat berjalan — compose.prod.yaml mengisi keduanya.
 ARG API_URL=http://host.docker.internal:8000/api/v1
-ARG SITE_URL=https://jhic2026.rezasidin.my.id
+ARG SITE_URL=https://jhic26.rezasidin.my.id
+
+# Jumlah worker saat membangun. Bawaan Next adalah jumlah CPU dikurangi satu,
+# dan itu mencelakakan VPS kecil: 8 vCPU dengan RAM 4 GB berarti tujuh proses
+# Node sekaligus, masing-masing ratusan MB. Yang muncul bukan pesan "kehabisan
+# memori" yang jelas, melainkan panic dari Turbopack:
+#
+#   OS can't spawn worker thread: Resource temporarily unavailable (os error 11)
+#
+# EAGAIN itu datang dari gagalnya alokasi stack thread, bukan dari batas
+# jumlah proses — plafon prosesnya sendiri masih longgar.
+#
+# TOKIO_WORKER_THREADS mengurus kolam thread Rust milik Turbopack, sedangkan
+# NEXT_BUILD_CPUS dibaca next.config.ts untuk worker pembuat halaman statis.
+# Keduanya perlu: yang satu tidak membatasi yang lain.
+ARG NEXT_BUILD_CPUS=2
+
 ENV API_URL=$API_URL \
     SITE_URL=$SITE_URL \
+    NEXT_BUILD_CPUS=$NEXT_BUILD_CPUS \
+    TOKIO_WORKER_THREADS=$NEXT_BUILD_CPUS \
     NEXT_TELEMETRY_DISABLED=1
 
 RUN npm run build && npm prune --omit=dev
