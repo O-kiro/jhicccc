@@ -29,9 +29,16 @@ Versi Node.js di Webuzo tidak berpengaruh: Node dan PHP ada di dalam container.
 
 ## 0. Sebelum mulai (di laptop)
 
-- **Backend**: patch keamanan (`keamanan-backend-v2.patch`) sudah dipasang dan
-  di-push ke `main` di GitHub. Tanpa itu `.env.production.example` dan
-  `compose.prod.yaml` di server masih versi lama.
+- **Backend**: patch keamanan (`keamanan-backend-v3.patch`) sudah dipasang dan
+  di-push ke `main` di GitHub. Tanpa itu semua akun contoh di server — termasuk
+  Admin Utama — bersandi `password`, berkas PPDB bisa diunduh siapa saja, dan
+  `compose.prod.yaml` masih versi lama. Nama cabang atau PR tidak menjamin
+  isinya, jadi periksa dari folder backend:
+
+  ```bash
+  git fetch origin && git grep -q SandiContoh origin/main -- database/seeders/PortalSeeder.php \
+    && echo "patch keamanan sudah di main" || echo "BELUM — jangan deploy dulu"
+  ```
 - **Frontend**: cabang kerja sudah di-merge ke `main` (berkas ini ikut di
   dalamnya).
 
