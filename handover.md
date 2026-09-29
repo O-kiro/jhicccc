@@ -169,10 +169,18 @@ isi lewat **Data Master → Guru** di panel admin. Akun alumni dibuat lewat
 > dengan kata sandi yang tidak tercatat. Berkas SQLite tidak masuk Git, jadi hasil
 > clone baru selalu memakai data seed di atas.
 
-**Sandi `password` hanya berlaku di lokal dan pengujian** (`APP_ENV=local`/`testing`).
-Repo ini publik, jadi di lingkungan lain seeder memberi tiap jenis akun sandi
-acak dan mencetaknya **sekali** di akhir `db:seed`. Di produksi lihat lewat
-`docker compose -f compose.prod.yaml logs app` saat pertama kali jalan.
+> ⚠️ **Sandi `password` berlaku juga di produksi.** Seeder menulisnya apa
+> adanya — tidak ada pemeriksaan `APP_ENV` di `DatabaseSeeder` maupun di lima
+> seeder yang dipanggilnya, dan satu-satunya `Str::random` dipakai untuk akun
+> guru placeholder yang memang dinonaktifkan. Repo ini publik, jadi begitu
+> situs bisa diakses, siapa pun yang membaca tabel di atas bisa masuk.
+>
+> **Ganti sandi Admin Utama sebelum domain dibuka**, lalu akun lain lewat aksi
+> "Setel Ulang Sandi" di panel.
+>
+> (Dokumen ini sempat mengklaim sebaliknya — bahwa di produksi sandinya acak
+> dan dicetak sekali. Itu tidak pernah benar; klaimnya dikoreksi setelah
+> diperiksa langsung ke kode seeder.)
 
 ---
 
