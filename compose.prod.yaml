@@ -45,3 +45,19 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped
+    # Jaringan bersama dengan backend. Tanpa ini, satu-satunya cara memanggil
+    # backend adalah lewat alamat publiknya — dan di VPS ber-NAT itu gagal:
+    # container harus keluar ke IP publik lalu berbalik masuk lagi (hairpin
+    # NAT), yang tidak didukung penyedia. Gejalanya menyesatkan, "fetch
+    # failed" dari dalam container padahal alamat yang sama normal dari luar.
+    #
+    # Dibuat sekali sebelum `up`:  docker network create makoba
+    networks:
+      default:
+      makoba:
+        aliases:
+          - frontend
+
+networks:
+  makoba:
+    external: true
