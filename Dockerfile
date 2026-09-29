@@ -21,9 +21,18 @@ RUN <<'SH' cat > /usr/local/bin/entrypoint
 set -e
 cd /app
 
-if [ ! -d node_modules ] || [ -z "$(ls -A node_modules 2>/dev/null)" ]; then
-    echo "→ memasang dependensi Node"
+# node_modules adalah volume Docker yang bertahan antar `up`, bahkan setelah
+# `--build`. Dulu dependensi hanya dipasang saat volume masih kosong, jadi
+# versi pertama dipakai selamanya: package-lock.json sudah Next 16.3.6, tapi
+# container tetap menjalankan 16.2.9. Sekarang salinan lockfile disimpan
+# setelah `npm ci` berhasil, dan pemasangan diulang begitu isinya berbeda.
+# (`npm ci` mengosongkan isi node_modules tanpa menghapus foldernya, jadi aman
+# untuk titik mount.)
+stempel=node_modules/.lockfile-terpasang
+if ! cmp -s package-lock.json "$stempel"; then
+    echo "→ memasang dependensi Node (package-lock.json baru atau berubah)"
     npm ci
+    cp package-lock.json "$stempel"
 fi
 
 echo "→ siap di http://localhost:3000"

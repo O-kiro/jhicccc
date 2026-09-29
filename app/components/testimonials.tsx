@@ -24,11 +24,17 @@ export function Testimonials({ testimonials }: { testimonials: Site["testimonial
   }, [n]);
 
   useEffect(() => {
-    // Don't auto-advance when the user prefers reduced motion or is reading/interacting.
-    if (reduce || engaged) return;
+    // Don't auto-advance when the user prefers reduced motion or is reading/interacting,
+    // or when there is nothing to advance to.
+    if (reduce || engaged || n < 2) return;
     const id = setInterval(() => paginate(1), 7000);
     return () => clearInterval(id);
-  }, [paginate, reduce, engaged]);
+  }, [paginate, reduce, engaged, n]);
+
+  // Daftar dari CMS bisa kosong (semua testimoni dihapus dari panel). Karosel
+  // tanpa isi tidak bermakna, jadi bagiannya disembunyikan — bukan beranda
+  // yang gagal dirender karena `t` tidak ada.
+  if (n === 0) return null;
 
   const t = testimonials[index];
 
