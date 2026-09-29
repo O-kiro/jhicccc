@@ -69,15 +69,27 @@ ARG SITE_URL=https://jhic26.rezasidin.my.id
 # EAGAIN itu datang dari gagalnya alokasi stack thread, bukan dari batas
 # jumlah proses — plafon prosesnya sendiri masih longgar.
 #
-# TOKIO_WORKER_THREADS mengurus kolam thread Rust milik Turbopack, sedangkan
-# NEXT_BUILD_CPUS dibaca next.config.ts untuk worker pembuat halaman statis.
-# Keduanya perlu: yang satu tidak membatasi yang lain.
+# Tiga kolam thread yang berbeda, dan tak satu pun membatasi yang lain:
+#
+#   TOKIO_WORKER_THREADS  kolam Rust milik Turbopack
+#   NEXT_BUILD_CPUS       worker pembuat halaman statis (dibaca next.config.ts)
+#   VIPS_*                libvips, dipakai saat membuat gambar OpenGraph
+#
+# Yang ketiga paling mudah terlewat: gejalanya bukan kehabisan memori,
+# melainkan build berhenti di satu halaman saja —
+#
+#   Error occurred prerendering page "/opengraph-image"
+#   glib: Error creating thread: Resource temporarily unavailable
+#
+# padahal 39 halaman sebelumnya mulus.
 ARG NEXT_BUILD_CPUS=2
 
 ENV API_URL=$API_URL \
     SITE_URL=$SITE_URL \
     NEXT_BUILD_CPUS=$NEXT_BUILD_CPUS \
     TOKIO_WORKER_THREADS=$NEXT_BUILD_CPUS \
+    VIPS_CONCURRENCY=$NEXT_BUILD_CPUS \
+    VIPS_MAX_THREADS=$NEXT_BUILD_CPUS \
     NEXT_TELEMETRY_DISABLED=1
 
 RUN npm run build && npm prune --omit=dev
