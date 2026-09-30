@@ -2,10 +2,8 @@
 
 import { Icon } from "./icons";
 import { Button, Container, PhotoTile, SectionHeading } from "./ui";
-import { GeoTexture } from "./ornaments";
-import { Reveal, StaggerGroup, StaggerItem } from "./reveal";
-import { Counter } from "./counter";
-import { school, stats } from "@/lib/content";
+import { Reveal } from "./reveal";
+import { school } from "@/lib/content";
 
 const highlights = [
   "Madrasah Penyelenggara Riset resmi",
@@ -13,6 +11,11 @@ const highlights = [
   "Lingkungan Islami yang modern & bermutu",
 ];
 
+/**
+ * Tentang MAKOBA. Revisi Figma: foto gedung asli dengan lencana lokasi di
+ * pojok kiri bawah; panel statistik gelap di bawahnya dihapus (angkanya sudah
+ * tampil di hero).
+ */
 export function AboutStats() {
   return (
     <section id="tentang" className="scroll-mt-24 py-24 sm:py-32">
@@ -21,16 +24,22 @@ export function AboutStats() {
           {/* Visual */}
           <Reveal className="order-last lg:order-first">
             <div className="relative">
-              <PhotoTile tone="teal" icon="globe" className="aspect-[4/3] rounded-panel" glyphClassName="h-24 w-24" />
-              <div className="absolute -bottom-6 left-6 max-w-[16rem] rounded-2xl bg-surface p-4 shadow-overlay">
-                <div className="flex items-center gap-3">
-                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gold-soft text-gold-strong">
-                    <Icon name="shield" className="h-5 w-5" />
-                  </span>
-                  <div>
-                    <p className="text-sm font-bold text-ink">Madrasah Riset</p>
-                    <p className="text-xs text-muted">{school.researchDecree}</p>
-                  </div>
+              <PhotoTile
+                tone="teal"
+                icon="globe"
+                className="aspect-[4/3] rounded-panel"
+                glyphClassName="h-24 w-24"
+                src={school.buildingPhoto}
+                alt={`Gedung ${school.longName}`}
+                sizes="(max-width: 1024px) 100vw, 50vw"
+              />
+              <div className="absolute bottom-4 left-4 flex max-w-[16rem] items-center gap-3 rounded-2xl bg-surface/95 p-3 pr-4 shadow-overlay backdrop-blur">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-blue-soft text-blue">
+                  <Icon name="pin" className="h-5 w-5" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-ink">Kota Batu, Jawa Timur</p>
+                  <p className="truncate text-xs text-muted">Jl. Patimura No. 25, Temas</p>
                 </div>
               </div>
             </div>
@@ -62,26 +71,6 @@ export function AboutStats() {
               </div>
             </Reveal>
           </div>
-        </div>
-      </Container>
-
-      {/* Stats — dark panel */}
-      <Container className="mt-20">
-        <div id="data" className="relative isolate scroll-mt-24 overflow-hidden rounded-panel bg-dark px-6 py-14 text-on-dark sm:px-12">
-          <GeoTexture className="pointer-events-none absolute inset-0 text-white opacity-[0.06]" />
-          <StaggerGroup className="relative grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-4">
-            {stats.map((s) => (
-              <StaggerItem key={s.label} className="text-center">
-                <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-white/10 text-on-dark">
-                  <Icon name={s.icon} className="h-6 w-6" />
-                </span>
-                <p className="mt-4 font-display text-4xl font-extrabold tracking-tight text-gold sm:text-5xl">
-                  <Counter to={s.value} suffix={s.suffix ?? ""} />
-                </p>
-                <p className="mt-1.5 text-sm text-on-dark/70">{s.label}</p>
-              </StaggerItem>
-            ))}
-          </StaggerGroup>
         </div>
       </Container>
     </section>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PortalShell } from "@/app/components/siswa/shell";
+import { PortalFooter } from "@/app/components/siswa/portal-footer";
 import { getAlumniOverview } from "@/lib/api-alumni";
 
 export const metadata: Metadata = {
@@ -24,6 +25,7 @@ export default async function AlumniPortalLayout({
       nextClass={null}
     >
       {children}
+      <PortalFooter centang />
     </PortalShell>
   );
 }

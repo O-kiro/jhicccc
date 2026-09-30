@@ -18,6 +18,20 @@ export type PortalConfig = {
   label: string;
   account: string;
   nav: PortalNavItem[];
+  /**
+   * Menu kecil di dasar sidebar, tepat di atas tombol Keluar (merah).
+   * Tanpa ini sidebar memakai tampilan lama: tombol Bantuan (/kontak) dan
+   * Keluar berdampingan.
+   */
+  bottomNav?: PortalNavItem[];
+  /** Warna menu aktif; bawaannya teal. Portal siswa memakai biru utama. */
+  accent?: "teal" | "primary";
+  /** Kelas pembungkus portal, mis. token warna khusus di globals.css. */
+  className?: string;
+  /** Label kecil di atas daftar menu, mis. "MAIN MENU". */
+  navLabel?: string;
+  /** Judul di kiri topbar; bila diisi, topbar berlatar putih bergaris bawah. */
+  topbarTitle?: string;
 };
 
 export const portals: Record<PortalRole, PortalConfig> = {
@@ -25,42 +39,57 @@ export const portals: Record<PortalRole, PortalConfig> = {
     home: "/siswa",
     label: "Portal Siswa",
     account: "/siswa/akun",
+    // portal-siswa.md §2. Halaman Ujian dihapus permanen; rute lama
+    // (/siswa/rapor, /siswa/kursus, /siswa/ujian) dialihkan di next.config.ts.
     nav: [
       { label: "Overview", href: "/siswa", icon: "grid" },
-      { label: "Rapor Digital", href: "/siswa/rapor", icon: "rdm" },
-      { label: "Kursus", href: "/siswa/kursus", icon: "elearning" },
-      { label: "Ujian", href: "/siswa/ujian", icon: "cbt" },
+      { label: "Ranking", href: "/siswa/ranking", icon: "trophy" },
+      { label: "Modul Pembelajaran", href: "/siswa/modul", icon: "elearning" },
       { label: "Perpustakaan", href: "/siswa/perpustakaan", icon: "library" },
-      { label: "Forum Murid", href: "/siswa/forum", icon: "users" },
+      { label: "Forum Siswa", href: "/siswa/forum", icon: "users" },
+      { label: "Portal Beasiswa", href: "/siswa/beasiswa", icon: "graduation" },
     ],
+    bottomNav: [{ label: "Bantuan", href: "/siswa/bantuan", icon: "help" }],
+    accent: "primary",
+    className: "portal-siswa",
   },
   alumni: {
     home: "/alumni/portal",
     label: "Portal Alumni",
     account: "/alumni/portal/akun",
+    navLabel: "MAIN MENU",
     nav: [
       { label: "Overview", href: "/alumni/portal", icon: "grid" },
       { label: "Portal Beasiswa", href: "/alumni/portal/beasiswa", icon: "trophy" },
       { label: "Statistik & Sebaran", href: "/alumni/portal/statistik", icon: "chart" },
       { label: "Forum Alumni", href: "/alumni/portal/forum", icon: "chat" },
     ],
+    bottomNav: [{ label: "Bantuan", href: "/alumni/portal/bantuan", icon: "help" }],
+    accent: "primary",
+    className: "portal-alumni",
+    topbarTitle: "Selamat Datang Para Alumni MAN KOTA BATU",
   },
   guru: {
     home: "/guru",
     label: "Portal Guru",
     account: "/guru/akun",
+    navLabel: "MAIN MENU",
+    // Redesain Figma: Overview di atas, sisanya alfabetis. Penilaian dibuka
+    // lewat kartu Akses Cepat di Overview; Kelas & Materi lewat halaman
+    // Bahan Ajar — keduanya tidak lagi punya menu sendiri.
     nav: [
       { label: "Overview", href: "/guru", icon: "grid" },
+      { label: "Bahan Ajar", href: "/guru/bahan-ajar", icon: "ebook" },
       { label: "Jadwal Mengajar", href: "/guru/jadwal", icon: "calendar" },
-      { label: "Modul Pembelajaran", href: "/guru/modul-ajar", icon: "research" },
-      { label: "Bahan Ajar & LKPD", href: "/guru/bahan-ajar", icon: "ebook" },
-      { label: "Jurnal Mengajar", href: "/guru/jurnal", icon: "book" },
       { label: "Jurnal Harian", href: "/guru/jurnal-harian", icon: "attendance" },
-      { label: "Kelas & Materi", href: "/guru/kelas", icon: "elearning" },
-      { label: "Penilaian", href: "/guru/nilai", icon: "chart" },
+      { label: "Jurnal Mengajar", href: "/guru/jurnal", icon: "book" },
       { label: "Lapor Tatib", href: "/guru/tatib", icon: "flag" },
-      { label: "RDM", href: "/guru/rdm", icon: "rdm" },
+      { label: "Modul Pembelajaran", href: "/guru/modul-ajar", icon: "research" },
       { label: "Perpustakaan", href: "/guru/perpustakaan", icon: "library" },
+      { label: "RDM", href: "/guru/rdm", icon: "rdm" },
     ],
+    bottomNav: [{ label: "Bantuan", href: "/guru/bantuan", icon: "help" }],
+    accent: "primary",
+    className: "portal-guru",
   },
 };

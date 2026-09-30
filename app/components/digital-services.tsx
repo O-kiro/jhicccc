@@ -66,7 +66,6 @@ export function DigitalServices({ digitalServices }: { digitalServices: Site["di
             const href = s.href;
             const external = href.startsWith("http");
             const actionIcon = external ? "external" : "arrow";
-            const actionLabel = s.login ? "Masuk" : "Buka";
             return (
               <StaggerItem key={s.name} className={wide ? "col-span-2" : ""}>
                 <SpotlightCard className="h-full">
@@ -96,7 +95,7 @@ export function DigitalServices({ digitalServices }: { digitalServices: Site["di
                       <h3 className="mt-5 font-display text-lg font-bold text-ink">{s.name}</h3>
                       <p className="mt-1.5 text-sm leading-relaxed text-muted">{s.desc}</p>
                       <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-teal">
-                        {actionLabel}
+                        Buka
                         <Icon name={actionIcon} className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                       </span>
                     </TileLink>

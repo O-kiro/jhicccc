@@ -21,11 +21,14 @@ export default async function Home() {
   // Konten dari CMS (menu My Website); lihat lib/site.ts untuk cadangannya.
   const site = await getSite();
 
+  // Urutan seksi mengikuti revisi Figma: Agenda naik tepat setelah Layanan
+  // Digital, Tentang MAKOBA turun di bawahnya.
   return (
     <main>
       <Hero />
       <Marquee />
       <DigitalServices digitalServices={site.digitalServices} />
+      <Agenda agenda={site.agenda} />
       <AboutStats />
       <StarDivider />
       <Programs programs={site.programs} />
@@ -35,7 +38,6 @@ export default async function Home() {
       <StarDivider />
       <Extracurriculars extracurriculars={site.extracurriculars} />
       <Facilities facilities={site.facilities} />
-      <Agenda agenda={site.agenda} />
       <Gallery galleryItems={site.galleryItems} />
       <Testimonials testimonials={site.testimonials} />
       <Faq faqs={site.faqs} />

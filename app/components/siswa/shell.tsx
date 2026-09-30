@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -30,11 +30,22 @@ function isActive(pathname: string, href: string, home: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-function NavList({ config, onNavigate }: { config: PortalConfig; onNavigate?: () => void }) {
+function NavList({
+  config,
+  items = config.nav,
+  label = "Menu portal",
+  onNavigate,
+}: {
+  config: PortalConfig;
+  items?: PortalConfig["nav"];
+  label?: string;
+  onNavigate?: () => void;
+}) {
   const pathname = usePathname();
+  const primary = config.accent === "primary";
   return (
-    <nav aria-label="Menu portal" className="space-y-1">
-      {config.nav.map((item) => {
+    <nav aria-label={label} className="space-y-1">
+      {items.map((item) => {
         const active = isActive(pathname, item.href, config.home);
         return (
           <Link
@@ -46,11 +57,13 @@ function NavList({ config, onNavigate }: { config: PortalConfig; onNavigate?: ()
               "press group relative flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold",
               "transition-[background-color,color,transform] duration-200 ease-snap",
               active
-                ? "bg-teal-soft text-teal"
+                ? primary
+                  ? "bg-primary text-white shadow-card"
+                  : "bg-teal-soft text-teal"
                 : "text-muted hover:bg-surface-2 hover:text-ink",
             )}
           >
-            {active && (
+            {active && !primary && (
               <motion.span
                 layoutId="portal-nav-active"
                 className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-full bg-teal"
@@ -116,11 +129,13 @@ function NextClassCard({ nextClass }: { nextClass: NextClass }) {
 function SidebarBody({
   config,
   nextClass,
+  widget,
   onLogout,
   onNavigate,
 }: {
   config: PortalConfig;
   nextClass: NextClass | null;
+  widget?: ReactNode;
   onLogout: () => void;
   onNavigate?: () => void;
 }) {
@@ -141,10 +156,33 @@ function SidebarBody({
         </span>
       </Link>
 
-      <NavList config={config} onNavigate={onNavigate} />
+      <div>
+        {config.navLabel && (
+          <p className="mb-2 px-3.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-muted">
+            {config.navLabel}
+          </p>
+        )}
+        <NavList config={config} onNavigate={onNavigate} />
+      </div>
 
+      {/* Widget pengganti kartu kelas (portal siswa: bacaan aktif). */}
+      {widget}
+
+      {config.bottomNav ? (
+        <div className="mt-auto space-y-1 border-t border-line pt-4">
+          <NavList config={config} items={config.bottomNav} label="Menu bantuan" onNavigate={onNavigate} />
+          <button
+            type="button"
+            onClick={onLogout}
+            className="press flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-danger transition-[background-color,transform] duration-200 ease-snap hover:bg-danger/10"
+          >
+            <Icon name="logout" className="h-[18px] w-[18px] shrink-0" />
+            Keluar
+          </button>
+        </div>
+      ) : (
       <div className="mt-auto space-y-3">
-        {nextClass && <NextClassCard nextClass={nextClass} />}
+        {!widget && nextClass && <NextClassCard nextClass={nextClass} />}
         <div className="grid grid-cols-2 gap-2">
           <Link
             href="/kontak"
@@ -164,6 +202,7 @@ function SidebarBody({
           </button>
         </div>
       </div>
+      )}
     </div>
   );
 }
@@ -177,11 +216,14 @@ export function PortalShell({
   portal,
   user,
   nextClass,
+  widget,
   children,
 }: {
   portal: PortalRole;
   user: PortalUser;
   nextClass: NextClass | null;
+  /** Isi sidebar di bawah menu; bila ada, menggantikan kartu Kelas Selanjutnya. */
+  widget?: ReactNode;
   children: React.ReactNode;
 }) {
   const config = portals[portal];
@@ -214,10 +256,10 @@ export function PortalShell({
   }, [open]);
 
   return (
-    <div className="min-h-screen bg-canvas">
+    <div className={cn("min-h-screen bg-canvas", config.className)}>
       {/* Sidebar tetap (desktop) */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 border-r border-line bg-surface lg:block">
-        <SidebarBody config={config} nextClass={nextClass} onLogout={handleLogout} />
+        <SidebarBody config={config} nextClass={nextClass} widget={widget} onLogout={handleLogout} />
       </aside>
 
       {/* Drawer (mobile) */}
@@ -251,6 +293,7 @@ export function PortalShell({
               <SidebarBody
                 config={config}
                 nextClass={nextClass}
+                widget={widget}
                 onLogout={handleLogout}
                 onNavigate={() => setOpen(false)}
               />
@@ -261,7 +304,12 @@ export function PortalShell({
 
       <div className={cn("lg:pl-72", loggingOut && "pointer-events-none opacity-60")}>
         {/* Topbar */}
-        <header className="sticky top-0 z-30 border-b border-line bg-canvas/85 backdrop-blur-md">
+        <header
+          className={cn(
+            "sticky top-0 z-30 border-b border-line backdrop-blur-md",
+            config.topbarTitle ? "bg-surface" : "bg-canvas/85",
+          )}
+        >
           <div className="flex h-16 items-center gap-3 px-5 sm:px-8">
             <button
               type="button"
@@ -271,6 +319,11 @@ export function PortalShell({
             >
               <Icon name="menu" className="h-5 w-5" />
             </button>
+            {config.topbarTitle && (
+              <p className="min-w-0 truncate font-display text-sm font-extrabold text-ink sm:text-base">
+                {config.topbarTitle}
+              </p>
+            )}
 
             <div className="ml-auto flex items-center gap-2">
               <ThemeToggle />

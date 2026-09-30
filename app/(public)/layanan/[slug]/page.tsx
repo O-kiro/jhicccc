@@ -58,16 +58,18 @@ export default async function ServicePage({ params }: Params) {
               </span>
             </div>
             <h1 className="display mt-6 text-[clamp(2rem,4.5vw,3.25rem)] text-ink">{detail.fullName}</h1>
-            <p className="mt-4 text-lg leading-relaxed text-ink/75">{service.desc}</p>
+            <p className="mt-4 text-lg leading-relaxed text-ink/75">{detail.intro ?? service.desc}</p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               {service.login ? (
                 <>
                   <Button href={service.login.href} external={service.login.href.startsWith("http")}>
                     {service.login.label}
                   </Button>
-                  <Button href="/kontak" variant="outline" icon={false}>
-                    Tanya Layanan Ini
-                  </Button>
+                  {detail.guide && (
+                    <Button href={detail.guide.href} variant="outline" icon={false}>
+                      {detail.guide.label}
+                    </Button>
+                  )}
                 </>
               ) : (
                 <Button href="/kontak">Tanya Layanan Ini</Button>
@@ -76,7 +78,7 @@ export default async function ServicePage({ params }: Params) {
             {service.login && (
               <p className="mt-4 flex items-center gap-2 text-sm text-ink/70">
                 <Icon name="shield" className="h-4 w-4 shrink-0" />
-                Khusus untuk siswa, guru, dan staff sekolah. Gunakan akun resmi sekolah untuk masuk.
+                {detail.loginNote ?? "Khusus untuk siswa, guru, dan staff sekolah. Gunakan akun resmi sekolah untuk masuk."}
               </p>
             )}
           </div>
@@ -94,7 +96,26 @@ export default async function ServicePage({ params }: Params) {
               ))}
             </div>
 
-            <h2 className="display mt-12 text-2xl text-ink">Cara Mengakses</h2>
+            {detail.highlights && detail.highlights.length > 0 && (
+              <>
+                <h2 className="display mt-12 text-2xl text-ink">Fasilitas &amp; Fitur Portal</h2>
+                <StaggerGroup className="mt-6 grid gap-4 sm:grid-cols-2">
+                  {detail.highlights.map((h) => (
+                    <StaggerItem key={h.title} className="h-full">
+                      <div className="h-full rounded-card bg-surface p-6 shadow-card">
+                        <span className={`grid h-10 w-10 place-items-center rounded-xl ${c.soft} ${c.text}`}>
+                          <Icon name="check" className="h-5 w-5" />
+                        </span>
+                        <h3 className="mt-4 font-display text-base font-bold text-ink">{h.title}</h3>
+                        <p className="mt-1 text-sm leading-relaxed text-muted">{h.desc}</p>
+                      </div>
+                    </StaggerItem>
+                  ))}
+                </StaggerGroup>
+              </>
+            )}
+
+            <h2 id="cara-mengakses" className="display mt-12 scroll-mt-28 text-2xl text-ink">Cara Mengakses</h2>
             <div className="mt-8">
               {detail.steps.map((step, i) => (
                 <Reveal key={step.title} delay={i * 0.05}>
@@ -126,7 +147,7 @@ export default async function ServicePage({ params }: Params) {
           <aside>
             <div className="space-y-6 lg:sticky lg:top-24">
               <div className="rounded-card bg-surface p-7 shadow-card">
-                <h3 className="font-display text-lg font-bold text-ink">Fitur Utama</h3>
+                <h3 className="font-display text-lg font-bold text-ink">{detail.featuresTitle ?? "Fitur Utama"}</h3>
                 <ul className="mt-4 space-y-3">
                   {detail.features.map((f) => (
                     <li key={f} className="flex items-start gap-2.5 text-sm font-medium text-ink">
@@ -138,9 +159,9 @@ export default async function ServicePage({ params }: Params) {
               </div>
 
               <div className="rounded-card bg-surface p-7 shadow-card">
-                <h3 className="font-display text-lg font-bold text-ink">Butuh Bantuan?</h3>
+                <h3 className="font-display text-lg font-bold text-ink">{detail.help?.title ?? "Butuh Bantuan?"}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted">
-                  Tim madrasah siap membantu kendala akses layanan ini.
+                  {detail.help?.text ?? "Tim madrasah siap membantu kendala akses layanan ini."}
                 </p>
                 <ul className="mt-4 space-y-3 text-sm text-muted">
                   <li>
@@ -163,7 +184,7 @@ export default async function ServicePage({ params }: Params) {
                   </li>
                 </ul>
                 <Button href="/kontak" variant="outline" className="mt-5 w-full" icon={false}>
-                  Halaman Kontak
+                  {detail.help?.label ?? "Halaman Kontak"}
                 </Button>
               </div>
             </div>

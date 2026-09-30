@@ -1,12 +1,14 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/app/components/icons";
-import { Panel, Pill } from "@/app/components/siswa/ui";
+import { Pill } from "@/app/components/siswa/ui";
+import { cn } from "@/lib/styles";
 import type { ApiBahanAjar } from "@/lib/api-guru";
 import { kirim } from "./kirim";
 import { Kolom, Modal, inputPortal } from "./modal";
+import { HeaderCard, TombolAksi, tabel, tombolTambah } from "./ui";
 
 type Bahan = ApiBahanAjar["materials"][number];
 
@@ -20,8 +22,8 @@ type Form = {
   description: string;
 };
 
-/** Koleksi LKPD dan bahan ajar milik guru sendiri. */
-export function MaterialBoard({ data }: { data: ApiBahanAjar }) {
+/** Koleksi LKPD dan bahan ajar milik guru sendiri, sebagai tabel (Figma). */
+export function MaterialBoard({ data, children }: { data: ApiBahanAjar; children?: ReactNode }) {
   const router = useRouter();
   const id = useId();
 
@@ -87,98 +89,94 @@ export function MaterialBoard({ data }: { data: ApiBahanAjar }) {
     else window.alert(hasil.pesan);
   }
 
+  const ubah = (b: Bahan) =>
+    buka({
+      id: b.id,
+      type: b.type,
+      title: b.title,
+      subject_id: String(data.subjects.find((s) => s.name === b.subject)?.id ?? ""),
+      level: b.level ?? "",
+      url: b.url ?? "",
+      description: b.description ?? "",
+    });
+
   return (
     <>
-      <div className="mb-5 flex justify-end">
-        <button
-          type="button"
-          onClick={() => buka(kosong)}
-          className="btn-sheen press inline-flex items-center gap-2 rounded-full bg-gold px-5 py-2.5 text-sm font-semibold text-white"
-        >
-          <Icon name="plus" className="h-4 w-4" />
-          Buat Baru
-        </button>
-      </div>
+      <HeaderCard
+        icon="ebook"
+        title="Koleksi Bahan Ajar"
+        desc="Kelola Modul Pembelajaran Siswa"
+        action={
+          <button type="button" onClick={() => buka(kosong)} className={tombolTambah()}>
+            <Icon name="plus" className="h-4 w-4" />
+            Buat Baru
+          </button>
+        }
+      >
+        {children}
 
-      {data.materials.length === 0 ? (
-        <div className="rounded-card border border-dashed border-line bg-surface-2 p-10 text-center">
-          <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-surface text-muted">
-            <Icon name="ebook" className="h-7 w-7" />
-          </span>
-          <p className="mt-4 font-display text-base font-extrabold text-ink">Belum ada dokumen yang dibuat.</p>
-          <p className="mt-1 text-sm text-muted">
-            Tambahkan LKPD atau rangkuman materi, lalu tautkan berkasnya dari Drive madrasah.
-          </p>
-        </div>
-      ) : (
-        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {data.materials.map((b) => (
-            <li key={b.id}>
-              <Panel className="flex h-full flex-col">
-                <div className="flex items-start justify-between gap-3">
-                  <Pill tone={b.type === "lkpd" ? "blue" : "teal"}>{b.type_label}</Pill>
-                  {b.level && <span className="text-[11px] font-semibold text-muted">Kelas {b.level}</span>}
-                </div>
-                <h3 className="mt-3 font-display text-base font-extrabold leading-snug text-ink">{b.title}</h3>
-                {b.subject && <p className="mt-1 text-xs text-muted">{b.subject}</p>}
-                {b.description && (
-                  <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-muted">{b.description}</p>
-                )}
-
-                <div className="mt-auto pt-4">
-                  {b.url ? (
-                    <a
-                      href={b.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal hover:underline"
-                    >
-                      Buka dokumen
-                      <Icon name="external" className="h-3.5 w-3.5" />
-                    </a>
-                  ) : (
-                    <span className="text-[11px] font-semibold text-gold-strong">Tautan belum diisi</span>
-                  )}
-
-                  <span className="mt-3 flex gap-2 border-t border-line pt-3">
-                    <button
-                      type="button"
-                      disabled={sibuk}
-                      onClick={() =>
-                        buka({
-                          id: b.id,
-                          type: b.type,
-                          title: b.title,
-                          subject_id: String(data.subjects.find((s) => s.name === b.subject)?.id ?? ""),
-                          level: b.level ?? "",
-                          url: b.url ?? "",
-                          description: b.description ?? "",
-                        })
-                      }
-                      className="press rounded-full border border-line px-3 py-1 text-[11px] font-semibold text-muted transition-colors hover:border-ink/25 hover:text-ink"
-                    >
-                      Ubah
-                    </button>
-                    <button
-                      type="button"
-                      disabled={sibuk}
-                      onClick={() => hapus(b)}
-                      className="press rounded-full border border-line px-3 py-1 text-[11px] font-semibold text-muted transition-colors hover:border-gold/40 hover:text-gold-strong"
-                    >
-                      Hapus
-                    </button>
-                  </span>
-                </div>
-              </Panel>
-            </li>
-          ))}
-        </ul>
-      )}
+        {data.materials.length === 0 ? (
+          <div className="mt-5 rounded-xl border border-dashed border-line bg-surface-2 p-10 text-center">
+            <Icon name="ebook" className="mx-auto h-8 w-8 text-muted" />
+            <p className="mt-3 font-display text-base font-extrabold text-ink">Belum ada bahan ajar.</p>
+            <p className="mt-1 text-sm text-muted">Tambahkan LKPD atau rangkuman materi, lalu tautkan berkasnya dari Drive madrasah.</p>
+          </div>
+        ) : (
+          <div className={tabel.wrap}>
+            <table className={tabel.table}>
+              <thead className={tabel.thead}>
+                <tr>
+                  <th scope="col" className={cn(tabel.th, "w-12")}>No</th>
+                  <th scope="col" className={tabel.th}>Judul</th>
+                  <th scope="col" className={tabel.th}>Kelas</th>
+                  <th scope="col" className={tabel.th}>Materi</th>
+                  <th scope="col" className={cn(tabel.th, "text-right")}>Aksi</th>
+                </tr>
+              </thead>
+              <tbody className={tabel.tbody}>
+                {data.materials.map((b, i) => (
+                  <tr key={b.id}>
+                    <td className={cn(tabel.td, "font-display font-extrabold tabular-nums text-ink")}>{i + 1}</td>
+                    <td className={tabel.td}>
+                      <span className="block font-semibold leading-snug text-ink">{b.title}</span>
+                      {b.subject && <span className="mt-0.5 block text-xs text-muted">{b.subject}</span>}
+                      {b.url ? (
+                        <a
+                          href={b.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline"
+                        >
+                          Buka dokumen
+                          <Icon name="external" className="h-3 w-3" />
+                        </a>
+                      ) : (
+                        <span className="mt-1.5 block text-[11px] font-semibold text-gold-strong">Tautan belum diisi</span>
+                      )}
+                    </td>
+                    <td className={cn(tabel.td, "whitespace-nowrap text-ink")}>{b.level ?? "—"}</td>
+                    <td className={tabel.td}>
+                      <Pill tone={b.type === "lkpd" ? "blue" : "gold"}>{b.type_label}</Pill>
+                      {b.description && <span className="mt-1.5 block text-xs leading-relaxed text-muted">{b.description}</span>}
+                    </td>
+                    <td className={tabel.td}>
+                      <span className="flex justify-end gap-2">
+                        <TombolAksi jenis="edit" label={`Ubah ${b.title}`} disabled={sibuk} onClick={() => ubah(b)} />
+                        <TombolAksi jenis="trash" label={`Hapus ${b.title}`} disabled={sibuk} onClick={() => hapus(b)} />
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </HeaderCard>
 
       <Modal
         open={form !== null}
         onClose={() => !sibuk && setForm(null)}
-        eyebrow="Bahan Ajar & LKPD"
+        eyebrow="Bahan Ajar"
         title={form?.id === null ? "Buat Dokumen Baru" : "Ubah Dokumen"}
       >
         {form && (
@@ -274,7 +272,7 @@ export function MaterialBoard({ data }: { data: ApiBahanAjar }) {
               <button
                 type="submit"
                 disabled={sibuk || form.title.trim() === ""}
-                className="btn-sheen bg-blue-gradient press rounded-full px-5 py-2.5 text-sm font-semibold text-white disabled:pointer-events-none disabled:opacity-60"
+                className="press rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-strong disabled:pointer-events-none disabled:opacity-60"
               >
                 {sibuk ? "Menyimpan…" : "Simpan"}
               </button>

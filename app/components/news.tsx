@@ -17,7 +17,7 @@ export function News({ news }: { news: Site["news"] }) {
         <div className="flex items-end justify-between gap-6">
           <SectionHeading
             align="left"
-            index="04"
+            index="05"
             eyebrow="Kabar Terbaru"
             title="Berita & Informasi"
             desc="Ikuti perkembangan kegiatan, prestasi, dan pengumuman terbaru dari MAKOBA."
@@ -39,21 +39,31 @@ export function News({ news }: { news: Site["news"] }) {
           <div className="mt-16 grid gap-6 lg:grid-cols-2">
             {/* Featured */}
             <Reveal>
-              <Link href={`/berita/${featured.slug}`} className="group flex h-full flex-col overflow-hidden rounded-card bg-surface shadow-card transition-all duration-200 hover:-translate-y-1.5 hover:shadow-hover">
-                <PhotoTile tone={featured.tone} icon="trophy" className="aspect-[16/9]" glyphClassName="h-16 w-16" src={featured.image} alt={featured.title}>
-                  <span className="absolute left-4 top-4">
+              {/* Figma: banner besar, teks menumpang di atas foto kegiatan */}
+              <Link href={`/berita/${featured.slug}`} className="group block h-full overflow-hidden rounded-card shadow-card transition-all duration-200 hover:-translate-y-1.5 hover:shadow-hover">
+                <PhotoTile
+                  tone={featured.tone}
+                  icon="trophy"
+                  className="h-full min-h-[24rem]"
+                  glyphClassName="h-16 w-16"
+                  src={featured.image}
+                  alt={featured.title}
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                >
+                  <span aria-hidden className="absolute inset-0 bg-linear-to-t from-black/85 via-black/40 to-transparent" />
+                  <span className="absolute left-5 top-5">
                     <Badge tone={featured.tone}>{featured.category}</Badge>
                   </span>
+                  <div className="absolute inset-x-0 bottom-0 flex flex-col p-7">
+                    <span className="inline-flex items-center gap-1.5 text-xs text-white/80">
+                      <Icon name="calendar" className="h-3.5 w-3.5" /> {formatDate(featured.date)}
+                    </span>
+                    <h3 className="mt-3 font-display text-2xl font-bold leading-snug text-white">
+                      {featured.title}
+                    </h3>
+                    <p className="mt-2.5 line-clamp-2 text-[15px] leading-relaxed text-white/80">{featured.excerpt}</p>
+                  </div>
                 </PhotoTile>
-                <div className="flex flex-1 flex-col p-7">
-                  <span className="inline-flex items-center gap-1.5 text-xs text-muted">
-                    <Icon name="calendar" className="h-3.5 w-3.5" /> {formatDate(featured.date)}
-                  </span>
-                  <h3 className="mt-3 font-display text-2xl font-bold leading-snug text-ink group-hover:text-teal">
-                    {featured.title}
-                  </h3>
-                  <p className="mt-2.5 text-[15px] leading-relaxed text-muted">{featured.excerpt}</p>
-                </div>
               </Link>
             </Reveal>
 
@@ -91,18 +101,18 @@ export function News({ news }: { news: Site["news"] }) {
           </p>
         )}
 
-        {/* Figma Kartu ajakan: Ingin Info Lebih Cepat? Ikuti Instagram */}
+        {/* Figma: kartu ajakan Instagram, biru tua solid dengan tombol putih */}
         <Reveal delay={0.1}>
-          <div className="mt-10 flex flex-col items-start justify-between gap-4 rounded-card bg-dark p-6 text-on-dark shadow-card sm:flex-row sm:items-center sm:p-8">
+          <div className="mt-10 flex flex-col items-start justify-between gap-4 rounded-card bg-[#0b3563] p-6 text-white shadow-card sm:flex-row sm:items-center sm:p-8">
             <div>
-              <h3 className="font-display text-xl font-bold text-on-dark">Ingin Info Lebih Cepat?</h3>
-              <p className="mt-1 text-sm text-on-dark/70">Ikuti Instagram resmi kami!!</p>
+              <h3 className="font-display text-xl font-bold text-white">Ingin Info Lebih Cepat?</h3>
+              <p className="mt-1 text-sm text-white/75">Ikuti Instagram resmi kami!!</p>
             </div>
             <a
               href="https://www.instagram.com/mankotabatuofficial/"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-surface px-6 py-3 text-sm font-semibold text-blue shadow-card transition-all hover:-translate-y-0.5"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#0b3563] shadow-card transition-all hover:-translate-y-0.5"
             >
               Follow Sekarang
               <Icon name="external" className="h-4 w-4" />

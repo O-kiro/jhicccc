@@ -64,6 +64,10 @@ const paths: Record<IconName, ReactNode> = {
   eye: <><path d="M2.5 12S6 6 12 6s9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z" /><circle cx="12" cy="12" r="2.8" /></>,
   bookmark: <><path d="M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z" /></>,
   sigma: <><path d="M17 5H7l5 7-5 7h10" /></>,
+  edit: <><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z" /><path d="m13.5 6.5 4 4" /></>,
+  trash: <><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" /></>,
+  megaphone: <><path d="M3 10v4a1 1 0 0 0 1 1h3l6 4V5L7 9H4a1 1 0 0 0-1 1z" /><path d="M17 9a4 4 0 0 1 0 6" /></>,
+  graduation:<><path d="M2 9.5 12 5l10 4.5-10 4.5z" /><path d="M6 11.3V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-4.7M21 10v5" /></>,
 };
 
 export function Icon({

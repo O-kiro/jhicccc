@@ -17,7 +17,11 @@ export function Faq({ faqs }: { faqs: Site["faqs"] }) {
         <SectionHeading
           index="10"
           eyebrow="Pertanyaan Umum"
-          title="FAQ"
+          title={
+            <>
+              Frequently Asked <span className="text-blue">Questions</span>
+            </>
+          }
           desc="Jawaban atas pertanyaan yang sering diajukan calon siswa, wali murid, dan masyarakat."
         />
 
@@ -37,9 +41,9 @@ export function Faq({ faqs }: { faqs: Site["faqs"] }) {
                     <motion.span
                       animate={{ rotate: isOpen ? 180 : 0 }}
                       transition={{ duration: 0.2 }}
-                      className={`grid h-8 w-8 shrink-0 place-items-center rounded-full ${isOpen ? "bg-teal text-white" : "bg-teal-soft text-teal"}`}
+                      className={`shrink-0 ${isOpen ? "text-blue" : "text-muted"}`}
                     >
-                      <Icon name="chevron" className="h-4 w-4" />
+                      <Icon name="chevron" className="h-5 w-5" strokeWidth={2} />
                     </motion.span>
                   </button>
                   <AnimatePresence initial={false}>

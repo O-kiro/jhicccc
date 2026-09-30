@@ -18,7 +18,7 @@ export function Extracurriculars({ extracurriculars }: { extracurriculars: Site[
     <section id="ekskul" className="scroll-mt-24 py-24 sm:py-32">
       <Container>
         <SectionHeading
-          index="05"
+          index="06"
           eyebrow="Pengembangan Bakat"
           title="Ekstrakurikuler"
           desc="Ragam kegiatan untuk mengasah minat, bakat, dan karakter siswa di luar kelas."

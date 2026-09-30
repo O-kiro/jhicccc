@@ -1,6 +1,7 @@
 import { ScrollProgress } from "@/app/components/scroll-progress";
 import { StickyCta } from "@/app/components/sticky-cta";
 import { BackToTop } from "@/app/components/back-to-top";
+import { FloatingWhatsapp } from "@/app/components/floating-whatsapp";
 import { SiteHeader } from "@/app/components/site-header";
 import { SiteFooter } from "@/app/components/site-footer";
 import { buildSearchIndex, getSite } from "@/lib/site";
@@ -28,6 +29,7 @@ export default async function PublicLayout({
       <div id="konten">{children}</div>
       <SiteFooter />
       <StickyCta />
+      <FloatingWhatsapp />
       <BackToTop />
     </>
   );

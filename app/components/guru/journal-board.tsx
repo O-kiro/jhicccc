@@ -1,14 +1,14 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/app/components/icons";
 import { cn } from "@/lib/styles";
 import { formatDate, geserTanggal, hariDari, tanggalTerakhirHari } from "@/lib/format";
-import { Panel, PanelTitle, Pill } from "@/app/components/siswa/ui";
 import type { ApiJurnal } from "@/lib/api-guru";
 import { kirim } from "./kirim";
 import { Kolom, Modal, inputPortal } from "./modal";
+import { HeaderCard, TombolAksi, tabel, tanggalTabel, tombolTambah } from "./ui";
 
 /** Isi formulir jurnal. Angka hadir disimpan sebagai teks selama diketik. */
 type Draf = {
@@ -27,13 +27,18 @@ type Draf = {
 const tanggalPanjang = (iso: string) => `${hariDari(iso)}, ${formatDate(iso)}`;
 
 /**
- * Jurnal mengajar: sesi yang belum dicatat, pencatatan sesi lain, dan
- * riwayat. Semua data datang dari halaman induk; di sini hanya interaksinya.
+ * Jurnal mengajar (redesain Figma): satu kartu tabel riwayat penuh. Tombol
+ * "Buat Jurnal Baru" membuka pemilih sesi — sesi yang belum dicatat, atau
+ * jadwal dan tanggal lain — lalu formulir jurnalnya.
+ *
+ * Menyimpan ulang sesi yang sama memperbarui jurnalnya (lihat
+ * JurnalController::store), jadi tombol ubah memakai formulir yang sama.
  */
-export function JournalBoard({ data }: { data: ApiJurnal }) {
+export function JournalBoard({ data, children }: { data: ApiJurnal; children?: ReactNode }) {
   const router = useRouter();
   const id = useId();
 
+  const [memilih, setMemilih] = useState(false);
   const [draf, setDraf] = useState<Draf | null>(null);
   const [galat, setGalat] = useState<Record<string, string>>({});
   const [pesan, setPesan] = useState<string | null>(null);
@@ -48,8 +53,10 @@ export function JournalBoard({ data }: { data: ApiJurnal }) {
     pertama ? tanggalTerakhirHari(data.today, pertama.day) : data.today,
   );
   const paling = geserTanggal(data.today, -data.max_back_days);
+  const manual = data.schedules.find((s) => s.schedule_id === jadwalManual);
 
   function buka(d: Omit<Draf, "topic" | "note" | "present_count" | "editing"> & Partial<Draf>) {
+    setMemilih(false);
     setDraf({ topic: "", note: "", present_count: "", editing: false, ...d });
     setGalat({});
     setPesan(null);
@@ -96,192 +103,203 @@ export function JournalBoard({ data }: { data: ApiJurnal }) {
     else window.alert(hasil.pesan);
   }
 
-  const manual = data.schedules.find((s) => s.schedule_id === jadwalManual);
-
   return (
     <>
-      <div className="grid gap-6 lg:grid-cols-[1.35fr_1fr]">
-        {/* Tertunda */}
-        <Panel as="section" className="h-full">
-          <PanelTitle
-            icon="clock"
-            action={<Pill tone={data.pending.length > 0 ? "gold" : "teal"}>{data.pending.length} sesi</Pill>}
+      <HeaderCard
+        icon="book"
+        title="Riwayat Jurnal Mengajar"
+        desc="Catatan harian KBM."
+        action={
+          <button
+            type="button"
+            onClick={() => setMemilih(true)}
+            disabled={data.schedules.length === 0}
+            className={tombolTambah("gold")}
           >
-            Belum Dicatat
-          </PanelTitle>
-          {data.pending.length === 0 ? (
-            <p className="flex items-start gap-2 rounded-xl border border-line bg-surface-2 p-4 text-sm text-muted">
-              <Icon name="check" className="mt-0.5 h-4 w-4 shrink-0 text-teal" />
-              Semua sesi dalam {data.range_days} hari terakhir sudah tercatat.
-            </p>
-          ) : (
-            <ul className="space-y-2.5">
-              {data.pending.map((p) => (
-                <li
-                  key={`${p.schedule_id}-${p.date}`}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-surface-2 p-3.5"
-                >
-                  <span className="min-w-0">
-                    <span className="block text-[11px] font-semibold uppercase tracking-[0.06em] text-gold-strong">
-                      {tanggalPanjang(p.date)}
-                    </span>
-                    <span className="mt-1 block font-semibold text-ink">
-                      {p.subject} · {p.classroom}
-                    </span>
-                    <span className="mt-0.5 block text-xs tabular-nums text-muted">
-                      {p.start}–{p.end}
-                    </span>
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      buka({
-                        schedule_id: p.schedule_id,
-                        date: p.date,
-                        label: `${p.subject} · ${p.classroom}, ${p.start}–${p.end}`,
-                        class_size: p.class_size,
-                      })
-                    }
-                    className="btn-sheen bg-blue-gradient press inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold text-white"
-                  >
-                    <Icon name="plus" className="h-3.5 w-3.5" />
-                    Isi Jurnal
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Panel>
+            <Icon name="plus" className="h-4 w-4" />
+            Buat Jurnal Baru
+          </button>
+        }
+      >
+        {data.pending.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setMemilih(true)}
+            className="mt-4 flex w-full items-center gap-2 rounded-xl border border-gold/40 bg-gold-soft/40 px-4 py-3 text-left text-sm font-semibold text-gold-strong"
+          >
+            <Icon name="clock" className="h-4 w-4 shrink-0" />
+            {data.pending.length} sesi dalam {data.range_days} hari terakhir belum dicatat — isi sekarang
+          </button>
+        )}
 
-        {/* Sesi lain */}
-        <Panel as="section" className="h-full">
-          <PanelTitle icon="calendar">Catat Sesi Lain</PanelTitle>
-          {data.schedules.length === 0 ? (
-            <p className="rounded-xl border border-line bg-surface-2 p-4 text-sm text-muted">
-              Belum ada jadwal mengajar yang terdaftar atas nama Anda.
-            </p>
-          ) : (
-            <div className="space-y-4">
-              <p className="text-xs leading-relaxed text-muted">
-                Untuk sesi di luar daftar — misalnya lebih dari {data.range_days} hari lalu. Paling jauh{" "}
-                {data.max_back_days} hari ke belakang.
-              </p>
-              <Kolom label="Jadwal" htmlFor={`${id}-jadwal`}>
-                <select
-                  id={`${id}-jadwal`}
-                  value={jadwalManual}
-                  onChange={(e) => {
-                    const dipilih = data.schedules.find((s) => s.schedule_id === Number(e.target.value));
-                    setJadwalManual(Number(e.target.value));
-                    if (dipilih) setTanggalManual(tanggalTerakhirHari(data.today, dipilih.day));
-                  }}
-                  className={inputPortal}
-                >
-                  {data.schedules.map((s) => (
-                    <option key={s.schedule_id} value={s.schedule_id}>
-                      {s.day_label} {s.start} — {s.subject} · {s.classroom}
-                    </option>
-                  ))}
-                </select>
-              </Kolom>
-              <Kolom label="Tanggal" htmlFor={`${id}-tanggal`} hint={manual ? `Harus hari ${manual.day_label}.` : undefined}>
-                <input
-                  id={`${id}-tanggal`}
-                  type="date"
-                  value={tanggalManual}
-                  min={paling}
-                  max={data.today}
-                  onChange={(e) => setTanggalManual(e.target.value)}
-                  className={inputPortal}
-                />
-              </Kolom>
-              <button
-                type="button"
-                disabled={!manual || !tanggalManual}
-                onClick={() =>
-                  manual &&
-                  buka({
-                    schedule_id: manual.schedule_id,
-                    date: tanggalManual,
-                    label: `${manual.subject} · ${manual.classroom}, ${manual.start}–${manual.end}`,
-                    class_size: manual.class_size,
-                  })
-                }
-                className="press inline-flex w-full items-center justify-center gap-2 rounded-full border border-line px-4 py-2.5 text-sm font-semibold text-ink transition-colors hover:border-ink/25 hover:bg-surface-2 disabled:opacity-50"
-              >
-                <Icon name="plus" className="h-4 w-4" />
-                Isi Jurnal
-              </button>
-            </div>
-          )}
-        </Panel>
-      </div>
+        {children}
 
-      {/* Riwayat */}
-      <Panel as="section" className="mt-6">
-        <PanelTitle icon="book" action={<Pill tone="muted">{data.journals.length} terakhir</Pill>}>
-          Riwayat Jurnal
-        </PanelTitle>
         {data.journals.length === 0 ? (
-          <p className="rounded-xl border border-line bg-surface-2 p-4 text-sm text-muted">
-            Belum ada jurnal yang tercatat.
+          <p className="mt-5 rounded-xl border border-line bg-surface-2 p-5 text-sm text-muted">
+            Belum ada jurnal yang tercatat pada saringan ini.
           </p>
         ) : (
-          <ul className="divide-y divide-line">
-            {data.journals.map((j) => {
-              const label = `${j.subject} · ${j.classroom}, ${tanggalPanjang(j.date)}`;
-              return (
-                <li key={j.id} className="flex flex-wrap items-start justify-between gap-4 py-4 first:pt-0 last:pb-0">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted">
-                      {tanggalPanjang(j.date)} · {j.subject} · {j.classroom}
-                    </p>
-                    <p className="mt-1 font-semibold leading-snug text-ink">{j.topic}</p>
-                    {j.note && <p className="mt-1 text-sm leading-relaxed text-muted">{j.note}</p>}
-                  </div>
-                  <div className="flex shrink-0 flex-col items-end gap-2">
-                    {j.present_count !== null && (
-                      <Pill tone={j.present_count < j.class_size ? "gold" : "teal"}>
-                        <Icon name="users" className="h-3 w-3" />
-                        Hadir {j.present_count}/{j.class_size}
-                      </Pill>
-                    )}
-                    <span className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          buka({
-                            schedule_id: j.schedule_id,
-                            date: j.date,
-                            label: `${j.subject} · ${j.classroom}, ${j.start}–${j.end}`,
-                            class_size: j.class_size,
-                            topic: j.topic,
-                            note: j.note ?? "",
-                            present_count: j.present_count === null ? "" : String(j.present_count),
-                            editing: true,
-                          })
-                        }
-                        className="press rounded-full border border-line px-3 py-1 text-[11px] font-semibold text-muted transition-colors hover:border-ink/25 hover:text-ink"
-                      >
-                        Ubah
-                      </button>
-                      <button
-                        type="button"
-                        disabled={menghapus === j.id}
-                        onClick={() => hapus(j.id, label)}
-                        className="press rounded-full border border-line px-3 py-1 text-[11px] font-semibold text-muted transition-colors hover:border-gold/40 hover:text-gold-strong disabled:opacity-50"
-                      >
-                        {menghapus === j.id ? "…" : "Hapus"}
-                      </button>
-                    </span>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+          <div className={tabel.wrap}>
+            <table className={tabel.table}>
+              <thead className={tabel.thead}>
+                <tr>
+                  <th scope="col" className={tabel.th}>Tanggal</th>
+                  <th scope="col" className={tabel.th}>Kelas</th>
+                  <th scope="col" className={tabel.th}>Materi Disampaikan</th>
+                  <th scope="col" className={tabel.th}>Penugasan / PR</th>
+                  <th scope="col" className={cn(tabel.th, "text-right")}>Aksi</th>
+                </tr>
+              </thead>
+              <tbody className={tabel.tbody}>
+                {data.journals.map((j) => {
+                  const label = `${j.subject} · ${j.classroom}, ${tanggalPanjang(j.date)}`;
+                  return (
+                    <tr key={j.id}>
+                      <td className={cn(tabel.td, "whitespace-nowrap font-display font-extrabold tabular-nums text-ink")}>
+                        {tanggalTabel(j.date)}
+                      </td>
+                      <td className={cn(tabel.td, "whitespace-nowrap")}>
+                        <span className="block font-semibold text-ink">{j.classroom}</span>
+                        <span className="block text-xs text-muted">{j.subject}</span>
+                        {j.present_count !== null && (
+                          <span className="mt-0.5 block text-[11px] text-muted">
+                            Hadir {j.present_count}/{j.class_size}
+                          </span>
+                        )}
+                      </td>
+                      <td className={cn(tabel.td, "text-ink")}>{j.topic}</td>
+                      <td className={cn(tabel.td, "text-muted")}>{j.note ?? "—"}</td>
+                      <td className={tabel.td}>
+                        <span className="flex justify-end gap-2">
+                          <TombolAksi
+                            jenis="edit"
+                            label={`Ubah jurnal ${label}`}
+                            onClick={() =>
+                              buka({
+                                schedule_id: j.schedule_id,
+                                date: j.date,
+                                label: `${j.subject} · ${j.classroom}, ${j.start}–${j.end}`,
+                                class_size: j.class_size,
+                                topic: j.topic,
+                                note: j.note ?? "",
+                                present_count: j.present_count === null ? "" : String(j.present_count),
+                                editing: true,
+                              })
+                            }
+                          />
+                          <TombolAksi
+                            jenis="trash"
+                            label={`Hapus jurnal ${label}`}
+                            disabled={menghapus === j.id}
+                            onClick={() => hapus(j.id, label)}
+                          />
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
-      </Panel>
+      </HeaderCard>
 
+      {/* Langkah 1: pilih sesi yang akan dijurnal */}
+      <Modal open={memilih} onClose={() => setMemilih(false)} eyebrow="Jurnal Mengajar" title="Buat Jurnal Baru">
+        <div className="space-y-5">
+          {data.pending.length > 0 && (
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.06em] text-muted">Belum dicatat</p>
+              <ul className="space-y-2">
+                {data.pending.map((p) => (
+                  <li key={`${p.schedule_id}-${p.date}`}>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        buka({
+                          schedule_id: p.schedule_id,
+                          date: p.date,
+                          label: `${p.subject} · ${p.classroom}, ${p.start}–${p.end}`,
+                          class_size: p.class_size,
+                        })
+                      }
+                      className="flex w-full items-center justify-between gap-3 rounded-xl border border-line bg-surface-2 p-3 text-left transition-colors hover:border-primary/40"
+                    >
+                      <span className="min-w-0">
+                        <span className="block text-[11px] font-semibold uppercase tracking-[0.06em] text-gold-strong">
+                          {tanggalPanjang(p.date)}
+                        </span>
+                        <span className="mt-0.5 block text-sm font-semibold text-ink">
+                          {p.subject} · {p.classroom}
+                        </span>
+                      </span>
+                      <span className="shrink-0 text-xs tabular-nums text-muted">
+                        {p.start}–{p.end}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="space-y-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.06em] text-muted">Sesi lain</p>
+            <Kolom label="Jadwal" htmlFor={`${id}-jadwal`}>
+              <select
+                id={`${id}-jadwal`}
+                value={jadwalManual}
+                onChange={(e) => {
+                  const dipilih = data.schedules.find((s) => s.schedule_id === Number(e.target.value));
+                  setJadwalManual(Number(e.target.value));
+                  if (dipilih) setTanggalManual(tanggalTerakhirHari(data.today, dipilih.day));
+                }}
+                className={inputPortal}
+              >
+                {data.schedules.map((s) => (
+                  <option key={s.schedule_id} value={s.schedule_id}>
+                    {s.day_label} {s.start} — {s.subject} · {s.classroom}
+                  </option>
+                ))}
+              </select>
+            </Kolom>
+            <Kolom
+              label="Tanggal"
+              htmlFor={`${id}-tanggal`}
+              hint={manual ? `Harus hari ${manual.day_label}. Paling jauh ${data.max_back_days} hari ke belakang.` : undefined}
+            >
+              <input
+                id={`${id}-tanggal`}
+                type="date"
+                value={tanggalManual}
+                min={paling}
+                max={data.today}
+                onChange={(e) => setTanggalManual(e.target.value)}
+                className={inputPortal}
+              />
+            </Kolom>
+            <button
+              type="button"
+              disabled={!manual || !tanggalManual}
+              onClick={() =>
+                manual &&
+                buka({
+                  schedule_id: manual.schedule_id,
+                  date: tanggalManual,
+                  label: `${manual.subject} · ${manual.classroom}, ${manual.start}–${manual.end}`,
+                  class_size: manual.class_size,
+                })
+              }
+              className="press inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-strong disabled:opacity-50"
+            >
+              Lanjut Isi Jurnal
+              <Icon name="arrow" className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Langkah 2: isi jurnal */}
       <Modal
         open={draf !== null}
         onClose={() => !sibuk && setDraf(null)}
@@ -294,7 +312,7 @@ export function JournalBoard({ data }: { data: ApiJurnal }) {
             {galat.date && <p className="text-xs font-semibold text-gold-strong">{galat.date}</p>}
             {galat.schedule_id && <p className="text-xs font-semibold text-gold-strong">{galat.schedule_id}</p>}
 
-            <Kolom label="Materi yang diajarkan" htmlFor={`${id}-topik`} galat={galat.topic}>
+            <Kolom label="Materi disampaikan" htmlFor={`${id}-topik`} galat={galat.topic}>
               <input
                 id={`${id}-topik`}
                 value={draf.topic}
@@ -302,7 +320,19 @@ export function JournalBoard({ data }: { data: ApiJurnal }) {
                 maxLength={255}
                 required
                 autoFocus
-                placeholder="mis. Limit fungsi aljabar"
+                placeholder="mis. Enzim pada tubuh manusia"
+                className={inputPortal}
+              />
+            </Kolom>
+
+            <Kolom label="Penugasan / PR" htmlFor={`${id}-catatan`} galat={galat.note} hint="Opsional.">
+              <textarea
+                id={`${id}-catatan`}
+                value={draf.note}
+                onChange={(e) => setDraf({ ...draf, note: e.target.value })}
+                rows={3}
+                maxLength={2000}
+                placeholder="mis. Menyebutkan 6 enzim di tubuh manusia dan fungsinya"
                 className={inputPortal}
               />
             </Kolom>
@@ -325,17 +355,6 @@ export function JournalBoard({ data }: { data: ApiJurnal }) {
               />
             </Kolom>
 
-            <Kolom label="Catatan" htmlFor={`${id}-catatan`} galat={galat.note} hint="Opsional — kendala, tugas, atau tindak lanjut.">
-              <textarea
-                id={`${id}-catatan`}
-                value={draf.note}
-                onChange={(e) => setDraf({ ...draf, note: e.target.value })}
-                rows={3}
-                maxLength={2000}
-                className={inputPortal}
-              />
-            </Kolom>
-
             {pesan && (
               <p role="alert" className="text-sm font-semibold text-gold-strong">
                 {pesan}
@@ -354,7 +373,7 @@ export function JournalBoard({ data }: { data: ApiJurnal }) {
               <button
                 type="submit"
                 disabled={sibuk || draf.topic.trim() === ""}
-                className="btn-sheen bg-blue-gradient press inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white disabled:pointer-events-none disabled:opacity-60"
+                className="press inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-strong disabled:pointer-events-none disabled:opacity-60"
               >
                 {sibuk ? "Menyimpan…" : "Simpan Jurnal"}
               </button>

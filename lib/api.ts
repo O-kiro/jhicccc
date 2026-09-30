@@ -11,6 +11,7 @@ import { cache } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import type { IconName } from "@/lib/content";
+import type { ApiBeasiswa } from "@/lib/api-alumni";
 
 export const TOKEN_COOKIE = "makoba-token";
 
@@ -47,6 +48,8 @@ export type ApiStudent = {
 export type ApiScheduleItem = {
   id: number;
   subject: string;
+  /** Warna bidang studi, untuk garis tepi kartu jadwal. */
+  tone: ApiTone;
   teacher: string;
   start: string;
   end: string;
@@ -68,9 +71,13 @@ export type ApiOverview = {
   summary: {
     average_score: number | null;
     attendance_percentage: number | null;
+    /** Modul kelas yang belum ditandai selesai oleh siswa ini. */
+    active_tasks: number;
   };
   today_schedule: ApiScheduleItem[];
   announcements: ApiAnnouncement[];
+  /** Buku pinjaman aktif untuk widget sidebar; null bila tidak meminjam. */
+  continue_reading: ApiLoan | null;
 };
 
 /** Warna aksen yang dipakai kartu portal; sepadan dengan peta di lib/styles. */
@@ -83,6 +90,8 @@ export type ApiCourses = {
     id: number;
     name: string;
     teacher: string | null;
+    /** Foto profil guru (/storage/...); null berarti tampil inisial. */
+    teacher_photo: string | null;
     category: string;
     icon: IconName;
     tone: ApiTone;
@@ -101,48 +110,7 @@ export type ApiCourses = {
   }[];
 };
 
-export type ApiExams = {
-  upcoming: {
-    id: number;
-    subject: string;
-    title: string;
-    priority: string | null;
-    when: string;
-    /** Null berarti ujiannya sudah dimulai. Dihitung server, bukan browser. */
-    starts_in_seconds: number | null;
-    /** Sedang berlangsung — hanya saat ini sesi CBT bisa dibuka. */
-    is_live: boolean;
-  }[];
-  results: {
-    id: number;
-    subject: string;
-    title: string;
-    score: number;
-    finished_on: string;
-  }[];
-  rules: string[];
-};
-
-export type ApiExamSession = {
-  exam: {
-    id: number;
-    subject: string;
-    title: string;
-    total_questions: number;
-    remaining_seconds: number;
-  };
-  questions: {
-    id: number;
-    number: number;
-    type: string;
-    body: string;
-    options: { key: string; text: string }[];
-  }[];
-  /** Dikunci nomor soal. Kunci jawaban tidak pernah ikut terkirim. */
-  answers: Record<string, { choice: string | null; flagged: boolean }>;
-};
-
-type ApiLoan = {
+export type ApiLoan = {
   id: number;
   book_id: number;
   title: string;
@@ -150,6 +118,8 @@ type ApiLoan = {
   description: string | null;
   /** Tautan ke berkas buku; null berarti belum ditautkan pustakawan. */
   url: string | null;
+  /** Sampul unggahan admin; null berarti portal menggambar sampul berwarna. */
+  cover: string | null;
   badge: string;
   due_in_days: number;
   current_page: number;
@@ -165,6 +135,7 @@ export type ApiLibrary = {
     author: string | null;
     description: string | null;
     url: string | null;
+    cover: string | null;
     category: string;
     tone: ApiTone;
     total_pages: number;
@@ -176,6 +147,8 @@ export type ApiLibrary = {
 };
 
 export type ApiCatalogue = {
+  /** Terisi hanya bila katalog diminta per halaman (?page). */
+  pagination: { page: number; last_page: number; total: number } | null;
   books: (ApiLibrary["new_arrivals"][number] & { borrowed_by_me: boolean })[];
   categories: string[];
   active_loans: number;
@@ -227,33 +200,31 @@ export type ApiForum = {
   threads: ApiThread[];
   /** Dipakai menyembunyikan "Muat Diskusi Lainnya" saat sudah habis. */
   threads_shown: number;
+  /** Jumlah diskusi yang cocok dengan pencarian (atau seluruh forum). */
   threads_total: number;
+  sort: "terbaru" | "populer";
+  q: string | null;
   stats: { value: string; label: string }[];
   trending: { tag: string; title: string }[];
   top_contributors: { name: string; posts: number }[];
 };
 
-export type ApiReportCard = {
-  report_card: {
-    id: number;
+export type ApiRanking = {
+  /** Excel ranking kelas terbaru yang ditandai guru; null bila belum ada. */
+  sheet: {
+    title: string;
     academic_year: string;
     semester: string;
-    average_score: number;
-    class_rank: number | null;
-    class_size: number | null;
-    attendance_percentage: number;
-  };
-  grade_history: { month: string; score: number }[];
-  recent_assessments: {
-    id: number;
-    subject: string;
-    title: string | null;
-    score: number;
-    assessed_on: string;
-  }[];
+    teacher: string | null;
+    uploaded_on: string | null;
+    note: string | null;
+    /** Isi lembar pertama, baris demi baris; null bila berkasnya tidak terbaca. */
+    rows: string[][] | null;
+  } | null;
   teacher_feedback: {
     id: number;
     name: string;
+    photo: string | null;
     role: string;
     body: string;
     created_at: string | null;
@@ -315,19 +286,9 @@ export const getOverview = cache((): Promise<ApiOverview> => authedGet<ApiOvervi
 
 export const getMe = cache((): Promise<ApiStudent> => authedGet<ApiStudent>("/me"));
 
-/** Melempar ApiError 404 bila rapor periode berjalan belum diterbitkan. */
-export const getReportCard = cache((): Promise<ApiReportCard> =>
-  authedGet<ApiReportCard>("/report-card"),
-);
+export const getRanking = cache((): Promise<ApiRanking> => authedGet<ApiRanking>("/ranking"));
 
 export const getCourses = cache((): Promise<ApiCourses> => authedGet<ApiCourses>("/courses"));
-
-export const getExams = cache((): Promise<ApiExams> => authedGet<ApiExams>("/exams"));
-
-/** Melempar ApiError 404 bila tidak ada sesi ujian yang sedang berlangsung. */
-export const getExamSession = cache((): Promise<ApiExamSession> =>
-  authedGet<ApiExamSession>("/exam-session"),
-);
 
 export const getLibrary = cache((): Promise<ApiLibrary> => authedGet<ApiLibrary>("/library"));
 
@@ -338,16 +299,30 @@ export const getForumThread = cache(
 );
 
 export const getLibraryCatalogue = cache(
-  (q?: string, kategori?: string): Promise<ApiCatalogue> => {
+  (q?: string, kategori?: string, page?: number): Promise<ApiCatalogue> => {
     const p = new URLSearchParams();
     if (q) p.set("q", q);
     if (kategori) p.set("kategori", kategori);
+    // Tanpa page seluruh katalog dikirim (portal guru); portal siswa per halaman.
+    if (page) p.set("page", String(page));
     const qs = p.toString();
     return authedGet<ApiCatalogue>(`/library/books${qs ? `?${qs}` : ""}`);
   },
 );
 
 export const getForum = cache(
-  (threads?: number): Promise<ApiForum> =>
-    authedGet<ApiForum>(threads ? `/forum?threads=${threads}` : "/forum"),
+  (threads?: number, sort?: "terbaru" | "populer", q?: string): Promise<ApiForum> => {
+    const p = new URLSearchParams();
+    if (threads) p.set("threads", String(threads));
+    if (sort === "populer") p.set("urut", "populer");
+    if (q) p.set("q", q);
+    const qs = p.toString();
+    return authedGet<ApiForum>(`/forum${qs ? `?${qs}` : ""}`);
+  },
+);
+
+/** Katalog beasiswa yang sama dengan Portal Beasiswa alumni. */
+export const getScholarships = cache(
+  (kategori?: string): Promise<ApiBeasiswa> =>
+    authedGet<ApiBeasiswa>(`/beasiswa${kategori ? `?kategori=${encodeURIComponent(kategori)}` : ""}`),
 );

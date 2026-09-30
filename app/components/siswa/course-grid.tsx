@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { Icon } from "@/app/components/icons";
 import { cn, toneSoft } from "@/lib/styles";
-import { Panel, Progress } from "./ui";
+import { PageHead, Panel, Progress } from "./ui";
+import { Avatar } from "./avatar";
 import type { ApiCourses } from "@/lib/api";
 
 type Course = ApiCourses["courses"][number];
@@ -15,7 +16,13 @@ type Course = ApiCourses["courses"][number];
  * /courses lewat halaman induk; di sini hanya interaksinya — filter, membuka
  * modul, dan menandai modul selesai.
  */
-export function CourseGrid({ filters, courses }: Pick<ApiCourses, "filters" | "courses">) {
+export function CourseGrid({
+  eyebrow,
+  title,
+  desc,
+  filters,
+  courses,
+}: Pick<ApiCourses, "filters" | "courses"> & { eyebrow: string; title: string; desc: string }) {
   // Filter pertama dari server dianggap "tanpa saringan".
   const all = filters[0] ?? "All";
   const [filter, setFilter] = useState(all);
@@ -61,7 +68,13 @@ export function CourseGrid({ filters, courses }: Pick<ApiCourses, "filters" | "c
 
   return (
     <>
-      <div role="tablist" aria-label="Filter mata pelajaran" className="mb-6 flex flex-wrap gap-2">
+      {/* Filter kategori di kanan judul (portal-siswa.md §3C). */}
+      <PageHead
+        eyebrow={eyebrow}
+        title={title}
+        desc={desc}
+        action={
+      <div role="tablist" aria-label="Filter mata pelajaran" className="flex shrink-0 flex-wrap gap-2">
         {filters.map((f) => {
           const active = f === filter;
           return (
@@ -75,8 +88,8 @@ export function CourseGrid({ filters, courses }: Pick<ApiCourses, "filters" | "c
                 "press rounded-full px-4 py-2 text-sm font-semibold",
                 "transition-[background-color,border-color,color,transform] duration-200 ease-snap",
                 active
-                  ? "bg-ink text-canvas"
-                  : "border border-line text-muted hover:border-ink/25 hover:text-ink",
+                  ? "bg-primary text-white"
+                  : "border border-line bg-surface text-muted hover:border-primary/40 hover:text-primary",
               )}
             >
               {f}
@@ -84,6 +97,8 @@ export function CourseGrid({ filters, courses }: Pick<ApiCourses, "filters" | "c
           );
         })}
       </div>
+        }
+      />
 
       <motion.ul layout className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <AnimatePresence mode="popLayout">
@@ -107,9 +122,12 @@ export function CourseGrid({ filters, courses }: Pick<ApiCourses, "filters" | "c
                 </div>
 
                 <h3 className="mt-4 font-display text-lg font-extrabold leading-tight text-ink">{c.name}</h3>
-                <p className="mt-1 text-xs text-muted">{c.teacher ?? "Pengajar belum ditetapkan"}</p>
+                <div className="mt-3 flex items-center gap-2.5">
+                  <Avatar name={c.teacher ?? "?"} photo={c.teacher_photo} className="h-8 w-8 text-xs" />
+                  <p className="min-w-0 truncate text-xs text-muted">{c.teacher ?? "Pengajar belum ditetapkan"}</p>
+                </div>
 
-                <div className="mt-5">
+                <div className="mt-auto pt-5">
                   <div className="mb-1.5 flex items-center justify-between text-[11px] font-semibold">
                     <span className="text-muted">{c.modules} modul</span>
                     <span className="tabular-nums text-ink">{progressOf(c)}%</span>
@@ -121,9 +139,9 @@ export function CourseGrid({ filters, courses }: Pick<ApiCourses, "filters" | "c
                   type="button"
                   onClick={() => setOpened(c)}
                   disabled={c.module_list.length === 0}
-                  className="press group mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full border border-line px-4 py-2.5 text-sm font-semibold text-ink transition-[border-color,background-color,transform] duration-200 ease-snap hover:border-ink/25 hover:bg-surface-2 disabled:pointer-events-none disabled:opacity-45"
+                  className="press group mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-[background-color,transform] duration-200 ease-snap hover:bg-primary-strong disabled:pointer-events-none disabled:opacity-45"
                 >
-                  {c.module_list.length === 0 ? "Modul Belum Ada" : "Lihat Modul"}
+                  {c.module_list.length === 0 ? "Modul Belum Ada" : "View Modules"}
                   {c.module_list.length > 0 && (
                     <Icon name="arrow" className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   )}

@@ -10,11 +10,11 @@ const pillars = [
   "Berilmu · Berakhlak · Berprestasi",
 ];
 
-/** Bold tri-color ribbon of school pillars that scrolls continuously.
+/** Solid school-blue ribbon of school pillars that scrolls continuously.
  *  One track holds two identical copies; translating it -50% loops seamlessly. */
 export function Marquee() {
   return (
-    <div className="bg-warm-gradient relative overflow-hidden py-3.5 text-white">
+    <div className="relative overflow-hidden bg-blue py-3.5 text-white">
       <div className="marquee-mask flex">
         <div className="marquee-track">
           {[0, 1].map((copy) => (

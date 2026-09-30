@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { PortalShell } from "@/app/components/siswa/shell";
 import { getGuruOverview } from "@/lib/api-guru";
-import { pickNextClass } from "@/lib/next-class";
 
 export const metadata: Metadata = {
   title: { default: "Portal Guru", template: "%s | MAN Kota Batu" },
@@ -14,7 +13,7 @@ export default async function GuruPortalLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   // Di-cache per render: beranda memakai ulang respons yang sama.
-  const { teacher, today_schedule } = await getGuruOverview();
+  const { teacher } = await getGuruOverview();
 
   return (
     <PortalShell
@@ -27,10 +26,8 @@ export default async function GuruPortalLayout({
             ? `NIP ${teacher.nip}`
             : "Guru",
       }}
-      nextClass={pickNextClass(today_schedule, {
-        joinLabel: "Buka Kelas Live",
-        suffix: (s) => s.classroom,
-      })}
+      // Redesain Figma: kartu "Kelas Selanjutnya" di sidebar ditiadakan.
+      nextClass={null}
     >
       {children}
     </PortalShell>

@@ -1,10 +1,31 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Icon } from "./icons";
 import { Container, SectionHeading } from "./ui";
 import type { Site } from "@/lib/site";
+
+/** Foto profil di atas inisial; inisial tetap tampil selama foto belum ada. */
+function Avatar({ name, photo }: { name: string; photo?: string }) {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <span className="relative grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full bg-teal-soft font-display text-lg font-extrabold text-teal ring-2 ring-surface shadow-card">
+      {name.charAt(0)}
+      {photo && (
+        <Image
+          src={photo}
+          alt={name}
+          fill
+          sizes="56px"
+          onLoad={() => setLoaded(true)}
+          className={`object-cover transition-opacity duration-500 ${loaded ? "opacity-100" : "opacity-0"}`}
+        />
+      )}
+    </span>
+  );
+}
 
 const variants = {
   enter: (d: number) => ({ x: d > 0 ? 64 : -64, opacity: 0 }),
@@ -80,9 +101,7 @@ export function Testimonials({ testimonials }: { testimonials: Site["testimonial
                     {t.quote}
                   </blockquote>
                   <figcaption className="mt-7 flex items-center gap-4">
-                    <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-teal-soft font-display text-lg font-extrabold text-teal">
-                      {t.name.charAt(0)}
-                    </span>
+                    <Avatar key={t.name} name={t.name} photo={t.photo} />
                     <span>
                       <span className="block font-display font-bold text-ink">{t.name}</span>
                       <span className="block text-sm text-muted">{t.role}</span>

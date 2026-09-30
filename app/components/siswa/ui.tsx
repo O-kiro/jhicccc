@@ -1,7 +1,6 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
 import { Icon } from "@/app/components/icons";
 import type { IconName } from "@/lib/content";
 import { cn, toneBar, toneSoft, toneText } from "@/lib/styles";
@@ -123,39 +122,6 @@ export function Progress({
         style={{ width: `${value}%` }}
       />
     </div>
-  );
-}
-
-/** "01:42:03" dari jumlah detik — dipakai countdown ujian & sisa waktu CBT. */
-export function formatClock(total: number): string {
-  const safe = Math.max(0, total);
-  const h = Math.floor(safe / 3600);
-  const m = Math.floor((safe % 3600) / 60);
-  const s = safe % 60;
-  return [h, m, s].map((n) => String(n).padStart(2, "0")).join(":");
-}
-
-/**
- * Hitung mundur. Render pertama memakai `seconds` apa adanya supaya markup
- * server & klien identik; detik baru berjalan setelah hydrate.
- */
-export function Countdown({ seconds, className }: { seconds: number; className?: string }) {
-  const [left, setLeft] = useState(seconds);
-
-  useEffect(() => {
-    // Hitung dari deadline, bukan dekrementasi, supaya tidak melenceng
-    // saat tab di-throttle browser.
-    const deadline = Date.now() + seconds * 1000;
-    const id = setInterval(() => {
-      setLeft(Math.max(0, Math.round((deadline - Date.now()) / 1000)));
-    }, 1000);
-    return () => clearInterval(id);
-  }, [seconds]);
-
-  return (
-    <time className={cn("tabular-nums", className)} dateTime={`PT${Math.max(0, left)}S`}>
-      {formatClock(left)}
-    </time>
   );
 }
 

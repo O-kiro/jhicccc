@@ -22,6 +22,7 @@ export function RdmBoard({ data, tahunAjaran }: { data: ApiRdm; tahunAjaran: str
   const [semester, setSemester] = useState(data.semesters[0] ?? "Ganjil");
   const [berkas, setBerkas] = useState<File | null>(null);
   const [catatanBerkas, setCatatanBerkas] = useState("");
+  const [tampilKeSiswa, setTampilKeSiswa] = useState(false);
   const [galatUnggah, setGalatUnggah] = useState<Record<string, string>>({});
   const [pesanUnggah, setPesanUnggah] = useState<{ ok: boolean; teks: string } | null>(null);
   const [mengunggah, setMengunggah] = useState(false);
@@ -48,6 +49,7 @@ export function RdmBoard({ data, tahunAjaran }: { data: ApiRdm; tahunAjaran: str
     form.set("semester", semester);
     form.set("file", berkas);
     if (catatanBerkas.trim()) form.set("note", catatanBerkas.trim());
+    if (tampilKeSiswa) form.set("shown_to_students", "1");
 
     const hasil = await kirimBerkas("/api/guru/rdm", form);
     setMengunggah(false);
@@ -55,7 +57,13 @@ export function RdmBoard({ data, tahunAjaran }: { data: ApiRdm; tahunAjaran: str
     if (hasil.ok) {
       setBerkas(null);
       setCatatanBerkas("");
-      setPesanUnggah({ ok: true, teks: "Berkas rapor terunggah." });
+      setPesanUnggah({
+        ok: true,
+        teks: tampilKeSiswa
+          ? "Ranking terunggah dan langsung tampil di halaman Ranking siswa kelas ini."
+          : "Berkas rapor terunggah.",
+      });
+      setTampilKeSiswa(false);
       router.refresh();
       return;
     }
@@ -192,6 +200,24 @@ export function RdmBoard({ data, tahunAjaran }: { data: ApiRdm; tahunAjaran: str
                 />
               </Kolom>
 
+              {/* Bawaannya tidak: berkas rapor biasa bisa memuat nilai
+                  seluruh kelas dan tidak boleh ikut terbaca siswa. */}
+              <label className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-line bg-surface-2 p-3.5 text-sm">
+                <input
+                  type="checkbox"
+                  checked={tampilKeSiswa}
+                  onChange={(e) => setTampilKeSiswa(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 accent-[var(--primary)]"
+                />
+                <span>
+                  <span className="block font-semibold text-ink">Tampilkan ke siswa sebagai Ranking Kelas</span>
+                  <span className="mt-0.5 block text-xs text-muted">
+                    Khusus Excel .xlsx. Isinya tampil sebagai tabel di halaman Ranking siswa kelas ini; unggahan
+                    terbaru menggantikan yang lama.
+                  </span>
+                </span>
+              </label>
+
               {pesanUnggah && (
                 <p
                   role={pesanUnggah.ok ? "status" : "alert"}
@@ -226,7 +252,10 @@ export function RdmBoard({ data, tahunAjaran }: { data: ApiRdm; tahunAjaran: str
               {data.uploads.map((b) => (
                 <li key={b.id} className="flex flex-wrap items-center justify-between gap-3 py-3.5 first:pt-0 last:pb-0">
                   <span className="min-w-0">
-                    <span className="block text-sm font-semibold text-ink">{b.original_name}</span>
+                    <span className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-semibold text-ink">{b.original_name}</span>
+                      {b.shown_to_students && <Pill tone="blue">Ranking siswa</Pill>}
+                    </span>
                     <span className="mt-0.5 block text-xs text-muted">
                       {b.classroom} · {b.semester} {b.academic_year} · {b.size_kb} KB
                       {b.uploaded_on ? ` · ${formatDate(b.uploaded_on)}` : ""}

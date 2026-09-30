@@ -25,7 +25,7 @@ export function Programs({ programs }: { programs: Site["programs"] }) {
 
           <SectionHeading
             tone="onDark"
-            index="02"
+            index="03"
             eyebrow="Tiga Pilar Keunggulan"
             title="Program Unggulan"
             desc="Setiap siswa dibimbing tumbuh sesuai minat dan bakatnya melalui tiga program unggulan MAKOBA."
@@ -43,7 +43,7 @@ export function Programs({ programs }: { programs: Site["programs"] }) {
                     >
                       <div className="flex items-center justify-between">
                         <span
-                          className={`grid h-16 w-16 place-items-center rounded-2xl transition-transform duration-300 group-hover:-rotate-3 group-hover:scale-110 ${c.chip}`}
+                          className={`grid h-16 w-16 place-items-center rounded-full transition-transform duration-300 group-hover:-rotate-3 group-hover:scale-110 ${c.chip}`}
                         >
                           <Icon name={p.icon} className="h-8 w-8" />
                         </span>

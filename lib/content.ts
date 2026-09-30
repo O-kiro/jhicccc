@@ -25,7 +25,8 @@ export type IconName =
   | "palette" | "ball" | "mic" | "leaf" | "camera"
   // Portal siswa (design-siswa.md)
   | "flame" | "bell" | "download" | "chat" | "logout" | "help" | "flag"
-  | "chart" | "wifi" | "grid" | "plus" | "eye" | "bookmark" | "sigma";
+  | "chart" | "wifi" | "grid" | "plus" | "eye" | "bookmark" | "sigma"
+  | "graduation" | "edit" | "trash" | "megaphone";
 
 export const school = {
   name: "MAN Kota Batu",
@@ -35,11 +36,18 @@ export const school = {
   motto: "Maju, Bermutu, dan Mendunia",
   address: "Jl. Patimura No. 25, Temas, Kec. Batu, Kota Batu, Jawa Timur 65315",
   phone: "(0341) 591600",
-  whatsapp: "+62 851 0000 0000",
+  /**
+   * Nomor WhatsApp resmi, format +62… Tombol WhatsApp melayang di pojok kanan
+   * bawah hanya tampil bila ini diisi — sengaja kosong sampai nomor asli ada,
+   * supaya pengunjung tidak diarahkan ke nomor contoh.
+   */
+  whatsapp: "",
   email: "info@mankotabatu.sch.id",
   mapsUrl: "https://maps.google.com/?q=MAN+Kota+Batu+Jl+Patimura+Batu",
   mapsEmbed: "https://maps.google.com/maps?q=MAN%20Kota%20Batu%20Jl%20Patimura%20No%2025%20Temas%20Batu&t=&z=15&ie=UTF8&iwloc=&output=embed",
   researchDecree: "SK Dirjen Pendidikan Islam No. 6757 Tahun 2020",
+  /** Foto gedung untuk seksi Tentang MAKOBA; daftar berkas di public/photos/README.md. */
+  buildingPhoto: "/photos/gedung-madrasah.jpg",
 };
 
 // Figma §1 Hero — Statistik cepat: 1.248 Siswa Aktif · 99 Guru & Tendik · 38 Rombongan Belajar · 32 Mata Pelajaran
@@ -52,6 +60,7 @@ export const stats: { value: number; suffix?: string; label: string; icon: IconN
 
 export type DigitalService = {
   name: string;
+  /** Deskripsi singkat untuk kartu beranda dan daftar "Layanan Lainnya". */
   desc: string;
   /** Halaman informasi internal (detail layanan, atau /ppdb untuk PPDB Online). */
   href: string;
@@ -60,9 +69,9 @@ export type DigitalService = {
   /**
    * Halaman LOGIN sistem — semua tombol yang membuka sistem harus menuju ke sini;
    * jangan pernah menautkan/menampilkan isi sistem tanpa login.
-   * RDM, CBT, E-Learning, dan Perpustakaan Digital memakai satu gerbang yang sama
-   * di /siswa/login (design-siswa.md §1). PPDB punya gerbangnya sendiri di /login
-   * karena pendaftar belum punya akun siswa.
+   * Portal Siswa, Guru, Alumni, dan Perpustakaan Digital memakai satu gerbang
+   * yang sama di /masuk (/siswa/login dialihkan ke sana). PPDB punya gerbangnya
+   * sendiri di /login karena pendaftar belum punya akun.
    */
   login?: { href: string; label: string };
   /** Detail-page content; absent for services with their own dedicated page (PPDB). */
@@ -70,15 +79,27 @@ export type DigitalService = {
     slug: string;
     fullName: string;
     audience: string;
+    /** Deskripsi di kartu judul halaman detail; tanpa ini dipakai `desc`. */
+    intro?: string;
+    /** Catatan kecil di bawah tombol masuk; tanpa ini dipakai kalimat umum. */
+    loginNote?: string;
+    /** Tombol kedua di kartu judul. Tanpa ini hanya tombol masuk yang tampil. */
+    guide?: { label: string; href: string };
     about: string[];
+    /** Kartu fitur di kolom utama (Portal Siswa). */
+    highlights?: { title: string; desc: string }[];
+    /** Judul kartu fitur di sidebar; bawaannya "Fitur Utama". */
+    featuresTitle?: string;
     features: string[];
     steps: { title: string; desc: string }[];
     note?: string;
+    /** Isi kartu bantuan di sidebar; tiap kunci yang kosong memakai teks bawaan. */
+    help?: { title?: string; text?: string; label?: string };
   };
 };
 
-// Figma §1 — Layanan Digital MAKOBA (6):
-// PPDB Online · RDM · CBT · E-Learning · Perpustakaan Digital · PPID & Pengaduan
+// Figma — Layanan Digital MAKOBA (6):
+// PPDB Online · Siswa · Guru · Perpustakaan Digital · PPID & Pengaduan · Alumni
 export const digitalServices: DigitalService[] = [
   {
     name: "PPDB Online",
@@ -89,94 +110,79 @@ export const digitalServices: DigitalService[] = [
     login: { href: "/login", label: "Masuk PPDB Online" },
   },
   {
-    name: "RDM",
-    desc: "Rapor Digital Madrasah untuk wali murid.",
-    href: "/layanan/rdm",
-    icon: "rdm",
+    name: "Siswa",
+    desc: "Portal Siswa untuk modul, rangkuman, dan forum.",
+    href: "/layanan/siswa",
+    icon: "users",
     tone: "blue",
-    login: { href: "/siswa/login", label: "Masuk ke RDM" },
+    login: { href: "/siswa/login", label: "Masuk ke Portal Siswa" },
     detail: {
-      slug: "rdm",
-      fullName: "Rapor Digital Madrasah (RDM)",
-      audience: "Wali murid & siswa",
+      slug: "siswa",
+      fullName: "Portal Siswa MAKOBA",
+      audience: "Khusus Siswa MAN Kota Batu",
+      intro:
+        "Pusat layanan akademik terpadu siswa. Akses materi pembelajaran, rangkuman, jadwal pelajaran, hingga informasi kegiatan siswa dalam satu tempat.",
+      loginNote: "Gunakan Akun Google Workspace Resmi Sekolah (@mankotabatu.sch.id) untuk login.",
+      guide: { label: "Panduan Penggunaan", href: "#cara-mengakses" },
       about: [
-        "Rapor Digital Madrasah (RDM) adalah aplikasi penilaian resmi dari Kementerian Agama yang digunakan MAN Kota Batu untuk mengelola dan menyajikan hasil belajar siswa secara digital. Melalui RDM, capaian belajar tercatat rapi setiap semester dan dapat diakses tanpa harus menunggu pembagian rapor cetak.",
-        "Layanan ini menjadi wujud transparansi penilaian madrasah: wali murid dapat memantau perkembangan akademik putra-putrinya, sementara guru mengelola nilai dalam satu sistem yang terstandar.",
+        "Portal Siswa adalah platform digital terintegrasi yang mendukung proses belajar mengajar harian, pembagian tugas, dan akses informasi akademik secara mandiri bagi seluruh siswa MAN Kota Batu.",
       ],
+      highlights: [
+        { title: "Modul & Rangkuman", desc: "Akses materi pembelajaran digital dan bahan ajar dari guru." },
+        { title: "Jadwal & Presensi", desc: "Cek jadwal pelajaran mingguan dan rekap kehadiran siswa." },
+        { title: "Info Tugas & Ujian", desc: "Pengumuman tenggat waktu tugas dan jadwal ujian berbasis komputer." },
+        { title: "Forum & Diskusi", desc: "Wadah komunikasi akademik antar siswa dan pengajar." },
+      ],
+      featuresTitle: "Layanan Unggulan Siswa",
       features: [
-        "Nilai setiap mata pelajaran beserta deskripsi capaian",
-        "Rekap kehadiran dan penilaian sikap",
-        "Arsip rapor antar-semester yang tersimpan rapi",
-        "Dapat diakses kapan saja dari perangkat apa pun",
-        "Rapor dapat diunduh dan dicetak mandiri",
+        "Akses Modul & Materi Pembelajaran 24/7",
+        "Terintegrasi dengan E-Learning & CBT",
+        "Transkrip Nilai & Capaian Belajar",
+        "Pengumuman Khusus Kegiatan Siswa",
       ],
       steps: [
-        { title: "Minta Akun", desc: "Wali murid menerima nama pengguna dan kata sandi dari wali kelas di awal tahun pelajaran." },
-        { title: "Masuk ke RDM", desc: "Buka aplikasi RDM madrasah, lalu masuk menggunakan akun yang diberikan." },
-        { title: "Pilih Semester", desc: "Tentukan tahun pelajaran dan semester yang ingin dilihat." },
-        { title: "Lihat & Unduh Rapor", desc: "Nilai dan deskripsi capaian dapat dibaca langsung atau diunduh sebagai arsip." },
+        { title: "Siapkan Akun Sekolah", desc: "Gunakan email dan kata sandi akun resmi siswa." },
+        { title: "Login ke Portal", desc: "Klik tombol 'Masuk ke Portal Siswa' dan otentikasi akun." },
+        { title: "Pilih Fitur / Kelas", desc: "Pilih mata pelajaran atau fitur akademik yang ingin diakses." },
+        { title: "Unduh Materi / Kerjakan Tugas", desc: "Akses materi belajar atau unggah tugas secara langsung." },
       ],
-      note: "Akun RDM diterbitkan resmi oleh madrasah. Jaga kerahasiaan kata sandi dan hubungi wali kelas apabila lupa akses.",
+      note: "Segera hubungi Wali Kelas atau Tim IT Madrasah jika mengalami kendala lupa password atau gagal masuk ke akun Portal Siswa.",
+      help: {
+        title: "Butuh Bantuan IT?",
+        text: "Tim Helpdesk IT Madrasah siap membantu kendala akses akun siswa.",
+        label: "Bantuan & Contact Support",
+      },
     },
   },
   {
-    name: "CBT",
-    desc: "Computer Based Test untuk ujian online.",
-    href: "/layanan/cbt",
-    icon: "cbt",
-    tone: "gold",
-    login: { href: "/siswa/login", label: "Masuk ke CBT" },
-    detail: {
-      slug: "cbt",
-      fullName: "Computer Based Test (CBT)",
-      audience: "Siswa",
-      about: [
-        "CBT adalah platform ujian berbasis komputer yang digunakan MAN Kota Batu untuk penilaian tengah semester, penilaian akhir semester, ujian madrasah, hingga try out. Pelaksanaan ujian menjadi lebih efisien, hemat kertas, dan hasilnya dapat diolah dengan cepat.",
-        "Sistem ini juga melatih siswa terbiasa dengan model asesmen digital seperti ANBK dan seleksi masuk perguruan tinggi yang kini berbasis komputer.",
-      ],
-      features: [
-        "Soal terjadwal dengan token ujian yang aman",
-        "Pengacakan soal untuk menjaga integritas",
-        "Pewaktu otomatis sesuai durasi ujian",
-        "Penilaian objektif yang cepat dan akurat",
-        "Analisis hasil sebagai bahan evaluasi guru",
-      ],
-      steps: [
-        { title: "Cek Jadwal", desc: "Perhatikan jadwal, sesi, dan ruang ujian yang diumumkan madrasah." },
-        { title: "Siapkan Perangkat", desc: "Gunakan komputer laboratorium atau perangkat yang ditentukan panitia." },
-        { title: "Masuk dengan Token", desc: "Login menggunakan akun peserta dan token yang dibagikan pengawas saat ujian dimulai." },
-        { title: "Kerjakan & Kumpulkan", desc: "Kerjakan soal sesuai waktu; jawaban terkumpul otomatis saat sesi berakhir." },
-      ],
-      note: "Token ujian hanya dibagikan pengawas di ruang ujian sesaat sebelum sesi dimulai.",
-    },
-  },
-  {
-    name: "E-Learning",
-    desc: "Kelas dan materi pembelajaran daring.",
-    href: "/layanan/e-learning",
-    icon: "elearning",
+    name: "Guru",
+    desc: "Portal Guru untuk administrasi dan kegiatan mengajar.",
+    href: "/layanan/guru",
+    icon: "book",
     tone: "teal",
-    login: { href: "/siswa/login", label: "Masuk ke E-Learning" },
+    login: { href: "/masuk", label: "Masuk ke Portal Guru" },
     detail: {
-      slug: "e-learning",
-      fullName: "E-Learning Madrasah",
-      audience: "Siswa & guru",
+      slug: "guru",
+      fullName: "Portal Guru",
+      audience: "GURU & TENAGA PENDIDIK",
+      intro: "Portal terpadu administrasi pembelajaran, penilaian, dan pelaporan kinerja guru MAN Kota Batu.",
+      loginNote: "Khusus untuk guru dan tenaga pendidik aktif MAN Kota Batu. Gunakan akun resmi madrasah untuk masuk.",
       about: [
-        "E-Learning Madrasah adalah ruang kelas digital tempat guru membagikan materi, tugas, kuis, dan diskusi untuk melengkapi pembelajaran tatap muka di MAN Kota Batu.",
-        "Dengan e-learning, proses belajar tidak berhenti di jam pelajaran: siswa dapat mengulang materi, mengumpulkan tugas secara daring, dan memantau umpan balik guru dari mana saja.",
+        "Portal Guru adalah platform digital terintegrasi yang dirancang khusus untuk memfasilitasi pendidik di MAN Kota Batu dalam mengelola seluruh rangkaian kegiatan belajar mengajar, administrasi kelas, serta pelaporan capaian siswa secara efisien, akuntabel, dan paperless.",
+        "Melalui satu pintu akses (Single Sign-On), bapak/ibu guru dapat mengelola Rapor Digital Madrasah (RDM), menyusun Modul Pembelajaran dan Bahan Ajar & LKPD, mengakses koleksi Perpustakaan Digital, mencatat presensi pada Jurnal Harian serta Jurnal Mengajar, hingga memantau kedisiplinan siswa lewat sistem Lapor Tatib.",
       ],
       features: [
-        "Materi dan modul tersusun per mata pelajaran",
-        "Pengumpulan tugas secara daring",
-        "Kuis dan penilaian berbasis kelas digital",
-        "Forum diskusi antara guru dan siswa",
-        "Rekam jejak progres belajar setiap siswa",
+        "Portal Guru Terpadu & Single Sign-On.",
+        "RDM (Rapor Digital Madrasah) & Rekap Nilai otomatis.",
+        "Pengelolaan Bahan Ajar, Modul & LKPD interaktif.",
+        "Jadwal Mengajar, Jurnal Harian & Mengajar Real-time.",
+        "Sistem Lapor Tatib & integrasi Perpustakaan Digital.",
       ],
       steps: [
-        { title: "Masuk dengan Akun Madrasah", desc: "Gunakan akun pembelajaran yang diberikan oleh madrasah." },
-        { title: "Pilih Kelas & Mapel", desc: "Buka kelas digital sesuai jadwal dan mata pelajaran." },
-        { title: "Pelajari Materi & Kerjakan Tugas", desc: "Unduh materi, ikuti kuis, dan unggah tugas sebelum tenggat." },
-        { title: "Pantau Umpan Balik", desc: "Nilai dan catatan guru dapat dilihat langsung pada setiap aktivitas." },
+        { title: "Masuk dengan Akun Guru", desc: "Gunakan NIP / NPT dan kata sandi madrasah resmi yang telah terdaftar pada database atau akun madrasah." },
+        { title: "Pilih Menu Administrasi", desc: "Pilih fitur yang diinginkan seperti RDM, Bahan Ajar & LKPD, Jadwal Mengajar, Jurnal Mengajar, atau Lapor Tatib pada dashboard utama." },
+        { title: "Kelola & Unggah Dokumen", desc: "Lakukan pengisian daftar nilai siswa, unggah materi modul pembelajaran, dan konfirmasi presensi kehadiran kelas secara berkala." },
+        { title: "Sinkronisasi & Pelaporan", desc: "Simpan data secara realtime dan lakukan sinkronisasi hasil evaluasi ke sistem kurikulum dan pimpinan madrasah." },
       ],
     },
   },
@@ -191,6 +197,7 @@ export const digitalServices: DigitalService[] = [
       slug: "perpustakaan-digital",
       fullName: "Perpustakaan Digital",
       audience: "Siswa, guru & tenaga kependidikan",
+      guide: { label: "Tanya Layanan Ini", href: "/kontak" },
       about: [
         "Perpustakaan MAN Kota Batu memadukan koleksi cetak dengan layanan digital: katalog daring, buku elektronik, dan referensi jurnal yang mendukung pembelajaran maupun penelitian siswa.",
         "Sebagai madrasah penyelenggara riset, perpustakaan menjadi dapur literasi Kelas Riset — tempat siswa menelusuri pustaka untuk proposal, karya tulis ilmiah, dan publikasi.",
@@ -239,6 +246,39 @@ export const digitalServices: DigitalService[] = [
         { title: "Terima Jawaban", desc: "Jawaban disampaikan melalui kontak pemohon sesuai batas waktu layanan informasi publik." },
       ],
       note: "Permohonan izin penelitian di madrasah juga dilayani melalui PPID atau bagian tata usaha.",
+    },
+  },
+  {
+    name: "Alumni",
+    desc: "Portal Alumni untuk beasiswa, jejaring, dan diskusi.",
+    href: "/layanan/alumni",
+    icon: "graduation",
+    tone: "blue",
+    login: { href: "/masuk", label: "Masuk ke Portal Alumni" },
+    detail: {
+      slug: "alumni",
+      fullName: "Portal Alumni",
+      audience: "ALUMNI & KELUARGA BESAR",
+      intro:
+        "Portal terpadu pendataan lulusan (tracer study), jejaring forum alumni, statistik sebaran perguruan tinggi & karier, serta informasi beasiswa MAN Kota Batu.",
+      loginNote: "Khusus untuk alumni dan keluarga besar MAN Kota Batu. Gunakan akun / NIK terdaftar untuk masuk.",
+      about: [
+        "Portal Alumni MAKOBA adalah ruang layanan digital terpadu yang dirancang khusus untuk wadah silaturahmi, pendataan alumni (tracer study), jejaring komunikasi antar-alumni, serta sarana saling berbagi informasi karier dan studi lanjut bagi alumni MAN Kota Batu.",
+        "Melalui sistem resmi ini, para alumni dapat memperbarui data jejaring, memantau persebaran lulusan di Perguruan Tinggi Negeri/Swasta maupun dunia kerja, serta berkontribusi memberi motivasi dan panduan karier bagi adik-adik siswa yang masih aktif di madrasah.",
+      ],
+      features: [
+        "Forum Komunitas & Reuni Per Angkatan / Lintas Angkatan.",
+        "Tracer Study resmi untuk peta sebaran kampus & alumni.",
+        "Portal Info Beasiswa / Loker & Bimbingan Kewirausahaan.",
+        "Database Alumni Terpadu & Direktori Kontak Komunitas.",
+        "Program Mentoring Alumni & Tutor bagi Penyusunan Akses.",
+      ],
+      steps: [
+        { title: "Registrasi & Verifikasi Alumni", desc: "Masukkan nomor kelulusan / NISN atau NIK untuk verifikasi awal identitas alumni." },
+        { title: "Pilih Menu Layanan", desc: "Akses Tracer Study, Statistik Lulusan, Forum Alumni, atau Informasi Beasiswa & Loker." },
+        { title: "Perbarui Profil & Tracer Study", desc: "Lengkapi data jejak studi Perguruan Tinggi, domisili, pekerjaan, serta kuesioner kelulusan." },
+        { title: "Bergabung di Forum Alumni", desc: "Berinteraksi aktif bersama komunitas, berbagi kesempatan kerja (Loker), serta bimbingan angkatan." },
+      ],
     },
   },
 ];
@@ -459,13 +499,13 @@ export const extracurriculars: { name: string; category: string; desc: string; i
   { name: "Futsal", category: "Olahraga", desc: "Gocek Cepat, Kerja Sama, Strategi, Taktik Cerdas, Aksi Tangkas.", icon: "ball" },
 ];
 
-export const facilities: { name: string; desc: string; icon: IconName }[] = [
-  { name: "Laboratorium Riset", desc: "Lab sains terpadu untuk eksperimen & penelitian.", icon: "flask" },
-  { name: "Masjid Madrasah", desc: "Pusat ibadah dan kegiatan keagamaan siswa.", icon: "tahfidz" },
-  { name: "Perpustakaan Modern", desc: "Ribuan koleksi cetak dan digital.", icon: "library" },
-  { name: "Ruang Kelas Smart", desc: "Kelas ber-AC dengan perangkat pembelajaran digital.", icon: "elearning" },
-  { name: "Lapangan Olahraga", desc: "Fasilitas olahraga indoor dan outdoor.", icon: "ball" },
-  { name: "Aula Serbaguna", desc: "Ruang acara berkapasitas besar.", icon: "users" },
+export const facilities: { name: string; desc: string; icon: IconName; image?: string }[] = [
+  { name: "Laboratorium Riset", desc: "Lab sains terpadu untuk eksperimen & penelitian.", icon: "flask", image: "/photos/fasilitas-laboratorium.jpg" },
+  { name: "Masjid Madrasah", desc: "Pusat ibadah dan kegiatan keagamaan siswa.", icon: "tahfidz", image: "/photos/fasilitas-masjid.jpg" },
+  { name: "Perpustakaan Modern", desc: "Ribuan koleksi cetak dan digital.", icon: "library", image: "/photos/fasilitas-perpustakaan.jpg" },
+  { name: "Ruang Kelas Smart", desc: "Kelas ber-AC dengan perangkat pembelajaran digital.", icon: "elearning", image: "/photos/fasilitas-kelas.jpg" },
+  { name: "Lapangan Olahraga", desc: "Fasilitas olahraga indoor dan outdoor.", icon: "ball", image: "/photos/fasilitas-lapangan.jpg" },
+  { name: "Aula Serbaguna", desc: "Ruang acara berkapasitas besar.", icon: "users", image: "/photos/fasilitas-aula.jpg" },
 ];
 
 export const galleryItems: { title: string; date: string; category: string; tone: "teal" | "blue" | "gold"; image?: string }[] = [
@@ -478,26 +518,30 @@ export const galleryItems: { title: string; date: string; category: string; tone
 ];
 
 // Figma §1 — Apa Kata Mereka: ELLLL etc + tambahan real testimoni
-export const testimonials: { name: string; role: string; quote: string }[] = [
+export const testimonials: { name: string; role: string; quote: string; photo?: string }[] = [
   {
     name: "ELLLL",
     role: "Alumni pertama",
     quote: "Awalnya saya deg-degan masuk sekolah baru, tapi lewat MAKOBA saya jadi kenal banyak teman dan kakak kelas. Acaranya seru dan nggak membosankan!",
+    photo: "/photos/testimoni-ellll.jpg",
   },
   {
     name: "Hanifah Salsabila",
     role: "Alumni 2023 · Mahasiswi UGM",
     quote: "Kelas Riset di MAKOBA mengajari saya berpikir ilmiah sejak dini. Bekal itu sangat membantu saat kuliah dan menembus PTN impian.",
+    photo: "/photos/testimoni-hanifah.jpg",
   },
   {
     name: "Bapak Sutrisno",
     role: "Wali Murid Kelas XI",
     quote: "Saya tenang menyekolahkan anak di sini. Akademiknya kuat, tapi pembinaan akhlak dan ibadahnya juga tidak kalah diperhatikan.",
+    photo: "/photos/testimoni-sutrisno.jpg",
   },
   {
     name: "Muhammad Iqbal",
     role: "Siswa Kelas XII · Kelas Tahfidz",
     quote: "Di MAKOBA saya bisa menghafal Al-Qur'an sambil tetap fokus belajar. Lingkungannya benar-benar mendukung.",
+    photo: "/photos/testimoni-iqbal.jpg",
   },
 ];
 
@@ -553,11 +597,11 @@ export const faqs: { q: string; a: string }[] = [
 
 // Figma §1 — Agenda Kegiatan (3): MPLM, Awal Tahun Pelajaran 2026/2027, Tahun Baru Hijriah 1448 H
 export const agenda: {
-  date: string; title: string; category: "Ujian" | "Ekstrakurikuler" | "Keagamaan" | "Umum";
+  date: string; title: string; category: "Ujian" | "Ekstrakurikuler" | "Keagamaan" | "Umum"; location?: string;
 }[] = [
-  { date: "2026-07-07", title: "Masa Pengenalan Lingkungan Madrasah (MPLM)", category: "Umum" },
-  { date: "2026-07-14", title: "Awal Tahun Pelajaran 2026/2027", category: "Umum" },
-  { date: "2026-07-26", title: "Peringatan Tahun Baru Hijriah 1448 H", category: "Keagamaan" },
+  { date: "2026-07-07", title: "Masa Pengenalan Lingkungan Madrasah (MPLM)", category: "Umum", location: "Area Madrasah" },
+  { date: "2026-07-14", title: "Awal Tahun Pelajaran 2026/2027", category: "Umum", location: "Area Madrasah" },
+  { date: "2026-07-26", title: "Peringatan Tahun Baru Hijriah 1448 H", category: "Keagamaan", location: "Masjid Madrasah" },
 ];
 
 // Figma — Footer tiap halaman: Instagram, YouTube, Facebook (3)
