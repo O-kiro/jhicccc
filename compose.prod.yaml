@@ -19,6 +19,15 @@
 # localhost, untuk mencoba.
 services:
   web:
+    # Image siap pakai dari GitHub Actions. Di server cukup:
+    #
+    #     docker compose -f compose.prod.yaml pull
+    #     docker compose -f compose.prod.yaml up -d
+    #
+    # Blok `build:` di bawah tetap ada sebagai cadangan — `up -d --build`
+    # masih membangun secara lokal bila diperlukan. Di VPS OpenVZ ini jangan:
+    # plafon proses dan memorinya tidak cukup, lihat catatan di Dockerfile.
+    image: ghcr.io/o-kiro/jhicccc:latest
     build:
       context: .
       target: produksi

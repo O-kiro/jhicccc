@@ -172,12 +172,28 @@ SITE_URL=https://jhic26.rezasidin.my.id
 REVALIDATE_SECRET=isi-sama-dengan-SITUS_REVALIDATE_SECRET-backend
 EOF
 
-docker compose -f compose.prod.yaml up -d --build
+docker compose -f compose.prod.yaml pull
+docker compose -f compose.prod.yaml up -d
 curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:3000/      # 200
 ```
 
+**Image-nya dibangun GitHub Actions, bukan di server.** Setiap dorongan ke
+`main` memicu build dan mendorong hasilnya ke `ghcr.io/o-kiro/jhicccc:latest`.
+Image-nya publik, jadi VPS tidak perlu login ke registry.
+
+Itu bukan pilihan gaya. VPS ini OpenVZ dengan RAM 4 GiB dan `numproc` 500
+(≈390 terpakai saat diam), dan membangun Next di sana gagal berulang kali
+dengan wujud berbeda-beda: kehabisan slot thread di tokio, rayon, dan
+libvips; `SIGSEGV` saat heap V8 menyentuh plafon; lalu proses Node gagal
+tersambung dalam 30 detik. Semua tuas sudah ditekan ke 1 dan tetap tidak
+cukup. Blok `build:` di `compose.prod.yaml` sengaja dipertahankan sebagai
+cadangan, tapi **jangan dipakai di VPS ini**.
+
 `backend` di `API_URL` itu alias di jaringan `makoba`, bukan nama host di
-internet — jangan diganti alamat publik, lihat alasannya di langkah 2.
+internet — jangan diganti alamat publik, lihat alasannya di langkah 2. Nilai
+yang sama juga dipakai workflow saat membangun image; kalau kamu mengubah
+alamatnya, ubah juga di `.github/workflows/bangun-image.yml`, karena
+`SITE_URL` dan `API_URL` tercetak permanen saat build.
 
 Kalau backend belum hidup saat build, halaman dibangun dengan isi bawaan lalu
 menyusul isi CMS sendiri paling lama 60 detik setelah backend bisa dijangkau.
@@ -291,13 +307,26 @@ Lalu di browser:
 
 ## 8. Memperbarui versi dan cadangan
 
-Kode ada di dalam image, jadi setiap perubahan dibangun ulang (sekitar 1–3
-menit); `restart` saja tidak cukup.
+**Frontend** — image sudah dibangun GitHub Actions begitu perubahan masuk
+`main`. Di server cukup menariknya, sekitar satu menit dan situs hanya mati
+beberapa detik:
 
 ```bash
-cd /opt/makoba/frontend && git pull && docker compose -f compose.prod.yaml up -d --build
-cd /opt/makoba/backend  && git pull && docker compose -f compose.prod.yaml up -d --build
+cd /opt/makoba/frontend && docker compose -f compose.prod.yaml pull && docker compose -f compose.prod.yaml up -d
 ```
+
+Tunggu dulu sampai workflow **Bangun image frontend** selesai di tab Actions;
+kalau menarik terlalu cepat, yang didapat image lama.
+
+**Backend** — kodenya di-*bind-mount*, jadi tidak ada image yang perlu
+dibangun:
+
+```bash
+cd /opt/makoba/backend && git pull && docker compose -f compose.prod.yaml restart app
+```
+
+Kalau yang berubah menyentuh dependensi atau migrasi, pakai `up -d` supaya
+entrypoint menjalankan ulang `composer install` dan `artisan migrate`.
 
 Cadangkan basis data dan unggahan dari folder `backend`:
 
@@ -318,7 +347,9 @@ docker compose -f compose.prod.yaml cp app:/app/storage/app ./cadangan-unggahan-
 | Mengubah `.env` tidak berpengaruh | `docker compose restart` **tidak** membaca ulang `env_file`. Pakai `up -d` supaya container dibuat ulang. |
 | Nilai `.env` terbaca berikut komentarnya | `env_file` Compose menelan `# komentar` di belakang nilai sebagai bagian dari nilai. Taruh komentar di baris sendiri. |
 | Build berhenti dengan `Killed` | RAM habis. Tambah swap. |
-| Build panic `OS can't spawn worker thread` (os error 11) | Terlalu banyak worker untuk RAM yang ada — bukan batas jumlah proses. Turunkan `NEXT_BUILD_CPUS` (bawaan 2) saat membangun frontend. |
+| Build frontend gagal di server (thread, SIGSEGV, atau timeout 30s) | Jangan bangun di VPS ini — plafon OpenVZ-nya tidak cukup. Pakai image dari GitHub Actions: `docker compose -f compose.prod.yaml pull`. |
+| `docker compose pull` menarik image lama | Workflow **Bangun image frontend** belum selesai. Cek tab Actions dulu. |
+| `pull` ditolak: `denied` atau `unauthorized` | Paket `ghcr.io/o-kiro/jhicccc` masih privat. Buka halaman Packages repo → Package settings → Change visibility → Public. |
 | Build gagal mengunduh paket | Firewall CSF memotong jaringan Docker (lihat langkah 2). |
 | Isi situs baru berubah setelah ±1 menit | `REVALIDATE_SECRET` frontend tidak sama dengan `SITUS_REVALIDATE_SECRET` backend. |
 | Sertifikat gagal diperbarui | Blok `/.well-known/acme-challenge/` di berkas langkah 6 hilang. |
