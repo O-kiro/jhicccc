@@ -78,25 +78,35 @@ ARG SITE_URL=https://jhic26.rezasidin.my.id
 # EAGAIN itu datang dari gagalnya alokasi stack thread, bukan dari batas
 # jumlah proses — plafon prosesnya sendiri masih longgar.
 #
-# Tiga kolam thread yang berbeda, dan tak satu pun membatasi yang lain:
+# Empat kolam thread yang berbeda, dan tak satu pun membatasi yang lain.
+# Masing-masing menakar dirinya dari jumlah CPU, jadi di VPS 8 vCPU dengan
+# RAM 4 GB dan plafon proses ketat, semuanya harus ditekan satu per satu:
 #
-#   TOKIO_WORKER_THREADS  kolam Rust milik Turbopack
 #   NEXT_BUILD_CPUS       worker pembuat halaman statis (dibaca next.config.ts)
+#   TOKIO_WORKER_THREADS  kolam tokio milik Turbopack
+#   RAYON_NUM_THREADS     kolam rayon, dipakai saat menilai CSS/PostCSS
 #   VIPS_*                libvips, dipakai saat membuat gambar OpenGraph
 #
-# Yang ketiga paling mudah terlewat: gejalanya bukan kehabisan memori,
-# melainkan build berhenti di satu halaman saja —
+# Gejalanya berbeda-beda dan tidak satu pun menyebut "kehabisan memori",
+# jadi mudah salah duga:
 #
-#   Error occurred prerendering page "/opengraph-image"
-#   glib: Error creating thread: Resource temporarily unavailable
+#   tokio   OS can't spawn worker thread: Resource temporarily unavailable
+#   rayon   The global thread pool has not been initialized ... WouldBlock
+#           (muncul saat memproses ./app/globals.css, bukan saat render)
+#   libvips glib: Error creating thread: Resource temporarily unavailable
+#           (build berhenti di /opengraph-image saja, 39 halaman sebelumnya
+#           mulus)
 #
-# padahal 39 halaman sebelumnya mulus.
+# Ketiganya `EAGAIN` dari pthread_create, bukan batas jumlah proses:
+# di server yang bersangkutan `ulimit -u` 62987 dan threads-max 2 juta,
+# tapi OpenVZ memaksakan numproc 500 dengan ~390 sudah terpakai saat diam.
 ARG NEXT_BUILD_CPUS=2
 
 ENV API_URL=$API_URL \
     SITE_URL=$SITE_URL \
     NEXT_BUILD_CPUS=$NEXT_BUILD_CPUS \
     TOKIO_WORKER_THREADS=$NEXT_BUILD_CPUS \
+    RAYON_NUM_THREADS=$NEXT_BUILD_CPUS \
     VIPS_CONCURRENCY=$NEXT_BUILD_CPUS \
     VIPS_MAX_THREADS=$NEXT_BUILD_CPUS \
     NEXT_TELEMETRY_DISABLED=1

@@ -27,6 +27,9 @@ services:
       args:
         API_URL: ${API_URL:?isi API_URL dengan alamat publik backend, mis. https://api.domain-anda/api/v1}
         SITE_URL: ${SITE_URL:-https://jhic26.rezasidin.my.id}
+        # Jumlah thread yang boleh dipakai saat membangun. Turunkan ke 1 di
+        # server kecil — lihat penjelasan lengkapnya di Dockerfile.
+        NEXT_BUILD_CPUS: ${NEXT_BUILD_CPUS:-2}
       extra_hosts:
         - "host.docker.internal:host-gateway"
     # Diikat ke localhost saja: di VPS, "3000:3000" membuka server Next
