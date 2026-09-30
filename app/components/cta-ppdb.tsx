@@ -8,11 +8,8 @@ import { Reveal } from "./reveal";
 import { Countdown } from "./countdown";
 import { ppdbInfo } from "@/lib/content";
 
-const jalur = [
-  { icon: "trophy", label: "Jalur Prestasi" },
-  { icon: "heart", label: "Jalur Afirmasi" },
-  { icon: "users", label: "Jalur Reguler" },
-] as const;
+// Figma: dua indikator bercentang di bawah tombol.
+const jalur = ["Jalur Prestasi", "Jalur Reguler"];
 
 export function CtaPpdb() {
   return (
@@ -78,9 +75,9 @@ export function CtaPpdb() {
           <Reveal delay={0.2}>
             <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
               {jalur.map((j) => (
-                <span key={j.label} className="inline-flex items-center gap-2 text-sm text-on-dark/85">
-                  <Icon name={j.icon} className="h-4 w-4 text-gold" />
-                  {j.label}
+                <span key={j} className="inline-flex items-center gap-2 text-sm font-medium text-on-dark/85">
+                  <Icon name="check" className="h-4 w-4 text-gold" strokeWidth={2.2} />
+                  {j}
                 </span>
               ))}
             </div>

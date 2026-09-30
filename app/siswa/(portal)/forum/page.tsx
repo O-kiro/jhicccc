@@ -19,10 +19,13 @@ const LANGKAH = 5;
 export default async function ForumPage({
   searchParams,
 }: {
-  searchParams: Promise<{ diskusi?: string }>;
+  searchParams: Promise<{ diskusi?: string; urut?: string; q?: string }>;
 }) {
-  const diminta = Number((await searchParams).diskusi);
+  const param = await searchParams;
+  const diminta = Number(param.diskusi);
   const batas = Number.isFinite(diminta) && diminta > 0 ? diminta : undefined;
+  const urutMinta = param.urut === "populer" ? "populer" : "terbaru";
+  const cari = (param.q ?? "").trim();
 
   const {
     categories,
@@ -32,7 +35,22 @@ export default async function ForumPage({
     stats,
     trending,
     top_contributors: topContributors,
-  } = await getForum(batas);
+    sort,
+  } = await getForum(batas, urutMinta, cari || undefined);
+
+  /** Tautan forum yang mempertahankan tab dan kata kunci aktif. */
+  const tautan = (ubah: { diskusi?: number; urut?: string }) => {
+    const p = new URLSearchParams();
+    const u = ubah.urut ?? sort;
+    if (u === "populer") p.set("urut", "populer");
+    if (cari) p.set("q", cari);
+    if (ubah.diskusi) p.set("diskusi", String(ubah.diskusi));
+    const s = p.toString();
+    return `/siswa/forum${s ? `?${s}` : ""}`;
+  };
+
+  // portal-siswa.md §3E: Active Members, Total Topics, New Today.
+  const statTampil = stats.filter((s) => s.label !== "Total Replies");
 
   /** Warna tag diskusi mengikuti kategori induknya. */
   const toneOf = (category: string) =>
@@ -57,7 +75,7 @@ export default async function ForumPage({
               </span>
               <h2 className="mt-4 font-display text-lg font-extrabold text-ink">{c.name}</h2>
               <p className="mt-1.5 text-xs leading-relaxed text-muted">{c.desc}</p>
-              <p className="mt-4 flex items-center gap-1.5 text-[11px] font-semibold text-teal">
+              <p className="mt-4 flex items-center gap-1.5 text-[11px] font-semibold text-primary">
                 <Icon name="chat" className="h-3.5 w-3.5" />
                 {c.threads} Active Threads
               </p>
@@ -71,9 +89,48 @@ export default async function ForumPage({
         <Reveal>
           <Panel as="section" className="h-full">
             <PanelTitle icon="chat">Recent Discussions</PanelTitle>
+
+            {/* Tab dan pencarian lewat URL: bisa dibagikan, jalan tanpa JavaScript. */}
+            <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <nav aria-label="Urutan diskusi" className="flex gap-1 rounded-full border border-line bg-surface-2 p-1">
+                {([
+                  ["terbaru", "Terbaru"],
+                  ["populer", "Populer"],
+                ] as const).map(([nilai, label]) => (
+                  <Link
+                    key={nilai}
+                    href={tautan({ urut: nilai })}
+                    scroll={false}
+                    aria-current={sort === nilai ? "page" : undefined}
+                    className={cn(
+                      "rounded-full px-4 py-1.5 text-xs font-semibold transition-colors",
+                      sort === nilai ? "bg-primary text-white" : "text-muted hover:text-ink",
+                    )}
+                  >
+                    {label}
+                  </Link>
+                ))}
+              </nav>
+              <form action="/siswa/forum" className="relative sm:w-64">
+                {sort === "populer" && <input type="hidden" name="urut" value="populer" />}
+                <label htmlFor="cari-diskusi" className="sr-only">
+                  Cari diskusi
+                </label>
+                <Icon name="search" className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+                <input
+                  id="cari-diskusi"
+                  name="q"
+                  defaultValue={cari}
+                  placeholder="Cari diskusi…"
+                  className="w-full rounded-full border border-line bg-surface py-2 pl-10 pr-4 text-sm text-ink outline-none focus:border-primary"
+                />
+              </form>
+            </div>
             {threads.length === 0 && (
               <p className="rounded-card border border-line bg-surface-2 p-5 text-sm text-muted">
-                Belum ada diskusi. Jadilah yang pertama membuka topik.
+                {cari
+                  ? `Tidak ada diskusi yang cocok dengan "${cari}".`
+                  : "Belum ada diskusi. Jadilah yang pertama membuka topik."}
               </p>
             )}
             <StaggerGroup className="space-y-3">
@@ -119,7 +176,7 @@ export default async function ForumPage({
                 tetap bekerja tanpa JavaScript. */}
             {shown < total && (
               <Link
-                href={`/siswa/forum?diskusi=${shown + LANGKAH}`}
+                href={tautan({ diskusi: shown + LANGKAH })}
                 scroll={false}
                 className="press mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full border border-line px-5 py-3 text-sm font-semibold text-ink transition-colors hover:border-ink/25 hover:bg-surface-2"
               >
@@ -136,8 +193,8 @@ export default async function ForumPage({
           <Reveal delay={0.05}>
             <Panel as="section">
               <PanelTitle icon="chart">Forum Stats</PanelTitle>
-              <dl className="grid grid-cols-2 gap-3">
-                {stats.map((s) => (
+              <dl className="grid grid-cols-3 gap-3">
+                {statTampil.map((s) => (
                   <div key={s.label} className="rounded-xl border border-line bg-surface-2 p-3.5">
                     <dt className="text-[11px] font-semibold text-muted">{s.label}</dt>
                     <dd className="mt-1 font-display text-xl font-extrabold tabular-nums text-ink">

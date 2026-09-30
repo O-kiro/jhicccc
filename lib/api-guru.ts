@@ -33,6 +33,8 @@ export type ApiSesi = {
 
 export type ApiGuruOverview = {
   teacher: ApiTeacher;
+  /** "2026/2027" — untuk lencana Tahun Ajaran Aktif di beranda. */
+  academic_year: string;
   quote: { body: string; source: string | null } | null;
   summary: {
     classes: number;
@@ -61,6 +63,11 @@ type SesiJurnal = {
 };
 
 export type ApiJurnal = {
+  tab: "tahun_ini" | "arsip";
+  filters: { kelas: string | null; mapel: string | null };
+  counts: { tahun_ini: number; arsip: number };
+  /** Pilihan dropdown Kelas & Mapel, dari jadwal guru ini. */
+  options: { kelas: string[]; mapel: string[] };
   /** Sesi yang sudah mulai tapi belum dicatat, terbaru lebih dulu. */
   pending: (SesiJurnal & { date: string })[];
   journals: (SesiJurnal & {
@@ -161,12 +168,14 @@ export type ApiBahanAjar = {
 };
 
 export type ApiJurnalHarian = {
+  tab: "tahun_ini" | "arsip";
   filters: { dari: string | null; sampai: string | null };
   counts: { tahun_ini: number; arsip: number };
   activities: {
     id: number;
     date: string;
     classroom: string | null;
+    classroom_id: number | null;
     activity: string;
     /** Alamat bukti foto; null bila tidak ada. */
     photo_url: string | null;
@@ -188,6 +197,8 @@ export type ApiRdm = {
     original_name: string;
     size_kb: number;
     note: string | null;
+    /** Tampil sebagai tabel di halaman Ranking portal siswa kelas itu. */
+    shown_to_students: boolean;
     uploaded_on: string | null;
   }[];
   feedback: {
@@ -229,7 +240,16 @@ export const getGuruMe = cache((): Promise<ApiTeacher> => authedGet<ApiTeacher>(
 
 export const getJadwal = cache((): Promise<ApiJadwal> => authedGet<ApiJadwal>("/guru/jadwal"));
 
-export const getJurnal = cache((): Promise<ApiJurnal> => authedGet<ApiJurnal>("/guru/jurnal"));
+export const getJurnal = cache(
+  (opsi: { tab?: string; kelas?: string; mapel?: string } = {}): Promise<ApiJurnal> => {
+    const p = new URLSearchParams();
+    if (opsi.tab === "arsip") p.set("tab", "arsip");
+    if (opsi.kelas) p.set("kelas", opsi.kelas);
+    if (opsi.mapel) p.set("mapel", opsi.mapel);
+    const qs = p.toString();
+    return authedGet<ApiJurnal>(`/guru/jurnal${qs ? `?${qs}` : ""}`);
+  },
+);
 
 export const getKelas = cache((): Promise<ApiKelas> => authedGet<ApiKelas>("/guru/kelas"));
 
@@ -254,8 +274,9 @@ export const getBahanAjar = cache(
     authedGet<ApiBahanAjar>(`/guru/bahan-ajar${jenis ? `?jenis=${encodeURIComponent(jenis)}` : ""}`),
 );
 
-export const getJurnalHarian = cache((dari?: string, sampai?: string): Promise<ApiJurnalHarian> => {
+export const getJurnalHarian = cache((dari?: string, sampai?: string, tab?: string): Promise<ApiJurnalHarian> => {
   const p = new URLSearchParams();
+  if (tab === "arsip") p.set("tab", "arsip");
   if (dari) p.set("dari", dari);
   if (sampai) p.set("sampai", sampai);
   const qs = p.toString();

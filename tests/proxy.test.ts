@@ -17,8 +17,8 @@ const tujuan = (res: Response) => res.headers.get("location");
 
 describe("penjaga rute", () => {
   it("melempar pengunjung tanpa sesi ke halaman masuk, membawa tujuannya", () => {
-    const res = proxy(minta("/siswa/rapor"));
-    expect(tujuan(res)).toBe(`${B}/masuk?next=%2Fsiswa%2Frapor`);
+    const res = proxy(minta("/siswa/ranking"));
+    expect(tujuan(res)).toBe(`${B}/masuk?next=%2Fsiswa%2Franking`);
   });
 
   it("mengantar pendaftar PPDB ke halaman masuknya sendiri, bukan gerbang portal", () => {

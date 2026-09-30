@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDate, dateParts, geserTanggal, hariDari, jamWib, tanggalTerakhirHari } from "@/lib/format";
+import { formatDate, dateParts, geserTanggal, hariDari, jamWib, tanggalTerakhirHari, waktuRelatif } from "@/lib/format";
 
 describe("format tanggal", () => {
   it("menulis tanggal dalam bahasa Indonesia", () => {
@@ -29,5 +29,20 @@ describe("format tanggal", () => {
     // 17.30 UTC = 00.30 WIB keesokan harinya.
     expect(jamWib(new Date("2026-09-22T17:30:00Z"))).toBe("00:30");
     expect(jamWib(new Date("2026-09-22T01:05:00Z"))).toBe("08:05");
+  });
+});
+
+describe("waktu relatif", () => {
+  const sekarang = new Date("2026-09-29T10:00:00+07:00");
+
+  it("menulis selisih waktu dalam bahasa Indonesia", () => {
+    expect(waktuRelatif("2026-09-29T09:59:30+07:00", sekarang)).toBe("baru saja");
+    expect(waktuRelatif("2026-09-29T09:55:00+07:00", sekarang)).toBe("5 menit lalu");
+    expect(waktuRelatif("2026-09-29T07:00:00+07:00", sekarang)).toBe("3 jam lalu");
+    expect(waktuRelatif("2026-09-27T10:00:00+07:00", sekarang)).toBe("2 hari lalu");
+  });
+
+  it("kembali ke tanggal lengkap setelah sebulan", () => {
+    expect(waktuRelatif("2026-06-18T08:00:00+07:00", sekarang)).toBe("18 Juni 2026");
   });
 });

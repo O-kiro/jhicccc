@@ -61,7 +61,8 @@ export default async function ForumAlumniPage({
   };
 
   return (
-    <div className="mx-auto max-w-6xl">
+    // Redesain: Forum Alumni dipertahankan 100%, termasuk warna aslinya.
+    <div className="warna-asli mx-auto max-w-6xl">
       <PageHead
         eyebrow="Jejaring Karir"
         title="Forum Alumni"

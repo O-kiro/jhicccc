@@ -28,6 +28,27 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [{ source: "/storage/:path*", destination: `${BACKEND}/storage/:path*` }];
   },
+  // Halaman layanan lama digantikan portal per peran: RDM → Siswa,
+  // CBT → Guru, E-Learning → Alumni. Tautan dan bookmark lama tetap sampai.
+  async redirects() {
+    return [
+      { source: "/layanan/rdm", destination: "/layanan/siswa", permanent: true },
+      { source: "/layanan/cbt", destination: "/layanan/guru", permanent: true },
+      { source: "/layanan/e-learning", destination: "/layanan/alumni", permanent: true },
+      // Redesain portal siswa: Rapor → Ranking, Kursus → Modul Pembelajaran,
+      // katalog digabung ke halaman Perpustakaan, dan Ujian/CBT dihapus.
+      // Sementara (307), bukan permanen: rute ini di balik login dan bisa
+      // saja dipakai lagi kelak.
+      { source: "/siswa/rapor", destination: "/siswa/ranking", permanent: false },
+      { source: "/siswa/kursus", destination: "/siswa/modul", permanent: false },
+      { source: "/siswa/perpustakaan/katalog", destination: "/siswa/perpustakaan", permanent: false },
+      { source: "/siswa/ujian", destination: "/siswa", permanent: false },
+      { source: "/siswa/cbt", destination: "/siswa", permanent: false },
+      // Redesain portal guru: perpustakaan disalin dari portal siswa (satu
+      // halaman, katalog di dalamnya).
+      { source: "/guru/perpustakaan/katalog", destination: "/guru/perpustakaan", permanent: false },
+    ];
+  },
   // A stray lockfile in the home dir confuses workspace-root inference; pin it.
   turbopack: {
     root: __dirname,

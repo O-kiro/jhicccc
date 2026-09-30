@@ -13,7 +13,16 @@ export function Principal() {
           {/* Portrait */}
           <Reveal>
             <div className="relative mx-auto max-w-sm">
-              <PhotoTile tone="teal" icon="users" className="aspect-[4/5] rounded-panel" glyphClassName="h-24 w-24" src={principal.photo} alt={principal.name} sizes="(max-width: 1024px) 100vw, 40vw" />
+              {/* Figma: foto formal berlatar putih, tanpa panel hijau */}
+              <PhotoTile
+                icon="users"
+                texture={false}
+                className="aspect-[4/5] rounded-panel border border-line bg-white! text-muted!"
+                glyphClassName="h-24 w-24"
+                src={principal.photo}
+                alt={principal.name}
+                sizes="(max-width: 1024px) 100vw, 40vw"
+              />
               <div className="absolute inset-x-5 -bottom-5 rounded-2xl bg-surface p-4 text-center shadow-overlay">
                 <p className="font-display text-sm font-bold text-ink">{principal.name}</p>
                 <p className="text-xs text-teal">{principal.role}</p>
@@ -29,22 +38,21 @@ export function Principal() {
                 Sambutan Kepala Madrasah
               </span>
             </Reveal>
+            {/* Figma: sambutan dibungkus kartu putih membulat, ikon kutip transparan */}
             <Reveal delay={0.05}>
-              <Icon name="quote" className="mt-6 h-12 w-12 text-gold/40" />
-            </Reveal>
-            <Reveal delay={0.1}>
-              <blockquote className="mt-4 font-serif text-2xl italic leading-relaxed text-ink">
-                {principal.message}
-              </blockquote>
-            </Reveal>
-            <Reveal delay={0.15}>
-              <div className="mt-8 flex items-center gap-3">
-                <span className="h-px w-10 bg-gold" />
-                <div>
-                  <p className="font-display font-bold text-ink">{principal.name}</p>
-                  <p className="text-sm text-muted">{principal.role}</p>
-                </div>
-              </div>
+              <figure className="relative mt-6 overflow-hidden rounded-panel bg-surface p-8 shadow-card sm:p-10">
+                <Icon name="quote" className="pointer-events-none absolute right-6 top-6 h-20 w-20 text-blue/10" strokeWidth={1.2} />
+                <blockquote className="relative font-serif text-xl italic leading-relaxed text-ink sm:text-2xl">
+                  {principal.message}
+                </blockquote>
+                <figcaption className="relative mt-8 flex items-center gap-3">
+                  <span className="h-px w-10 bg-gold" />
+                  <span>
+                    <span className="block font-display font-bold text-ink">{principal.name}</span>
+                    <span className="block text-sm text-muted">{principal.role}</span>
+                  </span>
+                </figcaption>
+              </figure>
             </Reveal>
           </div>
         </div>

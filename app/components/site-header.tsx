@@ -129,8 +129,10 @@ export function SiteHeader({ searchIndex }: { searchIndex: SearchItem[] }) {
     <>
       <header
         className={cn(
-          "fixed inset-x-0 top-0 z-50 transition-all duration-300",
-          scrolled || menuOpen ? "border-b border-line bg-canvas/85 backdrop-blur-xl" : "bg-transparent",
+          // Figma: header tetap berlatar putih bersih sejak awal; garis dan
+          // bayangan tipis baru muncul setelah halaman digulir.
+          "fixed inset-x-0 top-0 z-50 border-b bg-surface transition-[border-color,box-shadow] duration-300",
+          scrolled || menuOpen ? "border-line shadow-card" : "border-transparent",
         )}
       >
         <nav className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3.5 sm:px-8">

@@ -7,7 +7,7 @@ import { Icon } from "./icons";
 import { Container } from "./ui";
 import { school, socials } from "@/lib/content";
 
-// Figma footer spec: Tautan Cepat 4, Layanan 5 (tanpa CBT di footer)
+// Figma footer spec: Tautan Cepat 4, Layanan 6
 const quickLinks = [
   { label: "Tentang Kami", href: "/profil" },
   { label: "Program Unggulan", href: "/#program" },
@@ -15,12 +15,13 @@ const quickLinks = [
   { label: "Berita", href: "/berita" },
 ];
 
-// Figma footer Layanan: PPDB Online · Rapor Digital (RDM) · E-Learning · Perpustakaan Digital · PPID & Pengaduan
+// Figma footer Layanan: PPDB Online · Guru · Siswa · Alumni · Perpustakaan Digital · PPID & Pengaduan
 // Semua route internal — portal eksternal hanya via tombol login di halaman detail
 const serviceLinks = [
   { label: "PPDB Online", href: "/ppdb", external: false },
-  { label: "Rapor Digital (RDM)", href: "/layanan/rdm", external: false },
-  { label: "E-Learning", href: "/layanan/e-learning", external: false },
+  { label: "Guru", href: "/layanan/guru", external: false },
+  { label: "Siswa", href: "/layanan/siswa", external: false },
+  { label: "Alumni", href: "/layanan/alumni", external: false },
   { label: "Perpustakaan Digital", href: "/layanan/perpustakaan-digital", external: false },
   { label: "PPID & Pengaduan", href: "/layanan/ppid", external: false },
 ];

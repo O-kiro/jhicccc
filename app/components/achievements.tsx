@@ -94,7 +94,7 @@ export function Achievements({ achievements }: { achievements: Site["achievement
         <div className="flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-end">
           <SectionHeading
             gradient
-            index="03"
+            index="04"
             align="left"
             eyebrow="Papan Prestasi"
             title="Prestasi Membanggakan"
@@ -130,7 +130,7 @@ export function Achievements({ achievements }: { achievements: Site["achievement
                     className={`rounded-full px-5 py-2.5 text-sm font-semibold transition-all ${
                       active
                         ? "bg-blue-gradient text-white shadow-card"
-                        : "bg-surface text-muted shadow-card hover:-translate-y-0.5 hover:text-blue"
+                        : "bg-blue-soft text-blue hover:-translate-y-0.5 hover:shadow-card"
                     }`}
                   >
                     {levelLabel[lvl] ?? lvl}
@@ -200,15 +200,15 @@ export function Achievements({ achievements }: { achievements: Site["achievement
 
         <p className="mt-2 text-center text-xs text-muted sm:hidden">Geser untuk melihat lainnya →</p>
 
-        {/* Figma CTA card: Prestasi Man Kota Batu */}
+        {/* Figma: banner biru "Prestasi MAN Kota Batu" */}
         <Reveal delay={0.1}>
-          <div className="mt-10 flex flex-col items-start justify-between gap-4 rounded-card bg-dark p-6 text-on-dark shadow-card sm:flex-row sm:items-center sm:p-8">
+          <div className="bg-blue-gradient mt-10 flex flex-col items-start justify-between gap-4 rounded-card p-6 text-white shadow-card sm:flex-row sm:items-center sm:p-8">
             <div>
-              <h3 className="font-display text-xl font-bold text-on-dark">Prestasi MAN Kota Batu</h3>
-              <p className="mt-1 text-sm text-on-dark/70">Prestasi membanggakan dari para siswa dan siswi.</p>
+              <h3 className="font-display text-xl font-bold text-white">Prestasi MAN Kota Batu</h3>
+              <p className="mt-1 text-sm text-white/80">Prestasi membanggakan dari para siswa dan siswi.</p>
             </div>
             <Link href="/#prestasi" className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-surface px-6 py-3 text-sm font-semibold text-blue shadow-card transition-all hover:-translate-y-0.5">
-              Lihat Semua Prestasi
+              Lihat Selengkapnya
               <Icon name="arrow" className="h-4 w-4" />
             </Link>
           </div>

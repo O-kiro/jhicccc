@@ -27,7 +27,7 @@ export function Agenda({ agenda }: { agenda: Site["agenda"] }) {
     <section id="agenda" className="scroll-mt-24 py-24 sm:py-32">
       <Container>
         <SectionHeading
-          index="07"
+          index="02"
           eyebrow="Kalender Akademik"
           title="Agenda Kegiatan"
           desc="Jadwal kegiatan akademik, keagamaan, dan ekstrakurikuler madrasah tahun pelajaran 2026/2027."
@@ -70,15 +70,24 @@ export function Agenda({ agenda }: { agenda: Site["agenda"] }) {
                   transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
                   className="flex items-center gap-5 rounded-card bg-surface p-4 shadow-card"
                 >
-                  <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-blue-gradient text-white">
-                    <span className="font-display text-2xl font-extrabold leading-none">{d.day}</span>
-                    <span className="text-[11px] uppercase tracking-wide">{d.month}</span>
+                  {/* Figma: kotak tanggal membulat, nama bulan beraksen biru, angka tebal */}
+                  <div className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-2xl border border-line bg-canvas">
+                    <span className="text-[11px] font-bold uppercase tracking-wide text-blue">{d.month}</span>
+                    <span className="font-display text-2xl font-extrabold leading-none text-ink">{d.day}</span>
                   </div>
                   <div className="min-w-0 flex-1">
                     <h3 className="font-display font-bold text-ink">{a.title}</h3>
-                    <p className="mt-0.5 inline-flex items-center gap-1.5 text-xs text-muted">
-                      <Icon name="clock" className="h-3.5 w-3.5" />
-                      {formatDate(a.date)}
+                    <p className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
+                      <span className="inline-flex items-center gap-1.5">
+                        <Icon name="clock" className="h-3.5 w-3.5" />
+                        {formatDate(a.date)}
+                      </span>
+                      {a.location && (
+                        <span className="inline-flex items-center gap-1.5">
+                          <Icon name="pin" className="h-3.5 w-3.5 text-blue" />
+                          {a.location}
+                        </span>
+                      )}
                     </p>
                   </div>
                   <Badge tone={catTone[a.category]} className="shrink-0">

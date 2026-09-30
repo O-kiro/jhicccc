@@ -9,6 +9,9 @@ import { StaggerGroup, staggerItem } from "./reveal";
 import type { Site } from "@/lib/site";
 import { formatDate } from "@/lib/format";
 
+// Figma: masonry asimetris — tinggi foto bergantian mengikuti pola ini.
+const RATIOS = ["aspect-[4/5]", "aspect-[4/3]", "aspect-square", "aspect-[3/4]", "aspect-[16/10]", "aspect-[4/3]"];
+
 const tone: Record<string, string> = {
   teal: "bg-teal-soft text-teal",
   blue: "bg-blue-soft text-blue",
@@ -94,7 +97,7 @@ export function Gallery({ galleryItems }: { galleryItems: Site["galleryItems"] }
           desc="Momen kebersamaan dan kegiatan madrasah yang terdokumentasi sepanjang tahun."
         />
 
-        <StaggerGroup className="mt-16 grid grid-cols-2 gap-4 md:grid-cols-3">
+        <StaggerGroup className="mt-16 columns-2 gap-4 md:columns-3">
           {galleryItems.map((g, i) => (
             <motion.button
               key={g.title}
@@ -104,9 +107,9 @@ export function Gallery({ galleryItems }: { galleryItems: Site["galleryItems"] }
                 triggerRef.current = e.currentTarget;
                 setSelected(i);
               }}
-              className="group flex flex-col overflow-hidden rounded-card bg-surface text-left shadow-card transition-all duration-200 hover:-translate-y-1.5 hover:shadow-hover"
+              className="group mb-4 flex w-full break-inside-avoid flex-col overflow-hidden rounded-card bg-surface text-left shadow-card transition-all duration-200 hover:-translate-y-1.5 hover:shadow-hover"
             >
-              <div className="relative aspect-[4/3] overflow-hidden">
+              <div className={`relative overflow-hidden ${RATIOS[i % RATIOS.length]}`}>
                 <div className="h-full w-full transition-transform duration-500 group-hover:scale-105">
                   <Media t={g.tone} layoutId={`gallery-${i}`} src={g.image} alt={g.title} />
                 </div>

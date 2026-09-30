@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { PortalShell } from "@/app/components/siswa/shell";
+import { ReadingWidget } from "@/app/components/siswa/reading-widget";
+import { PortalFooter } from "@/app/components/siswa/portal-footer";
 import { getOverview } from "@/lib/api";
-import { pickNextClass } from "@/lib/next-class";
 
 export const metadata: Metadata = {
   // Judul tiap halaman memakai template root ("%s | MAN Kota Batu") supaya
@@ -16,7 +17,7 @@ export default async function PortalLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   // getOverview di-cache per render, jadi halaman Overview memakai ulang
   // respons yang sama tanpa permintaan HTTP kedua.
-  const { student, today_schedule } = await getOverview();
+  const { student, continue_reading } = await getOverview();
 
   return (
     <PortalShell
@@ -25,9 +26,12 @@ export default async function PortalLayout({
         name: student.name,
         subtitle: `Kelas ${student.kelas ?? "—"}`,
       }}
-      nextClass={pickNextClass(today_schedule, { joinLabel: "Ikuti Kelas Live" })}
+      // portal-siswa.md §2: widget bacaan aktif menggantikan kartu kelas.
+      nextClass={null}
+      widget={<ReadingWidget loan={continue_reading} />}
     >
       {children}
+      <PortalFooter />
     </PortalShell>
   );
 }

@@ -1,13 +1,14 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/app/components/icons";
 import { cn } from "@/lib/styles";
-import { Panel, Pill } from "@/app/components/siswa/ui";
+import { Pill } from "@/app/components/siswa/ui";
 import type { ApiModulAjar } from "@/lib/api-guru";
 import { kirim } from "./kirim";
 import { Kolom, Modal, inputPortal } from "./modal";
+import { HeaderCard, TombolAksi, tabel, tombolTambah } from "./ui";
 
 type Modul = ApiModulAjar["plans"][number];
 
@@ -38,7 +39,7 @@ const KOSONG: Form = {
  * memang untuk saling meminjam perangkat — tapi tombol ubah dan hapus hanya
  * muncul pada modul sendiri.
  */
-export function LessonPlanBoard({ data }: { data: ApiModulAjar }) {
+export function LessonPlanBoard({ data, children }: { data: ApiModulAjar; children?: ReactNode }) {
   const router = useRouter();
   const id = useId();
 
@@ -95,100 +96,84 @@ export function LessonPlanBoard({ data }: { data: ApiModulAjar }) {
     else window.alert(hasil.pesan);
   }
 
+  const ubah = (m: Modul) =>
+    buka({
+      id: m.id,
+      title: m.title,
+      subject_id: String(data.subjects.find((s) => s.name === m.subject)?.id ?? ""),
+      classroom_id: String(data.classrooms.find((k) => k.name === m.classroom)?.id ?? ""),
+      time_range: m.time_range ?? "",
+      url: m.url ?? "",
+      note: m.note ?? "",
+      status: m.status,
+    });
+
   return (
     <>
-      <div className="mb-5 flex justify-end">
-        <button
-          type="button"
-          onClick={() => buka(KOSONG)}
-          className="btn-sheen bg-blue-gradient press inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white"
-        >
-          <Icon name="plus" className="h-4 w-4" />
-          Buat Modul Baru
-        </button>
-      </div>
+      {/* Satu kartu: judul, tombol buat, tab, penyaring, lalu tabel (Figma). */}
+      <HeaderCard
+        icon="research"
+        eyebrow="Modul Pembelajaran"
+        title="Daftar Modul Ajar"
+        desc="Kelola, cetak, dan temukan modul ajar rekan sejawat."
+        action={
+          <button type="button" onClick={() => buka(KOSONG)} className={tombolTambah()}>
+            <Icon name="plus" className="h-4 w-4" />
+            Buat Modul Baru
+          </button>
+        }
+      >
+        {children}
 
-      {data.plans.length === 0 ? (
-        <p className="rounded-card border border-line bg-surface-2 p-6 text-sm text-muted">
-          {data.tab === "rekan"
-            ? "Belum ada modul dari rekan sejawat."
-            : data.tab === "arsip"
-              ? "Belum ada modul yang diarsipkan."
-              : "Belum ada modul ajar. Buat yang pertama lewat tombol di atas."}
-        </p>
-      ) : (
-        <Panel className="overflow-hidden p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-surface-2 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-muted">
+        {data.plans.length === 0 ? (
+          <p className="mt-5 rounded-xl border border-line bg-surface-2 p-6 text-sm text-muted">
+            {data.tab === "rekan"
+              ? "Belum ada modul dari rekan sejawat."
+              : data.tab === "arsip"
+                ? "Belum ada modul yang diarsipkan."
+                : "Belum ada modul ajar. Buat yang pertama lewat tombol di atas."}
+          </p>
+        ) : (
+          <div className={tabel.wrap}>
+            <table className={tabel.table}>
+              <thead className={tabel.thead}>
                 <tr>
-                  <th scope="col" className="w-12 px-5 py-3">No</th>
-                  <th scope="col" className="px-5 py-3">Materi Utama</th>
-                  <th scope="col" className="px-5 py-3">Kelas</th>
-                  <th scope="col" className="px-5 py-3">Mapel</th>
-                  <th scope="col" className="px-5 py-3">Waktu</th>
-                  <th scope="col" className="px-5 py-3 text-right">Aksi</th>
+                  <th scope="col" className={cn(tabel.th, "w-12")}>No</th>
+                  <th scope="col" className={tabel.th}>Kelas</th>
+                  <th scope="col" className={tabel.th}>Mapel</th>
+                  <th scope="col" className={tabel.th}>Materi Utama</th>
+                  <th scope="col" className={tabel.th}>Waktu</th>
+                  <th scope="col" className={cn(tabel.th, "text-right")}>Aksi</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-line">
+              <tbody className={tabel.tbody}>
                 {data.plans.map((m, i) => (
                   <tr key={m.id}>
-                    <td className="px-5 py-3.5 tabular-nums text-muted">{i + 1}</td>
-                    <td className="px-5 py-3.5">
+                    <td className={cn(tabel.td, "font-display font-extrabold tabular-nums text-ink")}>{i + 1}</td>
+                    <td className={cn(tabel.td, "text-ink")}>{m.classroom ?? "—"}</td>
+                    <td className={cn(tabel.td, "text-muted")}>{m.subject ?? "—"}</td>
+                    <td className={tabel.td}>
                       <span className="block font-semibold leading-snug text-ink">{m.title}</span>
-                      {!m.is_mine && (
-                        <span className="mt-0.5 block text-xs text-muted">oleh {m.teacher}</span>
-                      )}
+                      {!m.is_mine && <span className="mt-0.5 block text-xs text-muted">oleh {m.teacher}</span>}
                       {m.note && <span className="mt-1 block text-xs leading-relaxed text-muted">{m.note}</span>}
                       {m.url && (
                         <a
                           href={m.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-semibold text-teal hover:underline"
+                          className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline"
                         >
                           Buka berkas modul
                           <Icon name="external" className="h-3 w-3" />
                         </a>
                       )}
                     </td>
-                    <td className="px-5 py-3.5 text-muted">{m.classroom ?? "—"}</td>
-                    <td className="px-5 py-3.5 text-muted">{m.subject ?? "—"}</td>
-                    <td className="px-5 py-3.5 tabular-nums text-muted">{m.time_range ?? "—"}</td>
-                    <td className="px-5 py-3.5">
+                    <td className={cn(tabel.td, "whitespace-nowrap tabular-nums text-muted")}>{m.time_range ?? "—"}</td>
+                    <td className={tabel.td}>
                       {m.is_mine ? (
                         <span className="flex justify-end gap-2">
-                          <button
-                            type="button"
-                            disabled={sibuk}
-                            onClick={() =>
-                              buka({
-                                id: m.id,
-                                title: m.title,
-                                subject_id: String(
-                                  data.subjects.find((s) => s.name === m.subject)?.id ?? "",
-                                ),
-                                classroom_id: String(
-                                  data.classrooms.find((k) => k.name === m.classroom)?.id ?? "",
-                                ),
-                                time_range: m.time_range ?? "",
-                                url: m.url ?? "",
-                                note: m.note ?? "",
-                                status: m.status,
-                              })
-                            }
-                            className="press rounded-full border border-line px-3 py-1 text-[11px] font-semibold text-muted transition-colors hover:border-ink/25 hover:text-ink"
-                          >
-                            Ubah
-                          </button>
-                          <button
-                            type="button"
-                            disabled={sibuk}
-                            onClick={() => hapus(m)}
-                            className="press rounded-full border border-line px-3 py-1 text-[11px] font-semibold text-muted transition-colors hover:border-gold/40 hover:text-gold-strong"
-                          >
-                            Hapus
-                          </button>
+                          <TombolAksi jenis="edit" label={`Ubah modul ${m.title}`} disabled={sibuk} onClick={() => ubah(m)} />
+                          <TombolAksi jenis="trash" label={`Hapus modul ${m.title}`} disabled={sibuk} onClick={() => hapus(m)} />
                         </span>
                       ) : (
                         <span className="flex justify-end">
@@ -201,8 +186,8 @@ export function LessonPlanBoard({ data }: { data: ApiModulAjar }) {
               </tbody>
             </table>
           </div>
-        </Panel>
-      )}
+        )}
+      </HeaderCard>
 
       <Modal
         open={form !== null}
@@ -324,7 +309,7 @@ export function LessonPlanBoard({ data }: { data: ApiModulAjar }) {
                 type="submit"
                 disabled={sibuk || form.title.trim() === ""}
                 className={cn(
-                  "btn-sheen bg-blue-gradient press rounded-full px-5 py-2.5 text-sm font-semibold text-white",
+                  "press rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-strong",
                   "disabled:pointer-events-none disabled:opacity-60",
                 )}
               >

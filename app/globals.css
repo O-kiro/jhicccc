@@ -30,6 +30,12 @@
   --gold-strong: #98600f;
   --gold-soft: #efd6a8;
 
+  /* Portal siswa (portal-siswa.md §4): banner, menu aktif, tombol utama. */
+  --primary: #1e63bd;
+  --primary-strong: #174f97;
+  --primary-soft: #dbe7f7;
+  --danger: #dc2626;
+
   --dark: #0f1512;         /* dark canvas (MetaMask #0A0A0A role)    */
   --on-dark: #f1efe8;
 
@@ -48,6 +54,11 @@
 
   --teal: #34a98a;
   --teal-strong: #279072;
+
+  --primary: #4b8fdc;
+  --primary-strong: #3a7cc7;
+  --primary-soft: #16304d;
+  --danger: #f87171;
   --teal-soft: #183d30;
   --blue: #5a98da;
   --blue-strong: #4e8ccd;
@@ -62,6 +73,62 @@
   --card-shadow: 0 0 0 1px rgb(255 255 255 / 0.06), 0 14px 34px -16px rgb(0 0 0 / 0.6);
   --hover-shadow: 0 0 0 1px rgb(255 255 255 / 0.1), 0 22px 46px -18px rgb(0 0 0 / 0.7);
   --overlay-shadow: 0 24px 60px -20px rgb(0 0 0 / 0.7);
+}
+
+/* Latar portal siswa sedikit lebih netral dari krem situs (#F4F3EF). */
+html:not(.dark) .portal-siswa {
+  --canvas: #f4f3ef;
+}
+
+/*
+ * Portal guru (redesain Figma): seluruh nuansa hijau diganti biru. Token teal
+ * ikut dibelokkan ke biru, jadi komponen bersama yang memakai teal — panel,
+ * pil, tombol — otomatis berwarna biru tanpa disunting satu per satu.
+ */
+html:not(.dark) .portal-guru {
+  --canvas: #f3f4f1;
+  --primary: #1e60aa;
+  --primary-strong: #184e8b;
+  --primary-soft: #dbeafe;
+  --teal: #1e60aa;
+  --teal-strong: #184e8b;
+  --teal-soft: #dbeafe;
+}
+.dark .portal-guru {
+  --teal: var(--primary);
+  --teal-strong: var(--primary-strong);
+  --teal-soft: var(--primary-soft);
+}
+
+/* Portal alumni (redesain Figma): sama seperti portal guru, teal → biru. */
+html:not(.dark) .portal-alumni {
+  --canvas: #faf8f5;
+  --primary: #1e62d0;
+  --primary-strong: #0263ba;
+  --primary-soft: #e0edff;
+  --teal: #1e62d0;
+  --teal-strong: #0263ba;
+  --teal-soft: #e0edff;
+}
+.dark .portal-alumni {
+  --teal: var(--primary);
+  --teal-strong: var(--primary-strong);
+  --teal-soft: var(--primary-soft);
+}
+
+/* Bagian yang wajib tampil persis seperti semula (Lapor Tatib guru, Forum
+   Alumni): teal asli. */
+html:not(.dark) .portal-guru .warna-asli,
+html:not(.dark) .portal-alumni .warna-asli {
+  --teal: #0f6e56;
+  --teal-strong: #0a5240;
+  --teal-soft: #bfe6d4;
+}
+.dark .portal-guru .warna-asli,
+.dark .portal-alumni .warna-asli {
+  --teal: #34a98a;
+  --teal-strong: #279072;
+  --teal-soft: #183d30;
 }
 
 @theme inline {
@@ -81,6 +148,10 @@
   --color-gold: var(--gold);
   --color-gold-strong: var(--gold-strong);
   --color-gold-soft: var(--gold-soft);
+  --color-primary: var(--primary);
+  --color-primary-strong: var(--primary-strong);
+  --color-primary-soft: var(--primary-soft);
+  --color-danger: var(--danger);
 
   --color-dark: var(--dark);
   --color-on-dark: var(--on-dark);

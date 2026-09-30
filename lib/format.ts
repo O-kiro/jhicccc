@@ -51,3 +51,18 @@ export function tanggalTerakhirHari(hariIni: string, iso: number): string {
   const sekarang = ((new Date(Date.UTC(y, m - 1, d)).getUTCDay() + 6) % 7) + 1;
   return geserTanggal(hariIni, -((sekarang - iso + 7) % 7));
 }
+
+/**
+ * Waktu relatif berbahasa Indonesia: "baru saja", "5 menit lalu",
+ * "2 hari lalu". Lewat 30 hari kembali ke tanggal lengkap.
+ */
+export function waktuRelatif(iso: string, sekarang: Date = new Date()): string {
+  const detik = Math.round((sekarang.getTime() - new Date(iso).getTime()) / 1000);
+
+  if (detik < 60) return "baru saja";
+  if (detik < 3600) return `${Math.floor(detik / 60)} menit lalu`;
+  if (detik < 86400) return `${Math.floor(detik / 3600)} jam lalu`;
+  if (detik < 86400 * 30) return `${Math.floor(detik / 86400)} hari lalu`;
+
+  return formatDate(iso.slice(0, 10));
+}

@@ -12,7 +12,9 @@ export default async function TatibPage() {
   const data = await getTatib();
 
   return (
-    <div className="mx-auto max-w-6xl">
+    // Redesain: Lapor Tatib dipertahankan 100% — termasuk warna teal
+    // aslinya, yang di bagian lain portal guru sudah diganti biru.
+    <div className="warna-asli mx-auto max-w-6xl">
       <PageHead
         eyebrow="Lapor Tatib"
         title="Lapor Poin Kedisiplinan"

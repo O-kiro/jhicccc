@@ -38,7 +38,8 @@ export default async function ThreadAlumniPage({ params }: { params: Promise<{ i
   const { thread, replies } = data;
 
   return (
-    <div className="mx-auto max-w-3xl">
+    // Redesain: Forum Alumni dipertahankan 100%, termasuk warna aslinya.
+    <div className="warna-asli mx-auto max-w-3xl">
       <Link
         href="/alumni/portal/forum"
         className="press inline-flex items-center gap-2 text-sm font-semibold text-muted transition-colors hover:text-ink"
