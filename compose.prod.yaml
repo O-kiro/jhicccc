@@ -30,6 +30,8 @@ services:
         # Jumlah thread yang boleh dipakai saat membangun. Turunkan ke 1 di
         # server kecil — lihat penjelasan lengkapnya di Dockerfile.
         NEXT_BUILD_CPUS: ${NEXT_BUILD_CPUS:-2}
+        # Batas heap V8 saat membangun (MB). Turunkan di server ber-RAM kecil.
+        NODE_BUILD_HEAP_MB: ${NODE_BUILD_HEAP_MB:-1536}
       extra_hosts:
         - "host.docker.internal:host-gateway"
     # Diikat ke localhost saja: di VPS, "3000:3000" membuka server Next
