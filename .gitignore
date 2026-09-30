@@ -1,12 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies (juga node_modules milik folder lain seperti wa-bot/)
+# dependencies — bukan hanya di akar, supaya node_modules di subfolder
+# mana pun ikut terabaikan.
 node_modules/
-
-# Sesi WhatsApp Web (whatsapp-web.js): berisi kredensial login, jangan pernah
-# di-commit. Ratusan MB — tanpa ini pemindai kelas Tailwind ikut membacanya.
-.wwebjs_auth/
-.wwebjs_cache/
 /.pnp
 .pnp.*
 .yarn/*
