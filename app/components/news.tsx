@@ -30,65 +30,76 @@ export function News({ news }: { news: Site["news"] }) {
           </Reveal>
         </div>
 
-        <div className="mt-16 grid gap-6 lg:grid-cols-2">
-          {/* Featured */}
-          <Reveal>
-            {/* Figma: banner besar, teks menumpang di atas foto kegiatan */}
-            <Link href={`/berita/${featured?.slug}`} className="group block h-full overflow-hidden rounded-card shadow-card transition-all duration-200 hover:-translate-y-1.5 hover:shadow-hover">
-              <PhotoTile
-                tone={featured.tone}
-                icon="trophy"
-                className="h-full min-h-[24rem]"
-                glyphClassName="h-16 w-16"
-                src={featured.image}
-                alt={featured.title}
-                sizes="(max-width: 1024px) 100vw, 50vw"
-              >
-                <span aria-hidden className="absolute inset-0 bg-linear-to-t from-black/85 via-black/40 to-transparent" />
-                <span className="absolute left-5 top-5">
-                  <Badge tone={featured.tone}>{featured.category}</Badge>
-                </span>
-                <div className="absolute inset-x-0 bottom-0 flex flex-col p-7">
-                  <span className="inline-flex items-center gap-1.5 text-xs text-white/80">
-                    <Icon name="calendar" className="h-3.5 w-3.5" /> {formatDate(featured.date)}
+        {/*
+          Daftar dari CMS bisa kosong: semua berita belum terbit, dijadwalkan ke
+          tanggal mendatang, atau dihapus dari panel. Tanpa cabang ini beranda
+          gagal dirender (500) karena `featured` tidak ada.
+        */}
+        {featured ? (
+          <div className="mt-16 grid gap-6 lg:grid-cols-2">
+            {/* Featured */}
+            <Reveal>
+              {/* Figma: banner besar, teks menumpang di atas foto kegiatan */}
+              <Link href={`/berita/${featured.slug}`} className="group block h-full overflow-hidden rounded-card shadow-card transition-all duration-200 hover:-translate-y-1.5 hover:shadow-hover">
+                <PhotoTile
+                  tone={featured.tone}
+                  icon="trophy"
+                  className="h-full min-h-[24rem]"
+                  glyphClassName="h-16 w-16"
+                  src={featured.image}
+                  alt={featured.title}
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                >
+                  <span aria-hidden className="absolute inset-0 bg-linear-to-t from-black/85 via-black/40 to-transparent" />
+                  <span className="absolute left-5 top-5">
+                    <Badge tone={featured.tone}>{featured.category}</Badge>
                   </span>
-                  <h3 className="mt-3 font-display text-2xl font-bold leading-snug text-white">
-                    {featured.title}
-                  </h3>
-                  <p className="mt-2.5 line-clamp-2 text-[15px] leading-relaxed text-white/80">{featured.excerpt}</p>
-                </div>
-              </PhotoTile>
-            </Link>
-          </Reveal>
-
-          {/* List */}
-          <div className="flex flex-col gap-4">
-            {rest.map((n, idx) => (
-              <Reveal key={n.title} delay={idx * 0.08}>
-                <Link href={`/berita/${n.slug}`} className="group flex gap-4 rounded-card bg-surface p-3 shadow-card transition-all duration-200 hover:-translate-y-1 hover:shadow-hover">
-                  <PhotoTile
-                    tone={n.tone}
-                    icon="sparkle"
-                    className="h-24 w-28 shrink-0 rounded-2xl"
-                    glyphClassName="h-8 w-8"
-                    src={n.image}
-                    alt={n.title}
-                    sizes="112px"
-                  />
-                  <div className="flex min-w-0 flex-col justify-center py-1">
-                    <span className="inline-flex items-center gap-2 text-xs text-muted">
-                      <Badge tone="teal">{n.category}</Badge>
-                      {formatDate(n.date)}
+                  <div className="absolute inset-x-0 bottom-0 flex flex-col p-7">
+                    <span className="inline-flex items-center gap-1.5 text-xs text-white/80">
+                      <Icon name="calendar" className="h-3.5 w-3.5" /> {formatDate(featured.date)}
                     </span>
-                    <h3 className="mt-2 line-clamp-2 font-display text-base font-bold text-ink group-hover:text-teal">
-                      {n.title}
+                    <h3 className="mt-3 font-display text-2xl font-bold leading-snug text-white">
+                      {featured.title}
                     </h3>
+                    <p className="mt-2.5 line-clamp-2 text-[15px] leading-relaxed text-white/80">{featured.excerpt}</p>
                   </div>
-                </Link>
-              </Reveal>
-            ))}
+                </PhotoTile>
+              </Link>
+            </Reveal>
+
+            {/* List */}
+            <div className="flex flex-col gap-4">
+              {rest.map((n, idx) => (
+                <Reveal key={n.title} delay={idx * 0.08}>
+                  <Link href={`/berita/${n.slug}`} className="group flex gap-4 rounded-card bg-surface p-3 shadow-card transition-all duration-200 hover:-translate-y-1 hover:shadow-hover">
+                    <PhotoTile
+                      tone={n.tone}
+                      icon="sparkle"
+                      className="h-24 w-28 shrink-0 rounded-2xl"
+                      glyphClassName="h-8 w-8"
+                      src={n.image}
+                      alt={n.title}
+                      sizes="112px"
+                    />
+                    <div className="flex min-w-0 flex-col justify-center py-1">
+                      <span className="inline-flex items-center gap-2 text-xs text-muted">
+                        <Badge tone="teal">{n.category}</Badge>
+                        {formatDate(n.date)}
+                      </span>
+                      <h3 className="mt-2 line-clamp-2 font-display text-base font-bold text-ink group-hover:text-teal">
+                        {n.title}
+                      </h3>
+                    </div>
+                  </Link>
+                </Reveal>
+              ))}
+            </div>
           </div>
-        </div>
+        ) : (
+          <p className="mt-16 rounded-card bg-surface p-8 text-center text-[15px] leading-relaxed text-muted shadow-card">
+            Belum ada berita yang terbit. Kabar terbaru dari MAKOBA akan tampil di sini.
+          </p>
+        )}
 
         {/* Figma: kartu ajakan Instagram, biru tua solid dengan tombol putih */}
         <Reveal delay={0.1}>

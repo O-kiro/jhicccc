@@ -21,9 +21,18 @@ RUN <<'SH' cat > /usr/local/bin/entrypoint
 set -e
 cd /app
 
-if [ ! -d node_modules ] || [ -z "$(ls -A node_modules 2>/dev/null)" ]; then
-    echo "→ memasang dependensi Node"
+# node_modules adalah volume Docker yang bertahan antar `up`, bahkan setelah
+# `--build`. Dulu dependensi hanya dipasang saat volume masih kosong, jadi
+# versi pertama dipakai selamanya: package-lock.json sudah Next 16.3.6, tapi
+# container tetap menjalankan 16.2.9. Sekarang salinan lockfile disimpan
+# setelah `npm ci` berhasil, dan pemasangan diulang begitu isinya berbeda.
+# (`npm ci` mengosongkan isi node_modules tanpa menghapus foldernya, jadi aman
+# untuk titik mount.)
+stempel=node_modules/.lockfile-terpasang
+if ! cmp -s package-lock.json "$stempel"; then
+    echo "→ memasang dependensi Node (package-lock.json baru atau berubah)"
     npm ci
+    cp package-lock.json "$stempel"
 fi
 
 echo "→ siap di http://localhost:3000"
@@ -57,9 +66,39 @@ COPY . .
 # ke routes manifest) dan SITE_URL untuk robots.txt serta sitemap.xml. Harus
 # sama dengan nilai saat berjalan — compose.prod.yaml mengisi keduanya.
 ARG API_URL=http://host.docker.internal:8000/api/v1
-ARG SITE_URL=https://jhic2026.rezasidin.my.id
+ARG SITE_URL=https://jhic26.rezasidin.my.id
+
+# Jumlah worker saat membangun. Bawaan Next adalah jumlah CPU dikurangi satu,
+# dan itu mencelakakan VPS kecil: 8 vCPU dengan RAM 4 GB berarti tujuh proses
+# Node sekaligus, masing-masing ratusan MB. Yang muncul bukan pesan "kehabisan
+# memori" yang jelas, melainkan panic dari Turbopack:
+#
+#   OS can't spawn worker thread: Resource temporarily unavailable (os error 11)
+#
+# EAGAIN itu datang dari gagalnya alokasi stack thread, bukan dari batas
+# jumlah proses — plafon prosesnya sendiri masih longgar.
+#
+# Tiga kolam thread yang berbeda, dan tak satu pun membatasi yang lain:
+#
+#   TOKIO_WORKER_THREADS  kolam Rust milik Turbopack
+#   NEXT_BUILD_CPUS       worker pembuat halaman statis (dibaca next.config.ts)
+#   VIPS_*                libvips, dipakai saat membuat gambar OpenGraph
+#
+# Yang ketiga paling mudah terlewat: gejalanya bukan kehabisan memori,
+# melainkan build berhenti di satu halaman saja —
+#
+#   Error occurred prerendering page "/opengraph-image"
+#   glib: Error creating thread: Resource temporarily unavailable
+#
+# padahal 39 halaman sebelumnya mulus.
+ARG NEXT_BUILD_CPUS=2
+
 ENV API_URL=$API_URL \
     SITE_URL=$SITE_URL \
+    NEXT_BUILD_CPUS=$NEXT_BUILD_CPUS \
+    TOKIO_WORKER_THREADS=$NEXT_BUILD_CPUS \
+    VIPS_CONCURRENCY=$NEXT_BUILD_CPUS \
+    VIPS_MAX_THREADS=$NEXT_BUILD_CPUS \
     NEXT_TELEMETRY_DISABLED=1
 
 RUN npm run build && npm prune --omit=dev
