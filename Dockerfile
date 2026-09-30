@@ -102,6 +102,17 @@ ARG SITE_URL=https://jhic26.rezasidin.my.id
 # tapi OpenVZ memaksakan numproc 500 dengan ~390 sudah terpakai saat diam.
 ARG NEXT_BUILD_CPUS=2
 
+# Batas heap V8 saat membangun, dalam MB. Tanpa ini Node membiarkan heap-nya
+# tumbuh mengikuti RAM yang terlihat — dan di VPS ber-plafon keras (OpenVZ
+# dengan physpages 4 GiB) itu berarti tumbuh sampai ditembak kernel. Gejalanya
+# beda dari kehabisan thread:
+#
+#   Next.js build worker exited with code: null and signal: SIGSEGV
+#
+# muncul di tengah pembuatan halaman statis, bukan di awal. Kosongkan untuk
+# memakai perilaku bawaan Node.
+ARG NODE_BUILD_HEAP_MB=1536
+
 ENV API_URL=$API_URL \
     SITE_URL=$SITE_URL \
     NEXT_BUILD_CPUS=$NEXT_BUILD_CPUS \
@@ -109,6 +120,7 @@ ENV API_URL=$API_URL \
     RAYON_NUM_THREADS=$NEXT_BUILD_CPUS \
     VIPS_CONCURRENCY=$NEXT_BUILD_CPUS \
     VIPS_MAX_THREADS=$NEXT_BUILD_CPUS \
+    NODE_OPTIONS=--max-old-space-size=$NODE_BUILD_HEAP_MB \
     NEXT_TELEMETRY_DISABLED=1
 
 RUN npm run build && npm prune --omit=dev
