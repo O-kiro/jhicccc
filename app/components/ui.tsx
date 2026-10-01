@@ -101,7 +101,7 @@ export function SectionHeading({
   desc,
   align = "center",
   tone = "default",
-  gradient = false,
+  accent = false,
   index,
 }: {
   eyebrow: string;
@@ -109,7 +109,8 @@ export function SectionHeading({
   desc?: ReactNode;
   align?: "center" | "left";
   tone?: "default" | "onDark";
-  gradient?: boolean;
+  /** Judul memakai biru khas, bukan warna tinta biasa. */
+  accent?: boolean;
   index?: string;
 }) {
   const centered = align === "center";
@@ -131,7 +132,7 @@ export function SectionHeading({
         <h2
           className={cn(
             "display mt-4 text-balance text-[clamp(2.25rem,5.4vw,4.25rem)]",
-            tone === "onDark" ? "text-on-dark" : gradient ? "text-gradient-warm" : "text-ink",
+            tone === "onDark" ? "text-on-dark" : accent ? "text-blue" : "text-ink",
           )}
         >
           {title}

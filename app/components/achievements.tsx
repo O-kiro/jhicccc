@@ -93,7 +93,7 @@ export function Achievements({ achievements }: { achievements: Site["achievement
       <Container>
         <div className="flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-end">
           <SectionHeading
-            gradient
+            accent
             index="04"
             align="left"
             eyebrow="Papan Prestasi"

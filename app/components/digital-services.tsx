@@ -52,7 +52,7 @@ export function DigitalServices({ digitalServices }: { digitalServices: Site["di
     <section id="layanan" className="scroll-mt-24 bg-surface-2 py-24 sm:py-32">
       <Container>
         <SectionHeading
-          gradient
+          accent
           index="01"
           eyebrow="Satu Pintu Layanan"
           title="Layanan Digital MAKOBA"
