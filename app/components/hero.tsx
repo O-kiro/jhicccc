@@ -24,7 +24,7 @@ const line = {
 };
 
 const HEADLINE = [
-  { text: "Berilmu.", className: "text-blue-gradient" },
+  { text: "Berilmu.", className: "text-blue" },
   { text: "Berakhlak.", className: "text-teal" },
   { text: "Berprestasi.", className: "text-gold" },
 ];
@@ -91,8 +91,10 @@ export function Hero() {
 
           <h1 className="display mt-8 text-[clamp(3.25rem,12vw,10rem)] leading-[0.85]">
             {HEADLINE.map((l) => (
-              // Mask per line; tiny padding keeps descenders out of the clip.
-              <span key={l.text} className="-mb-[0.12em] block overflow-hidden pb-[0.12em]">
+              // Mask per baris untuk animasi naik. Padding bawahnya memberi ruang
+              // bagi ekor huruf: pada 0,12em, ekor "p" di "Berprestasi." terpotong
+              // rata 7,4 px (0,06em) di ukuran terbesar. 0,2em memberi kelonggaran.
+              <span key={l.text} className="-mb-[0.2em] block overflow-hidden pb-[0.2em]">
                 <motion.span variants={line} className={`block ${l.className}`}>
                   {l.text}
                 </motion.span>
