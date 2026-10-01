@@ -18,7 +18,7 @@ export function Facilities({ facilities }: { facilities: Site["facilities"] }) {
     <section id="fasilitas" className="scroll-mt-24 bg-surface-2 py-24 sm:py-32">
       <Container>
         <SectionHeading
-          gradient
+          accent
           index="07"
           eyebrow="Sarana & Prasarana"
           title="Fasilitas Madrasah"
