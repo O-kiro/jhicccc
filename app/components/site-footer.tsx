@@ -15,15 +15,16 @@ const quickLinks = [
   { label: "Berita", href: "/berita" },
 ];
 
-// Figma footer Layanan: PPDB Online · Guru · Siswa · Alumni · Perpustakaan Digital · PPID & Pengaduan
+// Urutannya disamakan dengan kartu Layanan Digital di beranda, supaya
+// pengunjung tidak menemui dua susunan berbeda untuk daftar yang sama.
 // Semua route internal — portal eksternal hanya via tombol login di halaman detail
 const serviceLinks = [
   { label: "PPDB Online", href: "/ppdb", external: false },
-  { label: "Guru", href: "/layanan/guru", external: false },
   { label: "Siswa", href: "/layanan/siswa", external: false },
-  { label: "Alumni", href: "/layanan/alumni", external: false },
+  { label: "Guru", href: "/layanan/guru", external: false },
   { label: "Perpustakaan Digital", href: "/layanan/perpustakaan-digital", external: false },
   { label: "PPID & Pengaduan", href: "/layanan/ppid", external: false },
+  { label: "Alumni", href: "/layanan/alumni", external: false },
 ];
 
 export function SiteFooter() {

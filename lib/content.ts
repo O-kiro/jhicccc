@@ -136,7 +136,7 @@ export const digitalServices: DigitalService[] = [
       featuresTitle: "Layanan Unggulan Siswa",
       features: [
         "Akses Modul & Materi Pembelajaran 24/7",
-        "Terintegrasi dengan E-Learning & CBT",
+        "Terintegrasi dengan Portal Guru & Perpustakaan Digital",
         "Transkrip Nilai & Capaian Belajar",
         "Pengumuman Khusus Kegiatan Siswa",
       ],
