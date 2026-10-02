@@ -360,6 +360,8 @@ export const programs: Program[] = [
 export const achievements: {
   title: string; student: string; level: "Kota" | "Provinsi" | "Nasional" | "Internasional";
   year: number; organizer: string; field: string;
+  /** Foto bukti: sertifikat, medali, atau dokumentasi penyerahan. Opsional. */
+  image?: string;
 }[] = [
   { title: "Silver Medal KOSSMI Robotik", student: "Reza Malik", level: "Nasional", year: 2026, organizer: "KOSSMI 2026 — Universitas Telkom", field: "Robotik" },
   { title: "Silver Medal Robotik ITS", student: "M. Alief & M. Azriel", level: "Nasional", year: 2026, organizer: "ITS Surabaya", field: "Robotik" },

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView, useReducedMotion } from "motion/react";
 import Link from "next/link";
@@ -178,8 +179,26 @@ export function Achievements({ achievements }: { achievements: Site["achievement
                 initial={{ opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.45, delay: Math.min(i * 0.06, 0.42), ease: [0.22, 1, 0.36, 1] }}
-                className={`flex shrink-0 basis-[85%] snap-start flex-col rounded-card border-t-4 ${tierAccent[a.level]} bg-surface p-6 shadow-card sm:basis-[47%] lg:basis-[31.5%]`}
+                className={`flex shrink-0 basis-[85%] snap-start flex-col overflow-hidden rounded-card border-t-4 ${tierAccent[a.level]} bg-surface shadow-card sm:basis-[47%] lg:basis-[31.5%]`}
               >
+                {/*
+                  Foto bukti hanya dirender bila ada. Memaksa petak pastel di
+                  kartu yang belum berfoto membuat separuh daftar jadi balok
+                  warna kosong — lebih baik kartunya tetap ringkas seperti
+                  sebelumnya sampai fotonya diunggah.
+                */}
+                {a.image && (
+                  <Image
+                    src={a.image}
+                    alt={`Bukti prestasi ${a.title}`}
+                    width={640}
+                    height={360}
+                    className="aspect-[16/10] w-full object-cover"
+                    sizes="(max-width: 640px) 85vw, (max-width: 1024px) 47vw, 31.5vw"
+                  />
+                )}
+
+                <div className="flex flex-1 flex-col p-6">
                 <div className="flex items-center justify-between">
                   <Badge tone={levelTone[a.level]}>{a.level}</Badge>
                   <span className="text-xs text-muted">{a.year}</span>
@@ -192,6 +211,7 @@ export function Achievements({ achievements }: { achievements: Site["achievement
                     {a.field}
                   </span>
                   <span className="line-clamp-1">{a.organizer}</span>
+                </div>
                 </div>
               </motion.article>
             ))}
