@@ -576,6 +576,16 @@ export const alumni: {
 ];
 
 // Figma §1 — FAQ (4 item sesuai figma.md)
+/**
+ * Mitra dan pendukung yang logonya berjalan di beranda.
+ *
+ * Sengaja kosong di sini: daftarnya diisi lewat panel admin, dan seksinya
+ * menyembunyikan diri selama belum ada isinya. Cadangan ini hanya dipakai
+ * saat CMS tidak bisa dibaca — dan saat itu memang lebih baik seksinya tidak
+ * muncul daripada menampilkan logo yang sudah usang.
+ */
+export const sponsors: { name: string; logo?: string; url?: string }[] = [];
+
 export const faqs: { q: string; a: string }[] = [
   {
     q: "Kapan pendaftaran PPDB MAN Kota Batu dibuka?",
