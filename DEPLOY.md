@@ -251,6 +251,12 @@ DirectoryIndex disabled
 
 RewriteEngine On
 
+# Paksa HTTPS. Cookie sesi bertanda Secure, jadi lewat http:// login SELALU
+# gagal tanpa pesan yang jelas — pengunjung mengira sandinya salah.
+RewriteCond %{HTTPS} !=on
+RewriteCond %{REQUEST_URI} !^/\.well-known/
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
 # Tantangan Let's Encrypt harus tetap dilayani dari disk.
 RewriteCond %{REQUEST_URI} !^/\.well-known/
 RewriteRule ^(.*)$ http://127.0.0.1:3000/$1 [P,L]
@@ -265,6 +271,11 @@ DirectoryIndex disabled
 
 RewriteEngine On
 
+# Paksa HTTPS, alasan sama dengan docroot utama.
+RewriteCond %{HTTPS} !=on
+RewriteCond %{REQUEST_URI} !^/\.well-known/
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
 # api.jhic26.* → backend Laravel
 RewriteCond %{REQUEST_URI} !^/\.well-known/
 RewriteCond %{HTTP_HOST} ^api\. [NC]
@@ -277,6 +288,25 @@ RewriteRule ^(.*)$ http://127.0.0.1:3000/api/$1 [P,L]
 
 <IfModule mod_headers.c>
     RequestHeader set X-Forwarded-Proto "https" "expr=%{HTTPS} == 'on'"
+
+    # Header keamanan untuk panel admin. Frontend menyetelnya sendiri lewat
+    # next.config.ts, tapi Laravel tidak — jadi di sini.
+    #
+    # `always` penting: tanpa itu header hanya terpasang pada respons sukses,
+    # dan halaman galat justru lolos tanpa perlindungan.
+    #
+    # CSP sengaja tanpa script-src/style-src. Filament dan Livewire memakai
+    # skrip inline; memblokirnya membuat panel admin berhenti bekerja.
+    Header always set Content-Security-Policy "base-uri 'self'; form-action 'self'; frame-ancestors 'self'; object-src 'none'; upgrade-insecure-requests"
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+
+    # PHP mengumumkan versinya persis (mis. PHP/8.5.11) — tidak berguna bagi
+    # pengunjung, dan memudahkan penyerang mencocokkan celah yang diketahui.
+    Header always unset X-Powered-By
 </IfModule>
 EOF
 
@@ -342,7 +372,8 @@ docker compose -f compose.prod.yaml cp app:/app/storage/app ./cadangan-unggahan-
 | Domain menjawab 502/503 | Container belum jalan: `docker compose -f compose.prod.yaml ps` lalu `logs`. |
 | Container backend langsung berhenti, log menyebut APP_DEBUG | `APP_DEBUG` di `.env` backend harus `false`. |
 | Panel admin tanpa gaya, browser memblokir *mixed content* | Laravel tidak memercayai reverse proxy, jadi aset ditautkan dengan `http://`. Perlu `trustProxies` di `bootstrap/app.php` backend — mengisi `TRUSTED_PROXIES` di `.env` **tidak berpengaruh**, tidak ada kode yang membacanya. |
-| Login berhasil tapi langsung keluar lagi | Situs dibuka lewat `http://`. Nyalakan paksa HTTPS (langkah 5). |
+| Login berhasil tapi langsung keluar lagi | Situs dibuka lewat `http://`. Pengalihan paksa HTTPS ada di `.htaccess` langkah 6; pastikan blok itu terpasang. |
+| Panel admin berhenti bekerja setelah header dipasang | CSP terlalu ketat. Filament dan Livewire butuh skrip inline — jangan tambahkan `script-src` tanpa nonce. |
 | Panel admin menolak login, atau galat menyebut *encryption key* | `APP_KEY` kosong atau salah panjang. Lihat pemeriksaan di langkah 3. |
 | Mengubah `.env` tidak berpengaruh | `docker compose restart` **tidak** membaca ulang `env_file`. Pakai `up -d` supaya container dibuat ulang. |
 | Nilai `.env` terbaca berikut komentarnya | `env_file` Compose menelan `# komentar` di belakang nilai sebagai bagian dari nilai. Taruh komentar di baris sendiri. |

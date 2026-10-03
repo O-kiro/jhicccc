@@ -6,7 +6,57 @@ import type { NextConfig } from "next";
  */
 const BACKEND = new URL(process.env.API_URL ?? "http://localhost:8000/api/v1").origin;
 
+/**
+ * Header keamanan untuk seluruh respons.
+ *
+ * Sengaja TIDAK memuat `script-src` maupun `style-src`. Situs ini punya dua
+ * skrip inline di app/layout.tsx — penyetel tema sebelum cat pertama, dan
+ * JSON-LD — dan Next sendiri menyisipkan skrip inline untuk hidrasi. Tanpa
+ * nonce per permintaan, kedua direktif itu akan memblokir semuanya dan situs
+ * berhenti bekerja. Menambahkannya butuh nonce lewat proxy.ts; di luar
+ * cakupan sekarang.
+ *
+ * Yang dipasang di bawah semuanya aman bagi aplikasi yang sudah berjalan,
+ * dan menutup celah yang nyata:
+ *
+ *   frame-ancestors   menolak situsmu dibingkai orang lain (clickjacking) —
+ *                     pengganti modern X-Frame-Options, tapi keduanya dipasang
+ *                     karena peramban lama hanya mengenal yang terakhir
+ *   form-action       formulir login tidak bisa dibajak mengirim ke luar
+ *   base-uri          penyerang tidak bisa mengubah basis URL relatif
+ *   object-src none   memblokir <object>/<embed>, jalur lama penyisipan kode
+ */
+const HEADER_KEAMANAN = [
+  {
+    key: "Content-Security-Policy",
+    value: [
+      "base-uri 'self'",
+      "form-action 'self'",
+      "frame-ancestors 'self'",
+      "object-src 'none'",
+      "upgrade-insecure-requests",
+    ].join("; "),
+  },
+  // Setahun. Tanpa `preload`: itu komitmen permanen ke daftar bawaan peramban
+  // dan sulit dibatalkan kalau domainnya nanti dilepas.
+  { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
+  { key: "X-Frame-Options", value: "SAMEORIGIN" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  // Situs ini tidak memakai satu pun di antaranya; dimatikan supaya skrip
+  // pihak ketiga yang nyasar tidak bisa memintanya.
+  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
+];
+
 const nextConfig: NextConfig = {
+  // Membocorkan kerangka kerja beserta versinya tidak ada gunanya bagi
+  // pengunjung, dan memudahkan penyerang mencocokkan celah yang diketahui.
+  poweredByHeader: false,
+
+  async headers() {
+    return [{ source: "/:path*", headers: HEADER_KEAMANAN }];
+  },
+
   // Menghasilkan `.next/standalone/server.js` — server minimal buatan Next
   // yang bisa dijalankan `node server.js` tanpa `npm install` di server.
   // Dipakai panel hosting (Webuzo/cPanel/Plesk) yang meminta "application
