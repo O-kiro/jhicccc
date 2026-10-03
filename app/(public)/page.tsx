@@ -11,6 +11,7 @@ import { Facilities } from "@/app/components/facilities";
 import { Agenda } from "@/app/components/agenda";
 import { Gallery } from "@/app/components/gallery";
 import { Testimonials } from "@/app/components/testimonials";
+import { Sponsors } from "@/app/components/sponsors";
 import { Faq } from "@/app/components/faq";
 import { CtaPpdb } from "@/app/components/cta-ppdb";
 import { StarDivider } from "@/app/components/dividers";
@@ -40,6 +41,7 @@ export default async function Home() {
       <Facilities facilities={site.facilities} />
       <Gallery galleryItems={site.galleryItems} />
       <Testimonials testimonials={site.testimonials} />
+      <Sponsors sponsors={site.sponsors} />
       <Faq faqs={site.faqs} />
       <CtaPpdb />
       <SitePopup popup={site.popup} />

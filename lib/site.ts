@@ -23,6 +23,7 @@ import {
   galleryItems,
   news,
   programs,
+  sponsors,
   testimonials,
 } from "@/lib/content";
 
@@ -52,6 +53,7 @@ export type Site = {
   faqs: typeof faqs;
   testimonials: typeof testimonials;
   alumni: typeof alumni;
+  sponsors: typeof sponsors;
   popup: SitePopup | null;
 };
 
@@ -67,13 +69,24 @@ const CADANGAN: Site = {
   faqs,
   testimonials,
   alumni,
+  sponsors,
   popup: null,
 };
 
-/** Kunci yang wajib ada; respons tanpa salah satunya dianggap rusak. */
-const KUNCI = Object.keys(CADANGAN) as (keyof Site)[];
+/**
+ * Kunci yang boleh belum ada di respons.
+ *
+ * `sponsors` menyusul belakangan, dan backend bisa saja masih versi lama saat
+ * frontend sudah rilis. Tanpa pengecualian ini, satu kunci yang hilang membuat
+ * SELURUH isi situs jatuh ke cadangan — berita, agenda, layanan, semuanya —
+ * padahal yang belum ada cuma daftar mitra.
+ */
+const OPSIONAL = new Set<keyof Site>(["sponsors"]);
 
-function utuh(data: unknown): data is Site {
+/** Kunci yang wajib ada; respons tanpa salah satunya dianggap rusak. */
+const KUNCI = (Object.keys(CADANGAN) as (keyof Site)[]).filter((k) => !OPSIONAL.has(k));
+
+function utuh(data: unknown): data is Omit<Site, "sponsors"> {
   if (!data || typeof data !== "object") return false;
   const d = data as Record<string, unknown>;
   return KUNCI.every((k) => (k === "popup" ? k in d : Array.isArray(d[k])));
@@ -96,7 +109,9 @@ export const getSite = cache(async (): Promise<Site> => {
 
     if (!utuh(data)) throw new Error("bentuk respons tidak dikenali");
 
-    return data;
+    const d = data as Record<string, unknown>;
+
+    return { ...data, sponsors: Array.isArray(d.sponsors) ? (d.sponsors as Site["sponsors"]) : [] };
   } catch (error) {
     console.warn(
       `[site] CMS tidak bisa dibaca (${error instanceof Error ? error.message : error}); memakai konten bawaan lib/content.ts.`,
