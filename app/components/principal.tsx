@@ -4,8 +4,19 @@ import { Icon } from "./icons";
 import { Container, PhotoTile } from "./ui";
 import { Reveal } from "./reveal";
 import { principal } from "@/lib/content";
+import type { Site } from "@/lib/site";
 
-export function Principal() {
+/**
+ * Isinya dari CMS lewat getSite(). Tiap bagian yang belum diisi admin jatuh ke
+ * nilai bawaan lib/content.ts, bukan dibiarkan kosong — jadi seksi ini tetap
+ * utuh walau panel baru diisi sebagian.
+ */
+export function Principal({ profile }: { profile: Site["profile"] }) {
+  const nama = profile.principalName ?? principal.name;
+  const jabatan = profile.principalRole ?? principal.role;
+  const sambutan = profile.principalMessage ?? principal.message;
+  const foto = profile.principalPhoto ?? principal.photo;
+
   return (
     <section id="sambutan" className="scroll-mt-24 py-24 sm:py-32">
       <Container>
@@ -19,13 +30,13 @@ export function Principal() {
                 texture={false}
                 className="aspect-[4/5] rounded-panel border border-line bg-white! text-muted!"
                 glyphClassName="h-24 w-24"
-                src={principal.photo}
-                alt={principal.name}
+                src={foto}
+                alt={nama}
                 sizes="(max-width: 1024px) 100vw, 40vw"
               />
               <div className="absolute inset-x-5 -bottom-5 rounded-2xl bg-surface p-4 text-center shadow-overlay">
-                <p className="font-display text-sm font-bold text-ink">{principal.name}</p>
-                <p className="text-xs text-teal">{principal.role}</p>
+                <p className="font-display text-sm font-bold text-ink">{nama}</p>
+                <p className="text-xs text-teal">{jabatan}</p>
               </div>
             </div>
           </Reveal>
@@ -43,7 +54,7 @@ export function Principal() {
               <figure className="relative mt-6 overflow-hidden rounded-panel bg-surface p-8 shadow-card sm:p-10">
                 <Icon name="quote" className="pointer-events-none absolute right-6 top-6 h-20 w-20 text-blue/10" strokeWidth={1.2} />
                 <blockquote className="relative font-serif text-xl italic leading-relaxed text-ink sm:text-2xl">
-                  {principal.message}
+                  {sambutan}
                 </blockquote>
                 <figcaption className="relative mt-8 flex items-center gap-3">
                   <span className="h-px w-10 bg-gold" />
