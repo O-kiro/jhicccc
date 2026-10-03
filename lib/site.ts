@@ -22,7 +22,9 @@ import {
   faqs,
   galleryItems,
   news,
+  principal,
   programs,
+  school,
   sponsors,
   testimonials,
 } from "@/lib/content";
@@ -54,6 +56,17 @@ export type Site = {
   testimonials: typeof testimonials;
   alumni: typeof alumni;
   sponsors: typeof sponsors;
+  /**
+   * Profil madrasah dari CMS. Tiap bagian boleh kosong — komponen memakai
+   * nilai bawaan lib/content.ts untuk yang belum diisi.
+   */
+  profile: {
+    principalName?: string;
+    principalRole?: string;
+    principalMessage?: string;
+    principalPhoto?: string;
+    buildingPhoto?: string;
+  };
   popup: SitePopup | null;
 };
 
@@ -70,6 +83,15 @@ const CADANGAN: Site = {
   testimonials,
   alumni,
   sponsors,
+  // Cadangan memakai isi lib/content.ts apa adanya, supaya situs tetap utuh
+  // saat CMS tidak terbaca.
+  profile: {
+    principalName: principal.name,
+    principalRole: principal.role,
+    principalMessage: principal.message,
+    principalPhoto: principal.photo,
+    buildingPhoto: school.buildingPhoto,
+  },
   popup: null,
 };
 
@@ -81,12 +103,12 @@ const CADANGAN: Site = {
  * SELURUH isi situs jatuh ke cadangan — berita, agenda, layanan, semuanya —
  * padahal yang belum ada cuma daftar mitra.
  */
-const OPSIONAL = new Set<keyof Site>(["sponsors"]);
+const OPSIONAL = new Set<keyof Site>(["sponsors", "profile"]);
 
 /** Kunci yang wajib ada; respons tanpa salah satunya dianggap rusak. */
 const KUNCI = (Object.keys(CADANGAN) as (keyof Site)[]).filter((k) => !OPSIONAL.has(k));
 
-function utuh(data: unknown): data is Omit<Site, "sponsors"> {
+function utuh(data: unknown): data is Omit<Site, "sponsors" | "profile"> {
   if (!data || typeof data !== "object") return false;
   const d = data as Record<string, unknown>;
   return KUNCI.every((k) => (k === "popup" ? k in d : Array.isArray(d[k])));
@@ -111,7 +133,16 @@ export const getSite = cache(async (): Promise<Site> => {
 
     const d = data as Record<string, unknown>;
 
-    return { ...data, sponsors: Array.isArray(d.sponsors) ? (d.sponsors as Site["sponsors"]) : [] };
+    // Profil digabung dengan cadangan per bagian, bukan diganti seluruhnya:
+    // admin boleh mengisi fotonya saja dan membiarkan teks sambutan bawaan.
+    const profil =
+      d.profile && typeof d.profile === "object" ? (d.profile as Site["profile"]) : {};
+
+    return {
+      ...data,
+      sponsors: Array.isArray(d.sponsors) ? (d.sponsors as Site["sponsors"]) : [],
+      profile: { ...CADANGAN.profile, ...profil },
+    };
   } catch (error) {
     console.warn(
       `[site] CMS tidak bisa dibaca (${error instanceof Error ? error.message : error}); memakai konten bawaan lib/content.ts.`,

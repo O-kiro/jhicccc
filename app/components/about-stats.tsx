@@ -4,6 +4,7 @@ import { Icon } from "./icons";
 import { Button, Container, PhotoTile, SectionHeading } from "./ui";
 import { Reveal } from "./reveal";
 import { school } from "@/lib/content";
+import type { Site } from "@/lib/site";
 
 const highlights = [
   "Madrasah Penyelenggara Riset resmi",
@@ -16,7 +17,10 @@ const highlights = [
  * pojok kiri bawah; panel statistik gelap di bawahnya dihapus (angkanya sudah
  * tampil di hero).
  */
-export function AboutStats() {
+export function AboutStats({ profile }: { profile: Site["profile"] }) {
+  // Belum diisi admin → foto bawaan lib/content.ts.
+  const fotoGedung = profile.buildingPhoto ?? school.buildingPhoto;
+
   return (
     <section id="tentang" className="scroll-mt-24 py-24 sm:py-32">
       <Container>
@@ -29,7 +33,7 @@ export function AboutStats() {
                 icon="globe"
                 className="aspect-[4/3] rounded-panel"
                 glyphClassName="h-24 w-24"
-                src={school.buildingPhoto}
+                src={fotoGedung}
                 alt={`Gedung ${school.longName}`}
                 sizes="(max-width: 1024px) 100vw, 50vw"
               />

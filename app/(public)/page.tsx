@@ -30,12 +30,12 @@ export default async function Home() {
       <Marquee />
       <DigitalServices digitalServices={site.digitalServices} />
       <Agenda agenda={site.agenda} />
-      <AboutStats />
+      <AboutStats profile={site.profile} />
       <StarDivider />
       <Programs programs={site.programs} />
       <Achievements achievements={site.achievements} />
       <News news={site.news} />
-      <Principal />
+      <Principal profile={site.profile} />
       <StarDivider />
       <Extracurriculars extracurriculars={site.extracurriculars} />
       <Facilities facilities={site.facilities} />
