@@ -56,6 +56,9 @@ services:
       # Harus sama dengan SITUS_REVALIDATE_SECRET backend. Kosong = webhook
       # ditolak; situs tetap menyusul sendiri paling lama 60 detik.
       REVALIDATE_SECRET: ${REVALIDATE_SECRET:-}
+      # Chatbot tanya-jawab situs. Kosong = asisten menjawab "tidak tersedia".
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.5-flash}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped
