@@ -121,15 +121,21 @@ export function Testimonials({ testimonials }: { testimonials: Site["testimonial
             >
               <Icon name="arrow" className="h-5 w-5 rotate-180" />
             </button>
-            <div className="flex gap-2">
+            <div className="flex gap-1">
               {testimonials.map((_, i) => (
                 <button
                   key={i}
                   type="button"
                   aria-label={`Testimoni ${i + 1}`}
                   onClick={() => setState([i, i > index ? 1 : -1])}
-                  className={`h-2 rounded-full transition-all ${i === index ? "w-7 bg-teal" : "w-2 bg-line hover:bg-teal/50"}`}
-                />
+                  // Titiknya kecil, tapi area sentuhnya 24px tinggi supaya
+                  // mudah ditekan jari di ponsel.
+                  className="group grid h-6 place-items-center"
+                >
+                  <span
+                    className={`block h-2 rounded-full transition-all ${i === index ? "w-7 bg-teal" : "w-2 bg-line group-hover:bg-teal/50"}`}
+                  />
+                </button>
               ))}
             </div>
             <button

@@ -77,7 +77,7 @@ export function SiteFooter() {
             <ul className="mt-5 space-y-3">
               {quickLinks.map((l) => (
                 <li key={l.label}>
-                  <Link href={l.href} className="text-sm text-muted transition-colors hover:text-blue">
+                  <Link href={l.href} className="inline-block py-1 text-sm text-muted transition-colors hover:text-blue">
                     {l.label}
                   </Link>
                 </li>
@@ -102,7 +102,7 @@ export function SiteFooter() {
                       <Icon name="external" className="h-3.5 w-3.5 opacity-60" />
                     </a>
                   ) : (
-                    <Link href={l.href} className="text-sm text-muted transition-colors hover:text-blue">
+                    <Link href={l.href} className="inline-block py-1 text-sm text-muted transition-colors hover:text-blue">
                       {l.label}
                     </Link>
                   )}

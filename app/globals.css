@@ -322,6 +322,9 @@ html:not(.dark) .portal-alumni .warna-asli {
     animation: var(--animate-marquee);
   }
   .marquee-mask {
+    /* Mask hanya menyamarkan tepi; tanpa clip, trek yang digandakan tetap
+       melebarkan halaman (di ponsel dokumen jadi ~2700px). */
+    overflow: hidden;
     -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
     mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
   }

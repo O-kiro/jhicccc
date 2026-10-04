@@ -45,7 +45,7 @@ export function Countdown({ deadlineISO }: { deadlineISO: string }) {
           <div className="font-display text-3xl font-extrabold tabular-nums sm:text-4xl">
             {u.value === undefined ? "––" : String(u.value).padStart(2, "0")}
           </div>
-          <div className="mt-1 text-[11px] uppercase tracking-wide text-on-dark/70">{u.label}</div>
+          <div className="mt-1 text-xs uppercase tracking-wide text-on-dark/70">{u.label}</div>
         </div>
       ))}
     </div>

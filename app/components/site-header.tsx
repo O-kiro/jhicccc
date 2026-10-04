@@ -66,7 +66,7 @@ function Logo() {
       />
       <span className="leading-tight">
         <span className="block font-display text-[15px] font-extrabold tracking-tight text-ink">{school.name}</span>
-        <span className="block text-[11px] font-medium text-muted">{school.nick}</span>
+        <span className="block text-xs font-medium text-muted">{school.nick}</span>
       </span>
     </Link>
   );
