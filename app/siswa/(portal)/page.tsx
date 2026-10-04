@@ -67,12 +67,15 @@ export default async function OverviewPage() {
           />
         </StaggerItem>
         <StaggerItem>
-          <StatCard
-            label="Tugas"
-            value={String(summary.active_tasks)}
-            icon="check"
-            tone="blue"
-          />
+          <Link href="/siswa/tugas" className="block rounded-card transition-transform hover:-translate-y-0.5">
+            <StatCard
+              label="Tugas"
+              value={String(summary.active_tasks ?? 0)}
+              note="Belum selesai — lihat semua"
+              icon="check"
+              tone="blue"
+            />
+          </Link>
         </StaggerItem>
       </StaggerGroup>
 

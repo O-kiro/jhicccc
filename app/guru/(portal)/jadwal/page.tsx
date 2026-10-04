@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Icon } from "@/app/components/icons";
 import { StaggerGroup, StaggerItem } from "@/app/components/reveal";
 import { cn } from "@/lib/styles";
 import { Pill } from "@/app/components/siswa/ui";
@@ -61,22 +60,6 @@ export default async function JadwalPage({ searchParams }: { searchParams: Promi
                     <span className="block text-sm text-muted">Kelas {s.classroom}</span>
                   </span>
                   <Pill tone="blue">JAM KE {i + 1}</Pill>
-                  {s.meeting_url && (
-                    <a
-                      href={s.meeting_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={cn(
-                        "press inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold transition-colors",
-                        s.live
-                          ? "bg-primary text-white hover:bg-primary-strong"
-                          : "border border-line text-muted hover:border-primary/40 hover:text-primary",
-                      )}
-                    >
-                      <Icon name={s.live ? "play" : "external"} className="h-3 w-3" />
-                      {s.live ? "Buka Kelas Live" : "Tautan kelas"}
-                    </a>
-                  )}
                 </div>
               </StaggerItem>
             ))}
