@@ -66,3 +66,17 @@ export function waktuRelatif(iso: string, sekarang: Date = new Date()): string {
 
   return formatDate(iso.slice(0, 10));
 }
+
+/** "2026-10-10T23:59:00+07:00" -> "Sab, 10 Okt 2026 · 23.59" (WIB). */
+export function formatTenggat(iso: string): string {
+  const d = new Date(iso);
+  const tanggal = d.toLocaleDateString("id-ID", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "Asia/Jakarta",
+  });
+  const jam = d.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Jakarta" });
+  return `${tanggal} · ${jam}`;
+}

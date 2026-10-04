@@ -71,7 +71,7 @@ export type ApiOverview = {
   summary: {
     average_score: number | null;
     attendance_percentage: number | null;
-    /** Modul kelas yang belum ditandai selesai oleh siswa ini. */
+    /** Tugas dari guru yang belum ditandai selesai oleh siswa ini. */
     active_tasks: number;
   };
   today_schedule: ApiScheduleItem[];
@@ -325,3 +325,22 @@ export const getScholarships = cache(
   (kategori?: string): Promise<ApiBeasiswa> =>
     authedGet<ApiBeasiswa>(`/beasiswa${kategori ? `?kategori=${encodeURIComponent(kategori)}` : ""}`),
 );
+
+/** Tugas dari guru untuk kelas siswa, urut tenggat terdekat. */
+export type ApiTugas = {
+  tasks: {
+    id: number;
+    title: string;
+    description: string | null;
+    url: string | null;
+    /** ISO 8601 dengan zona waktu. */
+    due_at: string;
+    overdue: boolean;
+    completed: boolean;
+    subject: string | null;
+    tone: ApiTone;
+    teacher: string | null;
+  }[];
+};
+
+export const getTugas = cache((): Promise<ApiTugas> => authedGet<ApiTugas>("/tugas"));

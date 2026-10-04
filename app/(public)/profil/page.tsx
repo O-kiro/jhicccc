@@ -4,6 +4,7 @@ import { Container, PhotoTile, SectionHeading } from "@/app/components/ui";
 import { Reveal, StaggerGroup, StaggerItem } from "@/app/components/reveal";
 import { Icon } from "@/app/components/icons";
 import { profile, school } from "@/lib/content";
+import { getSite } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Profil Madrasah",
@@ -11,7 +12,12 @@ export const metadata: Metadata = {
     "Profil MAN Kota Batu (MAKOBA) — visi & misi, sejarah, dan struktur organisasi madrasah penyelenggara riset di Kota Batu.",
 };
 
-export default function ProfilPage() {
+export default async function ProfilPage() {
+  // Foto gedung sama dengan seksi "Tentang MAKOBA" di beranda, diatur di CMS
+  // (Profil & Sambutan).
+  const { profile: cms } = await getSite();
+  const fotoGedung = cms.buildingPhoto ?? school.buildingPhoto;
+
   return (
     <main className="pb-24">
       <PageHero
@@ -25,7 +31,15 @@ export default function ProfilPage() {
       <Container className="mt-12">
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <Reveal>
-            <PhotoTile tone="teal" icon="globe" className="aspect-[4/3] rounded-panel" glyphClassName="h-24 w-24" />
+            <PhotoTile
+              tone="teal"
+              icon="globe"
+              className="aspect-[4/3] rounded-panel"
+              glyphClassName="h-24 w-24"
+              src={fotoGedung}
+              alt={`Gedung ${school.longName}`}
+              sizes="(max-width: 1024px) 100vw, 50vw"
+            />
           </Reveal>
           <div>
             <div className="space-y-4">

@@ -286,3 +286,21 @@ export const getJurnalHarian = cache((dari?: string, sampai?: string, tab?: stri
 export const getRdm = cache((): Promise<ApiRdm> => authedGet<ApiRdm>("/guru/rdm"));
 
 export const getTatib = cache((): Promise<ApiTatib> => authedGet<ApiTatib>("/guru/tatib"));
+
+export type ApiTugasGuru = {
+  courses: { id: number; label: string }[];
+  tasks: {
+    id: number;
+    course_id: number;
+    course: string | null;
+    title: string;
+    description: string | null;
+    url: string | null;
+    due_at: string;
+    /** Siswa yang sudah menandai selesai / jumlah siswa di kelasnya. */
+    completed: number;
+    students: number;
+  }[];
+};
+
+export const getTugasGuru = cache((): Promise<ApiTugasGuru> => authedGet<ApiTugasGuru>("/guru/tugas"));
