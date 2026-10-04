@@ -2,6 +2,7 @@ import { ScrollProgress } from "@/app/components/scroll-progress";
 import { StickyCta } from "@/app/components/sticky-cta";
 import { BackToTop } from "@/app/components/back-to-top";
 import { FloatingWhatsapp, nomorWhatsapp } from "@/app/components/floating-whatsapp";
+import { Chatbot } from "@/app/components/chatbot";
 import { SiteHeader } from "@/app/components/site-header";
 import { SiteFooter } from "@/app/components/site-footer";
 import { buildSearchIndex, getSite } from "@/lib/site";
@@ -33,6 +34,7 @@ export default async function PublicLayout({
       <StickyCta />
       <FloatingWhatsapp nomor={wa} />
       <BackToTop adaWhatsapp={!!wa} />
+      <Chatbot />
     </>
   );
 }
