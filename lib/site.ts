@@ -66,6 +66,8 @@ export type Site = {
     principalMessage?: string;
     principalPhoto?: string;
     buildingPhoto?: string;
+    /** Nomor WhatsApp admin untuk tombol melayang; kosong = tombol disembunyikan. */
+    whatsapp?: string;
   };
   popup: SitePopup | null;
 };
