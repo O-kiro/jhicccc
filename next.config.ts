@@ -85,6 +85,10 @@ const nextConfig: NextConfig = {
       { source: "/layanan/rdm", destination: "/layanan/siswa", permanent: true },
       { source: "/layanan/cbt", destination: "/layanan/guru", permanent: true },
       { source: "/layanan/e-learning", destination: "/layanan/alumni", permanent: true },
+      // Login PPDB digabung ke /masuk: nomor pendaftaran diketik di kolom
+      // yang sama dengan email/ID pengguna lain.
+      { source: "/login", destination: "/masuk", permanent: false },
+      { source: "/ppdb/login", destination: "/masuk", permanent: false },
       // Redesain portal siswa: Rapor → Ranking, Kursus → Modul Pembelajaran,
       // katalog digabung ke halaman Perpustakaan, dan Ujian/CBT dihapus.
       // Sementara (307), bukan permanen: rute ini di balik login dan bisa

@@ -81,7 +81,7 @@ export default function DokumenForm({ data }: { data: ApiPpdbBerkas }) {
 
   async function keluar() {
     await fetch("/api/ppdb/keluar", { method: "POST" }).catch(() => null);
-    router.replace("/ppdb/login");
+    router.replace("/masuk");
     router.refresh();
   }
 

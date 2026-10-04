@@ -8,6 +8,36 @@ import { Icon } from "@/app/components/icons";
 const inputBase =
   "w-full rounded-xl border border-line bg-surface px-4 py-3 text-ink outline-none transition-colors placeholder:text-muted focus:border-blue disabled:opacity-60";
 
+/**
+ * Nomor pendaftaran PPDB (mis. PPDB26-0001) masuk lewat jalurnya sendiri —
+ * sesi pendaftar berbeda dari warga madrasah. Nomor lain yang bukan email
+ * dicoba sebagai PPDB bila login biasa menolaknya, untuk berjaga-jaga kalau
+ * panitia memakai format nomor sendiri.
+ */
+async function masuk(identifier: string, password: string, remember: boolean): Promise<Response> {
+  const ppdb = () =>
+    fetch("/api/ppdb/auth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ registration_number: identifier, password }),
+    });
+
+  if (/^ppdb/i.test(identifier)) return ppdb();
+
+  const res = await fetch("/api/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ identifier, password, remember }),
+  });
+
+  if ((res.status === 401 || res.status === 422) && !identifier.includes("@")) {
+    const cadangan = await ppdb();
+    if (cadangan.ok) return cadangan;
+  }
+
+  return res;
+}
+
 export function PortalLoginForm() {
   const router = useRouter();
   const params = useSearchParams();
@@ -26,7 +56,7 @@ export function PortalLoginForm() {
     e.preventDefault();
 
     if (!identifier.trim() || !password.trim()) {
-      setError("NISN/NIP/Email dan Kata Sandi wajib diisi.");
+      setError("Email/ID pengguna dan kata sandi wajib diisi.");
       return;
     }
 
@@ -34,19 +64,14 @@ export function PortalLoginForm() {
     setSubmitting(true);
 
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ identifier, password, remember }),
-      });
-
+      const res = await masuk(identifier.trim(), password, remember);
       const data = await res.json().catch(() => null);
 
       if (!res.ok) {
         setError(
           res.status === 429
             ? "Terlalu banyak percobaan. Coba lagi sebentar lagi."
-            : (data?.message ?? "NISN/NIP/Email atau kata sandi salah."),
+            : (data?.message ?? "Email/ID pengguna atau kata sandi salah."),
         );
         setSubmitting(false);
         return;
@@ -66,7 +91,7 @@ export function PortalLoginForm() {
       // `next` hanya dipakai bila menuju portal miliknya sendiri. Selain
       // mencegah siswa terlempar ke portal lain, ini juga menutup pengalihan
       // ke situs luar lewat ?next=//situs-lain.
-      const PORTAL = ["/siswa", "/guru", "/alumni/portal"];
+      const PORTAL = ["/siswa", "/guru", "/alumni/portal", "/ppdb/dokumen"];
       const home: string = PORTAL.includes(data?.home) ? data.home : "/siswa";
       const minta = params.get("next") ?? "";
       const next = minta === home || minta.startsWith(`${home}/`) ? minta : home;
@@ -90,20 +115,20 @@ export function PortalLoginForm() {
       <form onSubmit={handleSubmit} noValidate className="mt-8 space-y-4">
         <div>
           <label htmlFor="portal-identifier" className="mb-1.5 block text-sm font-medium text-ink">
-            NISN, NIP, atau Email
+            Email atau ID Pengguna
           </label>
           <input
             id="portal-identifier"
             type="text"
             value={identifier}
             onChange={(e) => setIdentifier(e.target.value)}
-            placeholder="NISN siswa, NIP guru, atau email"
+            placeholder="Masukkan email atau ID pengguna"
             autoComplete="username"
             disabled={busy}
             className={inputBase}
           />
           <p className="mt-1.5 text-xs text-muted">
-            Siswa memakai NISN. Guru memakai NIP atau email; staf memakai email madrasah.
+            Pakai email atau ID yang diberikan madrasah (termasuk nomor pendaftaran PPDB).
             Lupa kata sandi? Admin madrasah dapat menerbitkan sandi sementara.
           </p>
         </div>

@@ -38,7 +38,7 @@ export default function PpdbPage() {
                 Segera daftar sebelum pendaftaran ditutup
               </h2>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <Button href="/login" variant="light" icon={false}>
+                <Button href="/masuk" variant="light" icon={false}>
                   Masuk & Unggah Berkas
                 </Button>
                 <Button href="/kontak" variant="outlineDark" icon={false}>
@@ -121,7 +121,7 @@ export default function PpdbPage() {
                     ))}
                   </ul>
                   <div className="mt-8 grid gap-3">
-                    <Button href="/login" className="w-full" icon={false}>
+                    <Button href="/masuk" className="w-full" icon={false}>
                       Masuk ke Penyerahan Dokumen
                     </Button>
                     <Button href="/kontak" variant="outline" className="w-full" icon={false}>
