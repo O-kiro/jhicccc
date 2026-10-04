@@ -72,7 +72,7 @@ export function Agenda({ agenda }: { agenda: Site["agenda"] }) {
                 >
                   {/* Figma: kotak tanggal membulat, nama bulan beraksen biru, angka tebal */}
                   <div className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-2xl border border-line bg-canvas">
-                    <span className="text-[11px] font-bold uppercase tracking-wide text-blue">{d.month}</span>
+                    <span className="text-xs font-bold uppercase tracking-wide text-blue">{d.month}</span>
                     <span className="font-display text-2xl font-extrabold leading-none text-ink">{d.day}</span>
                   </div>
                   <div className="min-w-0 flex-1">
