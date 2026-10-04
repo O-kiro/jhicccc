@@ -107,7 +107,7 @@ export const digitalServices: DigitalService[] = [
     href: "/ppdb",
     icon: "ppdb",
     tone: "teal",
-    login: { href: "/login", label: "Masuk PPDB Online" },
+    login: { href: "/masuk", label: "Masuk PPDB Online" },
   },
   {
     name: "Siswa",

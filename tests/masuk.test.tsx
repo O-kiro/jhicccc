@@ -11,7 +11,6 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => params,
 }));
 
-import PpdbLoginForm from "@/app/(public)/login/login-form";
 import { PortalLoginForm } from "@/app/components/siswa/portal-login-form";
 
 const balas = (isi: unknown, status = 200) =>
@@ -23,47 +22,63 @@ beforeEach(() => {
   refresh.mockClear();
 });
 
-describe("masuk PPDB", () => {
-  /** Dulu formulir ini menerima apa pun lalu langsung berpindah halaman. */
-  it("mengirim nomor pendaftaran ke server sebelum berpindah halaman", async () => {
+describe("masuk PPDB lewat gerbang yang sama", () => {
+  const isi = async (id: string, sandi: string) => {
+    render(<PortalLoginForm />);
+    await userEvent.type(screen.getByLabelText(/Email atau ID Pengguna/i), id);
+    await userEvent.type(screen.getByLabelText(/^Kata Sandi$/i), sandi);
+    await userEvent.click(screen.getByRole("button", { name: /masuk ke portal/i }));
+  };
+
+  it("nomor berawalan PPDB langsung ke jalur PPDB lalu ke halaman berkas", async () => {
     const fetchMock = balas({ role: "ppdb", home: "/ppdb/dokumen" });
     vi.stubGlobal("fetch", fetchMock);
 
-    render(<PpdbLoginForm />);
-    await userEvent.type(screen.getByLabelText(/nomor pendaftaran/i), "PPDB26-0001");
-    await userEvent.type(screen.getByLabelText(/^Kata Sandi$/i), "password");
-    await userEvent.click(screen.getByRole("button", { name: /masuk ke penyerahan/i }));
+    await isi("PPDB26-0001", "password");
 
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith("/api/ppdb/auth", expect.anything()));
+    await waitFor(() => expect(replace).toHaveBeenCalledWith("/ppdb/dokumen"));
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock.mock.calls[0][0]).toBe("/api/ppdb/auth");
     expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({
       registration_number: "PPDB26-0001",
       password: "password",
     });
-    await waitFor(() => expect(replace).toHaveBeenCalledWith("/ppdb/dokumen"));
   });
 
-  it("tidak mengirim apa pun kalau isian kosong", async () => {
-    const fetchMock = balas({});
+  it("nomor format lain dicoba sebagai PPDB bila login biasa menolak", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ message: "salah" }), { status: 422 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ role: "ppdb", home: "/ppdb/dokumen" })));
     vi.stubGlobal("fetch", fetchMock);
 
-    render(<PpdbLoginForm />);
-    await userEvent.click(screen.getByRole("button", { name: /masuk ke penyerahan/i }));
+    await isi("REG-77", "password");
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(/wajib diisi/i);
-    expect(fetchMock).not.toHaveBeenCalled();
+    await waitFor(() => expect(replace).toHaveBeenCalledWith("/ppdb/dokumen"));
+    expect(fetchMock.mock.calls.map((c) => c[0])).toEqual(["/api/auth/login", "/api/ppdb/auth"]);
+  });
+
+  it("pesan login biasa yang ditampilkan bila keduanya menolak", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ message: "Kata sandi salah." }), { status: 422 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ message: "lain" }), { status: 422 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await isi("1234567890", "salah");
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Kata sandi salah.");
     expect(replace).not.toHaveBeenCalled();
   });
 
-  it("menampilkan penolakan dari server", async () => {
-    vi.stubGlobal("fetch", balas({ message: "Nomor pendaftaran atau kata sandi salah." }, 422));
+  it("email tidak pernah dicoba sebagai PPDB", async () => {
+    const fetchMock = balas({ message: "salah" }, 422);
+    vi.stubGlobal("fetch", fetchMock);
 
-    render(<PpdbLoginForm />);
-    await userEvent.type(screen.getByLabelText(/nomor pendaftaran/i), "PPDB26-0009");
-    await userEvent.type(screen.getByLabelText(/^Kata Sandi$/i), "salah");
-    await userEvent.click(screen.getByRole("button", { name: /masuk ke penyerahan/i }));
+    await isi("guru@madrasah.test", "salah");
 
-    expect(await screen.findByRole("alert")).toHaveTextContent("Nomor pendaftaran atau kata sandi salah.");
-    expect(replace).not.toHaveBeenCalled();
+    await screen.findByRole("alert");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -78,7 +93,7 @@ describe("gerbang masuk portal", () => {
       vi.stubGlobal("fetch", balas({ role: peran, home: tujuan }));
 
       const { unmount } = render(<PortalLoginForm />);
-      await userEvent.type(screen.getByLabelText(/NISN, NIP, atau Email/i), "uji");
+      await userEvent.type(screen.getByLabelText(/Email atau ID Pengguna/i), "uji");
       await userEvent.type(screen.getByLabelText(/^Kata Sandi$/i), "password");
       await userEvent.click(screen.getByRole("button", { name: /masuk ke portal/i }));
 
@@ -93,7 +108,7 @@ describe("gerbang masuk portal", () => {
     vi.stubGlobal("fetch", balas({ role: "student", home: "/siswa" }));
 
     render(<PortalLoginForm />);
-    await userEvent.type(screen.getByLabelText(/NISN, NIP, atau Email/i), "009283741");
+    await userEvent.type(screen.getByLabelText(/Email atau ID Pengguna/i), "009283741");
     await userEvent.type(screen.getByLabelText(/^Kata Sandi$/i), "password");
     await userEvent.click(screen.getByRole("button", { name: /masuk ke portal/i }));
 
@@ -105,7 +120,7 @@ describe("gerbang masuk portal", () => {
     vi.stubGlobal("fetch", balas({ role: "teacher", home: "/guru" }));
 
     render(<PortalLoginForm />);
-    await userEvent.type(screen.getByLabelText(/NISN, NIP, atau Email/i), "rini@madrasah.test");
+    await userEvent.type(screen.getByLabelText(/Email atau ID Pengguna/i), "rini@madrasah.test");
     await userEvent.type(screen.getByLabelText(/^Kata Sandi$/i), "password");
     await userEvent.click(screen.getByRole("button", { name: /masuk ke portal/i }));
 
@@ -118,7 +133,7 @@ describe("gerbang masuk portal", () => {
     vi.stubGlobal("location", { ...window.location, replace: ganti } as unknown as Location);
 
     render(<PortalLoginForm />);
-    await userEvent.type(screen.getByLabelText(/NISN, NIP, atau Email/i), "admin@madrasah.test");
+    await userEvent.type(screen.getByLabelText(/Email atau ID Pengguna/i), "admin@madrasah.test");
     await userEvent.type(screen.getByLabelText(/^Kata Sandi$/i), "password");
     await userEvent.click(screen.getByRole("button", { name: /masuk ke portal/i }));
 

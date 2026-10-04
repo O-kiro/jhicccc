@@ -21,12 +21,8 @@ describe("penjaga rute", () => {
     expect(tujuan(res)).toBe(`${B}/masuk?next=%2Fsiswa%2Franking`);
   });
 
-  it("mengantar pendaftar PPDB ke halaman masuknya sendiri, bukan gerbang portal", () => {
-    expect(tujuan(proxy(minta("/ppdb/dokumen")))).toBe(`${B}/ppdb/login`);
-  });
-
-  it("membiarkan halaman publik PPDB terbuka", () => {
-    expect(proxy(minta("/ppdb/login")).headers.get("location")).toBeNull();
+  it("pendaftar PPDB tanpa sesi masuk lewat gerbang yang sama", () => {
+    expect(tujuan(proxy(minta("/ppdb/dokumen")))).toBe(`${B}/masuk?next=%2Fppdb%2Fdokumen`);
   });
 
   it("mengembalikan orang ke portalnya sendiri saat salah alamat", () => {
@@ -52,7 +48,7 @@ describe("penjaga rute", () => {
 
   it("tidak memantulkan yang sudah masuk kembali ke halaman masuk", () => {
     expect(tujuan(proxy(minta("/masuk", { token: "t", peran: "alumni" })))).toBe(`${B}/alumni/portal`);
-    expect(tujuan(proxy(minta("/ppdb/login", { token: "t", peran: "ppdb" })))).toBe(`${B}/ppdb/dokumen`);
+    expect(tujuan(proxy(minta("/masuk", { token: "t", peran: "ppdb" })))).toBe(`${B}/ppdb/dokumen`);
   });
 
   /**
@@ -65,12 +61,5 @@ describe("penjaga rute", () => {
     expect(res.headers.get("location")).toBeNull();
     const dibuang = res.cookies.getAll().filter((c) => c.value === "");
     expect(dibuang.map((c) => c.name).sort()).toEqual(["makoba-peran", "makoba-token"]);
-  });
-
-  it("membuang cookie basi juga di halaman masuk PPDB", () => {
-    const res = proxy(minta("/ppdb/login?expired=1", { token: "basi", peran: "ppdb" }));
-
-    expect(res.headers.get("location")).toBeNull();
-    expect(res.cookies.getAll().filter((c) => c.value === "")).toHaveLength(2);
   });
 });

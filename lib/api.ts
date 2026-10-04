@@ -266,8 +266,7 @@ export async function authedGet<T>(path: string): Promise<T> {
   });
 
   if (res.status === 401 || res.status === 419) {
-    // Sesi PPDB berakhir di halaman masuknya sendiri, bukan gerbang portal.
-    redirect(path.startsWith("/ppdb/") ? "/ppdb/login?expired=1" : "/masuk?expired=1");
+    redirect("/masuk?expired=1");
   }
 
   if (!res.ok) {

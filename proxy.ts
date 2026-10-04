@@ -58,22 +58,6 @@ export function proxy(request: NextRequest) {
   const hasToken = request.cookies.has(TOKEN_COOKIE);
   const role = roleOf(request);
 
-  // Halaman masuk PPDB berperilaku sama dengan /masuk: yang sudah punya sesi
-  // langsung diantar ke halaman berkasnya.
-  if (pathname === "/ppdb/login" || pathname === "/login") {
-    // Token dicabut atau kedaluwarsa: buang cookienya, jangan memantul balik.
-    if (searchParams.has("expired")) {
-      const res = NextResponse.next();
-      res.cookies.delete(TOKEN_COOKIE);
-      res.cookies.delete(ROLE_COOKIE);
-      return res;
-    }
-
-    return hasToken && role === "ppdb"
-      ? NextResponse.redirect(new URL(HOME.ppdb, request.url))
-      : NextResponse.next();
-  }
-
   if (pathname === LOGIN_PATH || pathname === "/siswa/login") {
     // Laravel menolak tokennya (dicabut, kedaluwarsa, atau sandi diganti di
     // perangkat lain). Cookie harus dibuang di sini — kalau tidak, cabang di
@@ -93,12 +77,6 @@ export function proxy(request: NextRequest) {
   const area = areaOf(pathname);
 
   if (!hasToken) {
-    // PPDB punya halaman masuk sendiri; jangan dilempar ke gerbang portal
-    // warga madrasah.
-    if (area === "ppdb") {
-      return NextResponse.redirect(new URL("/ppdb/login", request.url));
-    }
-
     const login = new URL(LOGIN_PATH, request.url);
     login.searchParams.set("next", pathname + search);
 
@@ -124,7 +102,5 @@ export const config = {
     "/alumni/portal",
     "/alumni/portal/:path*",
     "/ppdb/dokumen",
-    "/ppdb/login",
-    "/login",
   ],
 };
