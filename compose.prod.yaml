@@ -58,7 +58,7 @@ services:
       REVALIDATE_SECRET: ${REVALIDATE_SECRET:-}
       # Chatbot tanya-jawab situs. Kosong = asisten menjawab "tidak tersedia".
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
-      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.5-flash}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.8-flash}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped
